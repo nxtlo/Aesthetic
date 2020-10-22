@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import sys
 import asyncio
+from ext import socials as sc
 
 class Commands(commands.Cog):
     def __init__(self, bot):
@@ -16,21 +17,20 @@ class Commands(commands.Cog):
             color = ctx.author.color,
             timestamp =ctx.message.created_at,
         )
-        d = discord.utils.get
 
-        insta = d(self.bot.emojis, name='insta')
-        twitter = d(self.bot.emojis, name='twitter')
-        utube = d(self.bot.emojis, name='youtube')
-        steam = d(self.bot.emojis, name='steam')
-        github = d(self.bot.emojis, name='github')
-        bungie = d(self.bot.emojis, name='bungie')
+        insta = sc.emj(self.bot.emojis, name='insta')
+        twitter = sc.emj(self.bot.emojis, name='twitter')
+        utube = sc.emj(self.bot.emojis, name='youtube')
+        steam = sc.emj(self.bot.emojis, name='steam')
+        github = sc.emj(self.bot.emojis, name='github')
+        bungie = sc.emj(self.bot.emojis, name="bungie")
 
-        embed.add_field(name=f"{insta} ```Instagram```", value="[Click Here](https://instagram.com/nxtlo)", inline=True)
-        embed.add_field(name=f"{twitter} ```Twitter```", value="[Click Here](https://twitter.com/helfate)", inline=True)
-        embed.add_field(name=f"{utube} ```Youtube```", value="[Click Here](https://youtube.com/channel/UC4acY39W-lBjgiqOBsaoqJw)", inline=True)
-        embed.add_field(name=f"{steam} ```Steam```", value="[Click Here](https://steamcommunity.com/id/LordhaveFate/)", inline=True)
-        embed.add_field(name=f"{github} ```Github```", value="[Click Here](https://github.com/nxtlo)", inline=True)
-        embed.add_field(name=f"{bungie} ```Bungie```", value="[Click Here](https://www.bungie.net/en/Profile/254/20315338/Fate)")
+        embed.add_field(name=f"{insta} ```Instagram```", value=sc.insta, inline=True)
+        embed.add_field(name=f"{twitter} ```Twitter```", value=sc.twitter, inline=True)
+        embed.add_field(name=f"{utube} ```Youtube```", value=sc.youtube, inline=True)
+        embed.add_field(name=f"{steam} ```Steam```", value=sc.steam, inline=True)
+        embed.add_field(name=f"{github} ```Github```", value=sc.github, inline=True)
+        embed.add_field(name=f"{bungie} ```Bungie```", value=sc.bungie)
         embed.set_author(name=f"{self.bot.user.name}", icon_url=self.bot.user.avatar_url)
         embed.set_footer(text=f"Requested {ctx.author}")
         await ctx.send(embed=embed)
@@ -49,5 +49,13 @@ class Commands(commands.Cog):
         except:
             raise
 
+    
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if 'hi' in message.content:
+            try:
+                await message.channel.send("sup :sunglasses:")
+            except:
+                pass
 def setup(bot):
     bot.add_cog(Commands(bot))
