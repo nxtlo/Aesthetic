@@ -2,7 +2,7 @@ import discord
 
 from discord.ext import commands
 from discord import utils as us
-from ext import utils as u
+from core.ext import utils as u
 
 class Commands(commands.Cog):
     def __init__(self, bot):
