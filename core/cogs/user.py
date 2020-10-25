@@ -15,38 +15,38 @@ class User(commands.Cog):
         
         response = db.cur.fetchone()
         
-        if not response:
+        if response:
+            embed = discord.Embed(
+                title="Looks like you're already in my database :D",
+                color=ctx.author.color,
+                timestamp=ctx.message.created_at
+            )
+            await ctx.send(embed=embed)
+        else:
             db.cur.execute("INSERT INTO users VALUES (?,?,?)",
                 (ctx.author.id, 
                 ctx.author.name, 
                 ctx.author.discriminator))
             db.con.commit()
 
-        uid, name, discriminator = response
-        try:
-            embed = discord.Embed(
-                title=f":white_check_mark: You have been registered to the database",
-                color=ctx.author.color,
-                timestamp=ctx.message.created_at,
-                thumbnail=ctx.author.avatar_url
-            )
-            embed.add_field(
-                name=f"Info:",
-                value=f"**UserID:** `{uid}`\n**UserName:** `{name}#{discriminator}`\n".format(uid, name, discriminator),
-                inline=False
-            
-            )
-            embed.set_footer(text="Register Date:")
-            await ctx.send(embed=embed)
-        except Exception:
-            checkUsername = db.cur.execute('SELECT name FROM users WHERE name=?', (name))
-            if checkUsername != 0:
+            uid, name, discriminator = response
+            try:
                 embed = discord.Embed(
-                    title="Looks like you're already in my database :D",
+                    title=f":white_check_mark: You have been registered to the database",
                     color=ctx.author.color,
-                    timestamp=ctx.message.created_at
+                    timestamp=ctx.message.created_at,
+                    thumbnail=ctx.author.avatar_url
                 )
+                embed.add_field(
+                    name=f"Info:",
+                    value=f"**UserID:** `{uid}`\n**UserName:** `{name}#{discriminator}`\n".format(uid, name, discriminator),
+                    inline=False
+                    
+                )
+                embed.set_footer(text="Register Date:")
                 await ctx.send(embed=embed)
+            except Exception:
+                raise
 
 def setup(bot):
     bot.add_cog(User(bot))
