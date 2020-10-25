@@ -18,7 +18,7 @@ class MainBot(commands.Bot):
 
     def run(self):
         self.setup()
-        with open("data/token.0", "r",encoding="utf-8") as f:
+        with open("data/token.txt", "r",encoding="utf-8") as f:
             TOKEN = f.read()
 
         print("Running bot...")
