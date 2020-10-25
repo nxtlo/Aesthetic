@@ -20,5 +20,5 @@
 * Leveling sys
 * Economy sys _WHERE_ commands _LIKE_ `add balance` `show balance` `transfer balance`
 * Storing guild stuff
-* Custom prifexes/ prifexes per guild
+* Custom prefixes/ prefixes per guild
 * Logging bans/kicks/mutes
