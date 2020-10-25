@@ -4,9 +4,6 @@ from discord import Activity, ActivityType, Embed
 from discord.ext.commands import Cog
 from discord.ext.commands import command
 
-from data import db
-
-
 class backend(Cog):
 	def __init__(self, bot):
 		self.bot = bot

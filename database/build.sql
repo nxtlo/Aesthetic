@@ -4,3 +4,9 @@ CREATE TABLE IF NOT EXISTS exp (
 	Level integer DEFAULT 0,
 	XPLock text DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS users (
+id INTEGER PRIMARY KEY,
+name TEXT,
+discriminator TEXT
+)
