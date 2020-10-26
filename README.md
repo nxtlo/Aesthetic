@@ -17,9 +17,15 @@
 
 ## to-do
 
-* Leveling sys
-* Economy sys _WHERE_ commands _LIKE_ `add balance` `show balance` `transfer balance`
-* Storing guild stuff
-* [x] Custom prefixes/ 
-* Prefixes per guild
-* Logging bans/kicks/mutes
+- [ ] Leveling sys
+ * Probably not going to make it cuz useless :)
+ 
+- [ ] Economy sys _WHERE_ commands _LIKE_ `add balance` `show balance` `transfer balance`
+
+- [ ] Storing guild stuff
+
+- [x] Custom prefixes
+
+- [ ] Prefixes per guild
+
+- [ ] Logging bans/kicks/mutes
