@@ -61,3 +61,13 @@ class emojis():
     def mention(self):
         mention = u.get(self.bot.emojis, name="mention")
         return mention
+
+
+    # roles
+class role:
+    """class for roles"""
+
+    
+    def verified(self, message):
+        verified = u.get(message.get.roles, name="Verified")
+        return verified

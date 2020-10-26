@@ -2,7 +2,9 @@ from datetime import datetime, timedelta
 from time import time
 from discord import Activity, ActivityType, Embed
 from discord.ext.commands import Cog
-from discord.ext.commands import command
+from discord.ext.commands import command,CheckFailure,has_permissions
+
+from data import db
 
 class backend(Cog):
 	def __init__(self, bot):
@@ -39,6 +41,22 @@ class backend(Cog):
 		end = time()
 
 		await message.edit(content=f"Pong! DWSP latency: `{self.bot.latency*1000:,.0f}` ms. Response time: `{(end-start)*1000:,.0f}` ms.")
+
+	@command(name="prefix")
+	@has_permissions(manage_guild=True)
+	async def change_prefix(self, ctx, new: str):
+		if len(new) > 5:
+			await ctx.send("*prefix must be less then 5 characters.*")
+		else:
+			db.execute("UPDATE guilds SET Prefix = ? WHERE GuildID = ?", new, ctx.guild.id)
+			await ctx.send(f"**Prefix set to** `{new}`.")
+
+	@change_prefix.error
+	async def change_prefix_error(self, ctx, exc):
+		if isinstance(exc, CheckFailure):
+			await ctx.send("You need to Manage the server to use this command.")
+
+
 
 
 def setup(bot):

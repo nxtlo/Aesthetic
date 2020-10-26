@@ -1,13 +1,13 @@
 from pathlib import Path
 import discord
 from discord.ext import commands
+from data import db
+
 
 class MainBot(commands.Bot):
     def __init__(self):
         self._cogs = [p.stem for p in Path(".").glob("./core/cogs/*.py")]
-        super().__init__(command_prefix=self.prefix, case_insensitive=True)
-
-
+        super().__init__(command_prefix=get_prefix, case_insensitive=True)
 
     def setup(self):
         print("Loading cogs...")
@@ -18,16 +18,23 @@ class MainBot(commands.Bot):
 
     def run(self):
         self.setup()
-        with open("data/token.txt", "r",encoding="utf-8") as f:
+        with open("data/token.0", "r",encoding="utf-8") as f:
             TOKEN = f.read()
 
         print("Running bot...")
         super().run(TOKEN, reconnect=True)
+    
+    
+    def update_db(self):
+        db.multiexec("INSERT OR IGNORE INTO guilds (GuildID) VALUES (?)",
+                        ((guild.id,) for guild in self.guilds))
+        db.commit()
 
-
-    async def prefix(self, bot, msg):
-        return commands.when_mentioned_or("??")(bot, msg)
 
     async def on_ready(self):
         self.client_id = (await self.application_info()).id
         print("Bot ready.")
+
+def get_prefix(bot, message):
+	prefix = "??"
+	return commands.when_mentioned_or(prefix)(bot, message)

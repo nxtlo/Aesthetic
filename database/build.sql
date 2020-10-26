@@ -6,7 +6,15 @@ CREATE TABLE IF NOT EXISTS exp (
 );
 
 CREATE TABLE IF NOT EXISTS users (
-id INTEGER PRIMARY KEY,
-name TEXT,
-discriminator TEXT
-)
+	id INTEGER PRIMARY KEY,
+	name TEXT,
+	discriminator INTEGER,
+	JoinDate INTEGER
+);
+
+
+CREATE TABLE IF NOT EXISTS economy (
+	UserID INTEGER PRIMARY KEY,
+	Balance INTEGER DEFAULT 0,
+	UserName text
+);

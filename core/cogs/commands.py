@@ -63,7 +63,7 @@ class Commands(commands.Cog):
     
     @commands.Cog.listener()
     async def on_message(self, message):
-        if 'hi' in message.content:
+        if message.content.startswith("hi"):
             try:
                 await message.channel.send("sup :sunglasses:")
             except:

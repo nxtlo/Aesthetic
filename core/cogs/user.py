@@ -3,6 +3,7 @@ import sqlite3
 from discord.ext import commands
 from data import db
 from core.ext import utils as u
+import datetime
     
 class User(commands.Cog):
     def __init__(self, bot):
@@ -17,19 +18,19 @@ class User(commands.Cog):
         
         if response:
             embed = discord.Embed(
-                title="Looks like you're already in my database :D",
+                title=":grey_exclamation: You're already in the database. type `??help` for more info",
                 color=ctx.author.color,
                 timestamp=ctx.message.created_at
             )
             await ctx.send(embed=embed)
         else:
-            db.cur.execute("INSERT INTO users VALUES (?,?,?)",
+            db.cur.execute("INSERT INTO users VALUES (?,?,?,?)",
                 (ctx.author.id, 
-                ctx.author.name, 
-                ctx.author.discriminator))
+                ctx.author.name,
+                ctx.author.discriminator,
+                ctx.author.joined_at))
             db.con.commit()
-
-            uid, name, discriminator = response
+            uid, name, discriminator, JoinDate = response
             try:
                 embed = discord.Embed(
                     title=f":white_check_mark: You have been registered to the database",
@@ -39,11 +40,12 @@ class User(commands.Cog):
                 )
                 embed.add_field(
                     name=f"Info:",
-                    value=f"**UserID:** `{uid}`\n**UserName:** `{name}#{discriminator}`\n".format(uid, name, discriminator),
+                    value=f"**UserID:** `{uid}`\n**UserName:** `{name}#{discriminator}`\n**Join Date:** `{JoinDate}`".format(uid, name, discriminator, JoinDate),
                     inline=False
                     
                 )
                 embed.set_footer(text="Register Date:")
+                await ctx.message.delete()
                 await ctx.send(embed=embed)
             except Exception:
                 raise
