@@ -5,8 +5,7 @@
 
 ## Setup
 * Go to [/data/token.txt](https://github.com/nxtlo/R.Fate/blob/master/data/token.txt) and paste youe token there
-* `python -m venv venv`
-* `pip install -U requirements.txt`
+* `pip install requirements.txt`
 * run `launcher.py` if you want to run the bot normally
 * run `launhcher.sh` if you want to use the `restart` command
 * the bot prefix is `??` you can change it from [/core/bot.py](https://github.com/nxtlo/R.Fate/blob/master/core/bot.py)
