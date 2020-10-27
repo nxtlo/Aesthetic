@@ -1,6 +1,6 @@
 # R.Fate
 
-*This is my personal bot, probably not gonna update it later. :)*
+*This is my personal bot, inspired by RoboDanny. :)*
 
 
 ## Setup
