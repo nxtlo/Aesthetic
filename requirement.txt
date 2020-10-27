@@ -1,5 +1,5 @@
 git+https://github.com/Rapptz/discord.py@master
-discord-ext-fancy-help==1.0.2a13+gbabe1db
+git+https://github.com/redParrot17/discord-ext-fancy-help
 Red-DiscordBot==3.2.2
 SimpleEconomy==1.0.0
 utils==1.0.1
