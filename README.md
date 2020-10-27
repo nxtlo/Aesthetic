@@ -18,7 +18,7 @@ Then activate by doing this, __actually required to run the bot__
 * for windows do this `venv\Scripts\activate.bat`
 * for mac and linux do this `source venv/bin/activate`
 
-* now do `pip install -U requirements.txt`
+* now do `pip install -U -r requirements.txt`
 
 ## Running the bot
 
