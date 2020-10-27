@@ -17,7 +17,7 @@ Then activate by doing this, __actually required to run the bot__
 
 ## Running the bot
 
-run `launcher.py` if you want to run the bot normally
+type `py -3.8 launcher.py` to run the bot without restart command
 
 run `launhcher.sh` if you want to use the `restart` command
 
