@@ -6,7 +6,7 @@
 ## Setup
 * You need python >= 3.8 to run without issues
 * Go to [/data/token.txt](https://github.com/nxtlo/R.Fate/blob/master/data/token.txt) and paste youe token there
-* `python -m venv venv`
+* `python3.8 -m venv venv`
 
 Then activate by doing this, __actually required to run the bot__
 
@@ -17,7 +17,7 @@ Then activate by doing this, __actually required to run the bot__
 
 ## Running the bot
 
-type `py -3.8 launcher.py` to run the bot without restart command
+type `python launcher.py` to run the bot without restart command
 
 run `launhcher.sh` if you want to use the `restart` command
 
