@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-
+import random
 prefix = '??'
 bot_title = 'R. Fate'
 bot_description = ''
@@ -20,7 +20,7 @@ class Help(commands.Cog):
     async def help_command(self, ctx, *commands: str):
         """ Shows this message """
         bot = ctx.bot
-        embed = discord.Embed(title=bot_title, description=bot_description)
+        embed = discord.Embed(title=bot_title, description=bot_description, colour = random.randint(0, 0xFFFFFF))
 
         def generate_usage(command_name):
             """ Generates a string of how to use a command """

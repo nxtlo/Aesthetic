@@ -2,6 +2,10 @@ import discord
 from discord.ext import commands
 import datetime,time
 
+from core.ext import check
+from data import db
+import SimpleEconomy
+
 
 # <---- Soon :) ----> #
 

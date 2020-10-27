@@ -5,7 +5,8 @@
 
 ## Setup
 * Go to [/data/token.txt](https://github.com/nxtlo/R.Fate/blob/master/data/token.txt) and paste youe token there
-* `pip install requirements.txt`
+* `python -m venv venv`
+* `pip install -U requirements.txt`
 * run `launcher.py` if you want to run the bot normally
 * run `launhcher.sh` if you want to use the `restart` command
 * the bot prefix is `??` you can change it from [/core/bot.py](https://github.com/nxtlo/R.Fate/blob/master/core/bot.py)
@@ -17,8 +18,15 @@
 
 ## to-do
 
-* Leveling sys
-* Economy sys _WHERE_ commands _LIKE_ `add balance` `show balance` `transfer balance`
-* Storing guild stuff
-* Custom prefixes/ prefixes per guild
-* Logging bans/kicks/mutes
+- [ ] Leveling sys
+ * Probably not going to make it cuz useless :)
+ 
+- [ ] Economy sys _WHERE_ commands _LIKE_ `add balance` `show balance` `transfer balance`
+
+- [ ] Storing guild stuff
+
+- [x] Custom prefixes
+
+- [ ] Prefixes per guild
+
+- [ ] Logging bans/kicks/mutes
