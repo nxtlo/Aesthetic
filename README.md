@@ -21,7 +21,7 @@ type `py -3.8 launcher.py` to run the bot without restart command
 
 run `launhcher.sh` if you want to use the `restart` command
 
-the bot prefix is `??` you can change it from [/core/bot.py](https://github.com/nxtlo/R.Fate/blob/master/core/bot.py)
+the bot prefix is `??` you can change it from [/core/bot.py](https://github.com/nxtlo/R.Fate/blob/490a9859d61d552aceb18c24bfdf3ea6c8128f5c/core/bot.py#L39)
 
 
 ## Notes 
