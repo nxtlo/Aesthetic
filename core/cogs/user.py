@@ -4,7 +4,9 @@ from discord.ext import commands
 from data import db
 from core.ext import utils as u
 import datetime
-    
+
+
+
 class User(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -12,6 +14,7 @@ class User(commands.Cog):
     @commands.command(name="register", aliases=['reg'], discription='Register to the database')
     @commands.guild_only()
     async def register_command(self, ctx):
+        """*Register to the database*"""
         db.cur.execute("SELECT * FROM users WHERE id=?", (ctx.author.id,))
         
         response = db.cur.fetchone()
@@ -49,6 +52,16 @@ class User(commands.Cog):
                 await ctx.send(embed=embed)
             except Exception:
                 raise
+
+        """
+        @commands.Cog.listener()
+        async def on_message(self, message, member: discord.Member):
+            if "??reg" in message.content:
+                role = u.role.verified(self)
+                if message.author not in role:
+                    await message.delete()
+                    await member.add_role(role)
+                    """
 
 def setup(bot):
     bot.add_cog(User(bot))

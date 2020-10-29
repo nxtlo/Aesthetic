@@ -18,7 +18,7 @@ class Help(commands.Cog):
                       aliases=['h'],
                       case_insensitive=True)
     async def help_command(self, ctx, *commands: str):
-        """ Shows this message """
+        """*Shows this message*"""
         bot = ctx.bot
         embed = discord.Embed(title=bot_title, description=bot_description, colour = random.randint(0, 0xFFFFFF))
 

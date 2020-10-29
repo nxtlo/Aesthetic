@@ -4,8 +4,6 @@ import random
 from discord.ext import commands
 from core.ext import check
 
-
-
 class checks(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

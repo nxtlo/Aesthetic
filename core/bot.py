@@ -3,7 +3,6 @@ import discord
 from discord.ext import commands
 from data import db
 
-
 class MainBot(commands.Bot):
     def __init__(self):
         self._cogs = [p.stem for p in Path(".").glob("./core/cogs/*.py")]
@@ -18,7 +17,7 @@ class MainBot(commands.Bot):
 
     def run(self):
         self.setup()
-        with open("data/token.txt", "r",encoding="utf-8") as f:
+        with open("data/token.0", "r",encoding="utf-8") as f:
             TOKEN = f.read()
 
         print("Running bot...")
@@ -36,5 +35,5 @@ class MainBot(commands.Bot):
         print("Bot ready.")
 
 def get_prefix(bot, message):
-	prefix = "??"
-	return commands.when_mentioned_or(prefix)(bot, message)
+	_get_prefix = "??"
+	return commands.when_mentioned_or(_get_prefix)(bot, message)

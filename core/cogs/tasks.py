@@ -2,9 +2,11 @@ from datetime import datetime, timedelta
 from time import time
 from discord import Activity, ActivityType, Embed
 from discord.ext.commands import Cog
-from discord.ext.commands import command,CheckFailure,has_permissions
-
+from discord.ext.commands import command, has_permissions, CheckFailure, is_owner
 from data import db
+
+
+
 
 class backend(Cog):
 	def __init__(self, bot):
@@ -29,6 +31,7 @@ class backend(Cog):
 		))
 
 	@command(name="setactivity", aliases=['act'], hidden=True)
+	@is_owner()
 	async def set_activity_message(self, ctx, *, text: str):
 		self.message = text
 		await self.set()
@@ -42,21 +45,22 @@ class backend(Cog):
 
 		await message.edit(content=f"Pong! DWSP latency: `{self.bot.latency*1000:,.0f}` ms. Response time: `{(end-start)*1000:,.0f}` ms.")
 
+
+	# this command still needs some fixes with the database end
 	@command(name="prefix")
-	@has_permissions(manage_guild=True)
+	@has_permissions(administrator=True)
 	async def change_prefix(self, ctx, new: str):
+		"""*Change the bot's prefix*"""
 		if len(new) > 5:
 			await ctx.send("*prefix must be less then 5 characters.*")
 		else:
-			db.execute("UPDATE guilds SET Prefix = ? WHERE GuildID = ?", new, ctx.guild.id)
+			db.execute("UPDATE GuildPrefix SET Prefix = ? WHERE GuildID = ?", new, ctx.guild.id)
 			await ctx.send(f"**Prefix set to** `{new}`.")
 
 	@change_prefix.error
 	async def change_prefix_error(self, ctx, exc):
 		if isinstance(exc, CheckFailure):
 			await ctx.send("You need to Manage the server to use this command.")
-
-
 
 
 def setup(bot):

@@ -1,6 +1,8 @@
 git+https://github.com/Rapptz/discord.py@master
 git+https://github.com/redParrot17/discord-ext-fancy-help
-Red-DiscordBot==3.2.2
-SimpleEconomy==1.0.0
-utils==1.0.1
-virtualenv==20.0.35
+setuptools 
+wheel
+Red-DiscordBot
+SimpleEconomy
+utils
+psutils

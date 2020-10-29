@@ -17,7 +17,6 @@ def is_manager():
     is_manager = has_guild_permissions(manage_guild=True)
     return is_manager
 
-    # same thing
 
 def is_vip():
     is_vip = has_role(587566458217955349)
