@@ -35,15 +35,10 @@ the bot prefix is `??` you can change it from [/core/bot.py](https://github.com/
 
 ## to-do
 
-- [ ] Leveling sys
- * Probably not going to make it cuz useless :)
- 
 - [ ] Economy sys _WHERE_ commands _LIKE_ `add balance` `show balance` `transfer balance`
 
 - [ ] Storing guild stuff
 
-- [x] Custom prefixes
-
 - [ ] Prefixes per guild
 
-- [ ] Logging bans/kicks/mutes
+- [ ] Logging bans/kicks/mutes in the database
