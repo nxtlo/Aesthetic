@@ -47,7 +47,7 @@ class backend(Cog):
 
 
 	# this command still needs some fixes with the database end
-	@command(name="prefix")
+	@command(name="prefix", hidden=True)
 	@has_permissions(administrator=True)
 	async def change_prefix(self, ctx, new: str):
 		"""*Change the bot's prefix*"""
