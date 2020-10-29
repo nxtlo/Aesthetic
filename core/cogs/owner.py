@@ -4,7 +4,7 @@ from discord import Embed
 from core.ext import utils as ej
 
 
-    ### Red-bot api for botstats command and listguilds
+    ### Red-bot api for listguilds command
 
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS, close_menu
 from redbot.core.utils.common_filters import filter_invites
@@ -25,7 +25,6 @@ class Owner(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # command under is not mine -> aikaterna-cogs / redbot-core
 
 
     @command(name="listguilds", aliases=["listservers", "guildlist", "serverlist", "lsg"])
