@@ -5,7 +5,7 @@
 
 ## hosting the bot
 
-*you can invite my bot to your server which i recommend. But if you want to host it your self just follow*
+*you can [invite](https://discord.com/oauth2/authorize?client_id=760052204777504778&permissions=0&scope=bot) my bot to your server which i recommend. But if you want to host it your self just follow*
 
 * You need python >= 3.8 to run without issues
 * Go to [/data/token.txt](https://github.com/nxtlo/R.Fate/blob/master/data/token.txt) and paste youe token there
