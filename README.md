@@ -3,7 +3,10 @@
 *This is my personal bot, inspired by RoboDanny. :)*
 
 
-## Setup
+## hosting the bot
+
+*you can invite my bot to your server which i recommend. But if you want to host it your self just follow*
+
 * You need python >= 3.8 to run without issues
 * Go to [/data/token.txt](https://github.com/nxtlo/R.Fate/blob/master/data/token.txt) and paste youe token there
 
