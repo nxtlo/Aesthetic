@@ -4,7 +4,6 @@ import datetime, time
 import traceback
 import pkg_resources
 import sys, platform, psutil
-
 from typing import Union
 from datetime import timedelta
 from discord.ext import commands
@@ -13,7 +12,7 @@ from core.ext import utils as u
 
 start_time = time.time()
 
-
+# usefull converter by Danny
 class FetchedUser(commands.Converter):
     async def convert(self, ctx, argument):
         if not argument.isdigit():
@@ -93,6 +92,28 @@ class Commands(commands.Cog):
                 pass
 
 
+    @commands.command(name="status")
+    async def status_command(self, ctx, member: discord.Member):
+        if member:
+            try:
+                e = discord.Embed(
+                    description=f"The member {member.mention}' status is `{member.status}`",
+                    color=ctx.author.color
+                )
+                await ctx.send(embed=e)
+            except Exception as e:
+                await ctx.send(e)
+        if not member:
+            try:
+                e = discord.Embed(
+                    description=f"Your status is `{member.status}`",
+                    color=ctx.author.color
+                )
+                await ctx.send(embed=e)
+            except Exception as e:
+                await ctx.send(e)
+
+
     # this command is yoinked from https://github.com/Rapptz/RoboDanny/ with more stuff added by me
 
 
@@ -105,7 +126,7 @@ class Commands(commands.Cog):
         color=ctx.author.color)
         embed.title=f'{u.emojis.proc(self)} Info about {self.bot.user.name}'
 
-        owner = "Fate 怒#5957"
+        owner = "Fate ?#5957"
         embed.set_author(name=str(owner), icon_url=self.bot.user.avatar_url)
 
         # statistics
@@ -131,18 +152,17 @@ class Commands(commands.Cog):
         uptime = str(datetime.timedelta(seconds=difference))
         memory_usage = self.process.memory_full_info().uss / 1024**2
         cpu_usage = self.process.cpu_percent() / psutil.cpu_count()
-        cpu_name = platform.processor()
         os_name = platform.system()
+        os_release = platform.release()
         version = pkg_resources.get_distribution('discord.py').version
 
         embed.add_field(name='Members', value=f'{total_members} total\n{total_unique} unique')
         embed.add_field(name='Channels', value=f'{text + voice} total\n{text} text\n{voice} voice')
         embed.add_field(name='Members', value=f'{total_members} total\n{total_unique} unique')
         embed.add_field(name='Guilds', value=guilds)
-        embed.add_field(name="VM OS", value=os_name)
         embed.add_field(name="Uptime", value=uptime)
         embed.add_field(name='Process', value=f'{memory_usage:.2f} MiB\n{cpu_usage:.2f}% CPU')
-        embed.add_field(name='CPU Name', value=cpu_name, inline=False)
+        embed.add_field(name="VM OS", value=os_name + os_release)
         embed.set_footer(text=f'Made with discord.py v{version}', icon_url='http://i.imgur.com/5BFecvA.png')
         embed.timestamp = datetime.datetime.utcnow()
         await ctx.send(embed=embed)

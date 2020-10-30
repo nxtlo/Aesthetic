@@ -62,6 +62,25 @@ class emojis():
         mention = u.get(self.bot.emojis, name="mention")
         return mention
 
+    def boost(self):
+        boost = u.get(self.bot.emojis, name="boosters")
+        return boost
+    
+    def setting(self):
+        setting = u.get(self.bot.emojis, name="setting")
+        return setting
+
+    def plus(self):
+        plus = u.get(self.bot.emojis, name="plus")
+        return plus
+
+    def dscord(self):
+        dscord = u.get(self.bot.emojis, name="d_emoji")
+        return dscord
+
+    def dev(self):
+        dev = u.get(self.bot.emojis, name="dev")
+        return dev
 
     # roles
 class role:

@@ -35,7 +35,7 @@ class Economy(commands.Cog):
         await sec.user_check(ctx.author.id)
         bal = await sec.get_balance(ctx.author.id)
         e = discord.Embed(
-            title="*Doxes bank* 💸",
+            title=f"*Doxes bank* \U0001f4b8",
             color=ctx.author.color
         )
         emj = u.get(self.bot.emojis, name="cash")
@@ -82,7 +82,7 @@ class Economy(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @commands.command(name="remove", aliases=['rm'])
     async def remove_money(self, ctx, amt: int, *, member: discord.Member):
-        """*Remove money from members**"""
+        """*Remove money from members*"""
         await sec.user_check(member.id)
         author = str(ctx.message.author.mention)
         emj = u.get(self.bot.emojis, name="cash")

@@ -1,12 +1,19 @@
 from pathlib import Path
 import discord
+from discord import Intents
 from discord.ext import commands
 from data import db
+
+OWNER_IDS = [350750086357057537]
 
 class MainBot(commands.Bot):
     def __init__(self):
         self._cogs = [p.stem for p in Path(".").glob("./core/cogs/*.py")]
-        super().__init__(command_prefix=get_prefix, case_insensitive=True)
+        super().__init__(
+            command_prefix=get_prefix,
+            case_insensitive=True,
+            intents=Intents.all(),
+            owner_ids=OWNER_IDS)
 
     def setup(self):
         print("Loading cogs...")

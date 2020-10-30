@@ -2,12 +2,11 @@ from os.path import isfile
 from sqlite3 import connect
 
 DB_PATH = "./database/database.db"
-BUILD_PATH = "./database/build.sql"
+BUILD_PATH = "./database/tables.sql"
 
 
 con = connect(DB_PATH, check_same_thread=False)
 cur = con.cursor()
-
 
 def with_commit(func):
     def inner(*args, **kwargs):

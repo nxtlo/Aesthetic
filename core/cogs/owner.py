@@ -25,9 +25,10 @@ class Owner(Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # command under is not mine -> aikaterna-cogs / redbot-core
 
 
-    @command(name="listguilds", aliases=["listservers", "guildlist", "serverlist", "lsg"])
+    @command(name="listguilds", aliases=["listservers", "guildlist", "serverlist", "lsg"], hidden=True)
     @is_owner()
     async def listguilds(self, ctx):
         """servers the bot is in."""
@@ -61,7 +62,7 @@ class Owner(Cog):
 
 
 
-    @command(name='eval', aliases=['try'])
+    @command(name='eval', aliases=['try'], hidden=True)
     @is_owner()
     async def _eval(self, ctx, *, body):
         """Evaluates python code"""

@@ -9,3 +9,10 @@ CREATE TABLE IF NOT EXISTS GuildPrefix (
 	GuildID INTEGER PRIMARY KEY,
 	Prefix TEXT DEFAULT "??"
 );
+
+
+CREATE TABLE IF NOT EXISTS welcomes (
+	guild_id TEXT,
+	msg_setter TEXT,
+	channel_id TEXT
+);
