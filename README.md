@@ -35,13 +35,3 @@ the bot prefix is `pls` you can change it from [/core/bot.py](https://github.com
 ## Notes 
 
 * the `database.db` file will create it self when you run the bot for the first time
-
-## to-do
-
-- [ ] Economy sys _WHERE_ commands _LIKE_ `add balance` `show balance` `transfer balance`
-
-- [ ] Storing guild stuff
-
-- [ ] Prefixes per guild
-
-- [ ] Logging bans/kicks/mutes in the database
