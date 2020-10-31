@@ -10,9 +10,6 @@ class User(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-
-# From R.Danny for info command
-
     @commands.command(name="register", aliases=['reg'], discription='Register to the database')
     @commands.guild_only()
     async def register_command(self, ctx):

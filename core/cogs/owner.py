@@ -25,8 +25,7 @@ class Owner(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # command under is not mine -> aikaterna-cogs / redbot-core
-
+    #aikaterna-cogs / redbot-core
 
     @command(name="listguilds", aliases=["listservers", "guildlist", "serverlist", "lsg"], hidden=True)
     @is_owner()

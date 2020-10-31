@@ -6,6 +6,12 @@ from data import db
 
 OWNER_IDS = [350750086357057537]
 
+
+def get_prefix(bot, message):
+	_get_prefix = "pls " # keeping the prefix like this til i fix the database issues
+	return commands.when_mentioned_or(_get_prefix)(bot, message)
+
+
 class MainBot(commands.Bot):
     def __init__(self):
         self._cogs = [p.stem for p in Path(".").glob("./core/cogs/*.py")]
@@ -31,16 +37,15 @@ class MainBot(commands.Bot):
         super().run(TOKEN, reconnect=True)
     
     
-    def update_db(self):
-        db.multiexec("INSERT OR IGNORE INTO guilds (GuildID) VALUES (?)",
-                        ((guild.id,) for guild in self.guilds))
-        db.commit()
+	def update_db(self):
+		db.multiexec("INSERT OR IGNORE INTO GuildPrefix (GuildID) VALUES (?)",
+					 ((guild.id,) for guild in self.guilds))
 
+		db.commit()
 
     async def on_ready(self):
         self.client_id = (await self.application_info()).id
         print("Bot ready.")
-
-def get_prefix(bot, message):
-	_get_prefix = "??"
-	return commands.when_mentioned_or(_get_prefix)(bot, message)
+        
+        if self.update_db:
+            print("Database updated")
