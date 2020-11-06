@@ -8,7 +8,7 @@ from data import db
 
 
 
-class backend(Cog):
+class Tasks(Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
@@ -46,22 +46,5 @@ class backend(Cog):
 		await message.edit(content=f"Pong! DWSP latency: `{self.bot.latency*1000:,.0f}` ms. Response time: `{(end-start)*1000:,.0f}` ms.")
 
 
-	# this command still needs some fixes with the database end
-	@command(name="prefix", hidden=True)
-	@has_permissions(administrator=True)
-	async def change_prefix(self, ctx, new: str):
-		"""*Change the bot's prefix*"""
-		if len(new) > 5:
-			await ctx.send("*prefix must be less then 5 characters.*")
-		else:
-			db.execute("UPDATE GuildPrefix SET Prefix = ? WHERE GuildID = ?", new, ctx.guild.id)
-			await ctx.send(f"**Prefix set to** `{new}`.")
-
-	@change_prefix.error
-	async def change_prefix_error(self, ctx, exc):
-		if isinstance(exc, CheckFailure):
-			await ctx.send("You need to Manage the server to use this command.")
-
-
 def setup(bot):
-	bot.add_cog(backend(bot))
+	bot.add_cog(Tasks(bot))

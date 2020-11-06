@@ -16,7 +16,7 @@ sec.Database_dir = "./database/database.db"
 sec.default_balance = 0
 
 
-class Economy(commands.Cog):
+class Economy(commands.Cog, name="\U0001f4b0 Economy"):
     """```BETA```"""
     def __init__(self, bot):
         self.bot = bot

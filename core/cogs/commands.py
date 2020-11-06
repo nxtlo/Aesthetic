@@ -12,7 +12,7 @@ from core.ext import utils as u
 
 start_time = time.time()
 
-# usefull converter by Danny
+
 class FetchedUser(commands.Converter):
     async def convert(self, ctx, argument):
         if not argument.isdigit():
@@ -24,7 +24,7 @@ class FetchedUser(commands.Converter):
         except discord.HTTPException:
             raise commands.BadArgument('An error occurred while fetching the user.') from None
 
-class Commands(commands.Cog):
+class Meta(commands.Cog, name="\U0001f587 Meta"):
     def __init__(self, bot):
         self.bot = bot
         self.process = psutil.Process()
@@ -69,19 +69,20 @@ class Commands(commands.Cog):
         embed.set_footer(text=f"Requested {ctx.author}")
         await ctx.send(embed=embed)
 
-
-    @commands.command(name='restart' ,discription="Restart command", hidden=True)
-    @commands.is_owner()
-    async def restart_command(self, ctx):
-        try:
-            embed = discord.Embed(
-                title=f"{ctx.author} ***Restarting now...!***",
-                timestamp=ctx.message.created_at
+    
+    @commands.command(name="invite", usage="invite")
+    async def invite(self, ctx):
+        """
+        Invite this bot
+        """
+        await ctx.send(
+            embed=discord.Embed(
+                title="Invite Link",
+                description=f"https://discordapp.com/api/oauth2/authorize?client_id={self.bot.user.id}"
+                    "&permissions=268823640&scope=bot",
+                colour=ctx.author.colour,
+                )
             )
-            await ctx.send(embed=embed)
-            await self.bot.logout()
-        except:
-            raise
     
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -94,6 +95,7 @@ class Commands(commands.Cog):
 
     @commands.command(name="status")
     async def status_command(self, ctx, member: discord.Member):
+        """Display member's status"""
         if member:
             try:
                 e = discord.Embed(
@@ -120,7 +122,7 @@ class Commands(commands.Cog):
 
     @commands.command(name="botinfo")
     async def about(self, ctx):
-        """*Tells you information about the bot itself.*"""
+        """Tells you information about the bot itself."""
 
         embed = discord.Embed(
         color=ctx.author.color)
@@ -170,7 +172,7 @@ class Commands(commands.Cog):
 
     @commands.command()
     async def avatar(self, ctx, *, user: Union[discord.Member, FetchedUser] = None):
-        """*Shows a user's enlarged avatar*"""
+        """Shows a user's enlarged avatar"""
         embed = discord.Embed()
         user = user or ctx.author
         avatar = user.avatar_url_as(static_format='png')
@@ -191,4 +193,4 @@ class Commands(commands.Cog):
         await ctx.send(embed=e)
 
 def setup(bot):
-    bot.add_cog(Commands(bot))
+    bot.add_cog(Meta(bot))

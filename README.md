@@ -1,6 +1,6 @@
-# R.Fate
+# Aesthetic
 
-*This is my personal bot, inspired by RoboDanny. :)*
+*my personal discord bot*
 
 
 ## hosting the bot

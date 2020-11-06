@@ -3,8 +3,7 @@ from contextlib import redirect_stdout
 from discord import Embed
 from core.ext import utils as ej
 
-
-    ### Red-bot api for listguilds command
+    ### Red-bot api for botstats command and listguilds
 
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS, close_menu
 from redbot.core.utils.common_filters import filter_invites
@@ -25,7 +24,8 @@ class Owner(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    #aikaterna-cogs / redbot-core
+    # useful command to show the guilds that my bot is in <aikaterna-cogs>
+
 
     @command(name="listguilds", aliases=["listservers", "guildlist", "serverlist", "lsg"], hidden=True)
     @is_owner()
@@ -81,7 +81,6 @@ class Owner(Cog):
             if content.startswith('```') and content.endswith('```'):
                 return '\n'.join(content.split('\n')[1:-1])
 
-            # remove `foo`
             return content.strip('` \n')
 
         env.update(globals())
@@ -152,36 +151,49 @@ class Owner(Cog):
 
     @command(hidden=True)
     @is_owner()
-    async def load(self, ctx, *, module):
-        """Loads a module."""
+    async def load(self, ctx, name: str):
+        """ Loads an extension. """
         try:
-            self.bot.load_extension(module)
-        except ExtensionError as e:
-            await ctx.send(f'{e.__class__.__name__}: {e}')
-        else:
-            await ctx.send('\N{OK HAND SIGN}')
+            self.bot.load_extension(f"core.cogs.{name}")
+        except Exception as e:
+            return await ctx.send(e)
+        await ctx.send(f"Loaded extension **{name}.py**")
 
     @command(hidden=True)
     @is_owner()
-    async def unload(self, ctx, *, module):
-        """Unloads a module."""
+    async def unload(self, ctx, name: str):
+        """ Unloads an extension. """
         try:
-            self.bot.unload_extension(module)
-        except ExtensionError as e:
-            await ctx.send(f'{e.__class__.__name__}: {e}')
-        else:
-            await ctx.send('\N{OK HAND SIGN}')
+            self.bot.unload_extension(f"core.cogs.{name}")
+        except Exception as e:
+            return await ctx.send(e)
+        await ctx.send(f"Unloaded extension **{name}.py**")
 
-    @group(name='reload', hidden=True, invoke_without_command=True)
+    @command(hidden=True)
     @is_owner()
-    async def _reload(self, ctx, *, module):
-        """Reloads a module."""
+    async def reload(self, ctx, name: str):
+        """ Reloads an extension. """
         try:
-            self.bot.reload_extension(module)
-        except ExtensionError as e:
-            await ctx.send(f'{e.__class__.__name__}: {e}')
-        else:
-            await ctx.send('\N{OK HAND SIGN}')
+            self.bot.reload_extension(f"core.cogs.{name}")
+        except Exception as e:
+            return await ctx.send(e)
+        await ctx.send(f"Reloaded extension **{name}.py**")
+
+
+
+    @command(name='restart' ,discription="Restart command", hidden=True)
+    @is_owner()
+    async def restart_command(self, ctx):
+        try:
+            embed = Embed(
+                title=f"*Restarting now...*",
+                timestamp=ctx.message.created_at
+            )
+            embed.set_author(name=f"{ctx.author}", icon_url=f"{ctx.author.avatar_url}")
+            await ctx.send(embed=embed)
+            await self.bot.logout()
+        except:
+            raise
 
 
 

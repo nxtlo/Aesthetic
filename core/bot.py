@@ -35,13 +35,6 @@ class MainBot(commands.Bot):
 
         print("Running bot...")
         super().run(TOKEN, reconnect=True)
-    
-    
-	def update_db(self):
-		db.multiexec("INSERT OR IGNORE INTO GuildPrefix (GuildID) VALUES (?)",
-					 ((guild.id,) for guild in self.guilds))
-
-		db.commit()
 
     async def on_ready(self):
         self.client_id = (await self.application_info()).id

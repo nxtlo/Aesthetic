@@ -82,6 +82,37 @@ class emojis():
         dev = u.get(self.bot.emojis, name="dev")
         return dev
 
+
+    def mod(self):
+        mod = u.get(self.bot.emojis, id='772677329188421632')
+        return mod
+    
+    #-----------
+
+    def custom_status(self):
+        custom = u.get(self.bot.emojis, name="customstatus")
+        return custom
+
+
+
+    def online(self):
+        online = u.get(self.bot.emojis, name='online')
+        return online
+    
+    def idle(self):
+        idle = u.get(self.bot.emojis, name='idle')
+        return idle
+    
+    def dnd(self):
+        dnd = u.get(self.bot.emojis, name='dnd')
+        return dnd
+    
+    def offline(self):
+        offline = u.get(self.bot.emojis, name='offline')
+        return offline
+
+    
+
     # roles
 class role:
     """class for roles"""
