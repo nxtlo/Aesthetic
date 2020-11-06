@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS kicks (
 
 CREATE TABLE IF NOT EXISTS Users (
     id INT PRIMARY KEY,
-    UserName TEXT,
     Creation_id INT,
+    UserName TEXT,
     JoinedAt INT
 );
