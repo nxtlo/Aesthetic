@@ -10,6 +10,9 @@ from core.ext.utils import emojis as emj
 class User(commands.Cog, name="\U0001f464 User"):
     def __init__(self, bot):
         self.bot = bot
+
+
+# From R.Danny for info command with some addition by me
     
 
     @commands.command(name="info")
@@ -36,7 +39,7 @@ class User(commands.Cog, name="\U0001f464 User"):
         if booster:
             e.add_field(name=f"{emj.boost(self)} Booster since", value=user.premium_since, inline=False)
         if mob:
-            e.add_field(name=":mobile_phone: Is on Mobile", value=mob, inline=False)
+            e.add_field(name="<:phone:779159717388877846> Is on Mobile", value=mob, inline=False)
         if custom_stats:
             e.add_field(name=f"{emj.custom_status(self)} Custom Status", value=user.activity, inline=False)
         

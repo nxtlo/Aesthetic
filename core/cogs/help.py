@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands
 from core.ext.utils import emojis as emj
-prefix = 'pls '
+from ..ext.utils import color
+prefix = 'ae>'
 bot_description = 'help menu for Aesthetic'
 bottom_info = ''
 
@@ -19,7 +20,7 @@ class Help(commands.Cog, name="<:setting:771807914565828640> Help"):
     async def help_command(self, ctx, *commands: str):
         """Shows this message"""
         bot = ctx.bot
-        embed = discord.Embed(title=f'{emj.proc(self)} Avilable Commands for R. Fate', description=bot_description, colour = 0x36393f)
+        embed = discord.Embed(title=f'{emj.proc(self)} Avilable Commands for R. Fate', description=bot_description, colour = color.invis(self))
 
         def generate_usage(command_name):
             """ Generates a string of how to use a command """

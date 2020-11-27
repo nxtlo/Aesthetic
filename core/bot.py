@@ -8,7 +8,7 @@ OWNER_IDS = [350750086357057537]
 
 
 def get_prefix(bot, message):
-	_get_prefix = "pls " # keeping the prefix like this til i fix the database issues
+	_get_prefix = "ae>" # keeping the prefix like this til i fix the database issues
 	return commands.when_mentioned_or(_get_prefix)(bot, message)
 
 

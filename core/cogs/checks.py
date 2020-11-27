@@ -4,6 +4,8 @@ import random
 from discord.ext import commands
 from core.ext import check
 
+
+
 class checks(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -13,7 +15,7 @@ class checks(commands.Cog):
     async def on_command_error(self, ctx, err):
         if isinstance(err, commands.MissingRequiredArgument):
             embed = discord.Embed(
-                title="This command is missing an Argument, type ??help for more info.",
+                title="This command is missing an Argument.",
                 colour = random.randint(0, 0xFFFFFF)
             )
             await ctx.send(embed=embed)
@@ -27,11 +29,7 @@ class checks(commands.Cog):
             await ctx.send(embed=embed)
 
         elif isinstance(err, commands.CommandNotFound):
-            embed = discord.Embed(
-                title="command was not found.",
-                colour = random.randint(0, 0xFFFFFF)
-            )
-            await ctx.send(embed=embed)
+            return
 
         elif isinstance(err, commands.CommandOnCooldown):
             embed = discord.Embed(

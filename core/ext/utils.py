@@ -1,5 +1,5 @@
 import discord
-
+from random import randint
 from discord.ext.commands import bot
 from discord import utils as u
 
@@ -82,7 +82,6 @@ class emojis():
         dev = u.get(self.bot.emojis, name="dev")
         return dev
 
-
     def mod(self):
         mod = u.get(self.bot.emojis, id='772677329188421632')
         return mod
@@ -121,3 +120,14 @@ class role:
     def verified(self, message):
         verified = u.get(message.get.roles, name="Verified")
         return verified
+
+
+class color:
+    "Class for my custom colors"
+
+    def random(self):
+        return randint(0, 0xFFFFFF)
+    
+
+    def invis(self):
+        return 0x36393f

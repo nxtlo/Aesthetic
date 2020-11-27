@@ -24,7 +24,7 @@ class Owner(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # useful command to show the guilds that my bot is in <aikaterna-cogs>
+    # command under is not mine -> aikaterna-cogs / redbot-core
 
 
     @command(name="listguilds", aliases=["listservers", "guildlist", "serverlist", "lsg"], hidden=True)
@@ -179,6 +179,24 @@ class Owner(Cog):
             return await ctx.send(e)
         await ctx.send(f"Reloaded extension **{name}.py**")
 
+
+    @command(name='listextensions', aliases=['le'], hidden=True)
+    @is_owner()
+    async def list_extensions(self, ctx):
+        extensions_dict = self.bot.extensions
+        msg = '```css\n'
+
+        extensions = []
+
+        for b in extensions_dict:
+            # print(b)
+            extensions.append(b)
+
+        for a in range(len(extensions)):
+            msg += f'{a}: {extensions[a]}\n'
+
+        msg += '```'
+        await ctx.send(msg)
 
 
     @command(name='restart' ,discription="Restart command", hidden=True)

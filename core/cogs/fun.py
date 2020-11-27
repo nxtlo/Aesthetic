@@ -3,9 +3,7 @@ from discord.ext.commands import command, Cog, group
 import random
 import aiohttp
 import json
-
-
-COLOR = 0x36393f
+from ..ext.utils import color
 
 class Fun(Cog, name="\U0001f3d3 Fun"):
     def __init__(self, bot):
@@ -14,7 +12,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
     @group()
     async def random(self, ctx):
-        """Type `pls random help` for more info"""
+        """Type `ae> random help` for more info"""
         pass
 
 
@@ -22,7 +20,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
     async def random_help(self, ctx):
         usage = "Usage for random:\n\n`random pik`\n`random quote`\n`random meme`\n`rndom cat`\n`random dog`\n`random fox`"
         
-        e = discord.Embed(title="Usage", description=usage, color=COLOR)
+        e = discord.Embed(title="Usage", description=usage, color=color.invis(self))
         
         await ctx.send(embed=e)
 
@@ -37,7 +35,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
                 e = discord.Embed(
                     title=data['setup'],
                     description=data['punchline'],
-                    color=COLOR
+                    color=color.invis(self)
                 )
                 await ctx.send(embed=e)
 
@@ -53,7 +51,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
                 e = discord.Embed(
                     title="Random picture",
-                    color=COLOR
+                    color=color.invis(self)
                 )
                 e.set_image(url=data['link'])
                 e.set_footer(text=ctx.author.name)
@@ -65,7 +63,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
     @random.command(name="quote")
     async def rancom_joke(self, ctx):
     
-        with open("./choises.txt", "r") as r:
+        with open("./data/choises.txt", "r") as r:
             reads = r.readlines()
 
         nil = random.choice(reads)

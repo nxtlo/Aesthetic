@@ -1,13 +1,10 @@
 import discord
-import sqlite3
 import datetime, time
-import traceback
 import pkg_resources
 import sys, platform, psutil
 from typing import Union
-from datetime import timedelta
 from discord.ext import commands
-from discord import utils as us
+from discord import Member
 from core.ext import utils as u
 
 start_time = time.time()
@@ -79,41 +76,34 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
             embed=discord.Embed(
                 title="Invite Link",
                 description=f"https://discordapp.com/api/oauth2/authorize?client_id={self.bot.user.id}"
-                    "&permissions=268823640&scope=bot",
+                    "&permissions=1372056695&scope=bot",
                 colour=ctx.author.colour,
                 )
             )
-    
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.content.startswith("hi"):
-            try:
-                await message.channel.send("sup :sunglasses:")
-            except:
-                pass
 
 
     @commands.command(name="status")
-    async def status_command(self, ctx, member: discord.Member):
+    async def status_command(self, ctx, *, member: Union[Member, FetchedUser] = None):
+
         """Display member's status"""
-        if member:
-            try:
+        try:
+            member = member or ctx.author
+            if member is not None:
                 e = discord.Embed(
-                    description=f"The member {member.mention}' status is `{member.status}`",
+                    description=f"The member {member.mention}'s status is `{member.status}`",
                     color=ctx.author.color
                 )
                 await ctx.send(embed=e)
-            except Exception as e:
-                await ctx.send(e)
-        if not member:
-            try:
+            else:
+                member = member or ctx.author
                 e = discord.Embed(
                     description=f"Your status is `{member.status}`",
                     color=ctx.author.color
                 )
                 await ctx.send(embed=e)
-            except Exception as e:
                 await ctx.send(e)
+        except Exception as e:
+            await ctx.send(e)
 
 
     # this command is yoinked from https://github.com/Rapptz/RoboDanny/ with more stuff added by me

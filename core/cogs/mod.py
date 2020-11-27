@@ -1,12 +1,14 @@
 from data import db as d
-from discord.ext.commands import command, is_owner, Cog, has_permissions, guild_only, bot_has_permissions
+from discord.ext.commands import command, is_owner, Cog, has_permissions, guild_only, bot_has_permissions, Converter
 from discord.ext import commands
-from discord import Embed
+from discord import Embed, Member, Guild, NotFound, TextChannel
 from datetime import datetime
 from time import strftime
 from discord.utils import get
+from typing import Union
+from .commands import FetchedUser
+import asyncio
 import discord
-
 
 class Moderation(Cog, name="\U0001f6e0 Moderation"):
     def __init__(self, bot):
@@ -17,7 +19,7 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
     @has_permissions(ban_members=True)
     @bot_has_permissions(ban_members=True)
     @guild_only()
-    async def ban(self, ctx, member: discord.Member, *, reason=None):
+    async def ban(self, ctx, member: Member, *, reason=None):
         """
         Bans a member from the guild.
         """
@@ -30,7 +32,7 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
 
         if fetched:
             return
-        # else insert the data to the database
+        # else inser the data to the database
 
         else:
             d.cur.execute("INSERT INTO bans VALUES (?,?,?,?,?)", (
@@ -84,7 +86,7 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
     @has_permissions(ban_members=True)
     @bot_has_permissions(ban_members=True)
     @guild_only()
-    async def unban_command(self, ctx, member: discord.Member, *, reason=None):
+    async def unban_command(self, ctx, member: Member, *, reason=None):
 
         Unbans a member from the guild.
 
@@ -123,16 +125,11 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
     """
 
 
-
-
-
-
-
     @command(name="kick")
     @has_permissions(kick_members=True)
     @bot_has_permissions(kick_members=True)
     @guild_only()
-    async def kick_command(self, ctx, member: discord.Member, *, reason=None):
+    async def kick_command(self, ctx, member: Member, *, reason=None):
         """
         kicks a member from the guild.
         """
@@ -187,6 +184,7 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
                 return
         except commands.MissingPermissions as e:
             await ctx.send(e)
+
 
 
 def setup(bot):

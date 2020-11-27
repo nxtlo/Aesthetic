@@ -29,7 +29,7 @@ run `python3.8 launcher.py` to run the bot without restart command
 
 run `launhcher.sh` for `restart` command support
 
-the bot prefix is `pls` you can change it from [/core/bot.py](https://github.com/nxtlo/R.Fate/blob/8c578f67b57cb814ec7d54cc108fd2ff4b071163/core/bot.py#L11)
+the bot prefix is `ae>` you can change it from [/core/bot.py](https://github.com/nxtlo/R.Fate/blob/8c578f67b57cb814ec7d54cc108fd2ff4b071163/core/bot.py#L11)
 
 
 ## Notes 
