@@ -10,3 +10,5 @@ venv/
 # Stuff
 *.db
 .vscode/
+maker.sh
+aliases.sh
