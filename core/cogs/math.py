@@ -14,42 +14,23 @@ class Math(Cog, name="\U0001f9ee Math"):
     _all = "**Available Operations:**\n `+`: **Sum two numbers.**\n `-`: **Remove a numbers**\n `*`: **Multiply numbers**\n `%`: **Modulo division**\n `/`: **Divides two numbers**"
 
     @command(name="calc", description=_all)
-    async def calculator(self, ctx, int1: int, opp: str, int2: int) -> None:
+    async def calculator(self, ctx, int1: int, opp: str, int2: int):
         """Do some math with numbers"""
         try:
             if opp == '+':
-                e = Embed(
-                    title=f"{int1 + int2}",
-                    color=color.invis(self)
-                )
+                e = Embed(title=f"{int1 + int2}", color=color.invis(self))
                 await ctx.send(embed=e)
-            
             elif opp == '-':
-                e = Embed(
-                    title=f"{int1 - int2}",
-                    color=color.invis(self)
-                )
+                e = Embed(title=f"{int1 - int2}", color=color.invis(self))
                 await ctx.send(embed=e)
-            
             elif opp == '*':
-                e = Embed(
-                    title=f"{int1 * int2}",
-                    color=color.invis(self)
-                )
+                e = Embed(title=f"{int1 * int2}", color=color.invis(self))
                 await ctx.send(embed=e)
-            
             elif opp == '%':
-                e = Embed(
-                    title=f"{int1 % int2}",
-                    color=color.invis(self)
-                )
+                e = Embed(title=f"{int1 % int2}",color=color.invis(self))
                 await ctx.send(embed=e)
-            
             elif opp == '/':
-                e = Embed(
-                    title=f"{int1 / int2}",
-                    color=color.invis(self)
-                )
+                e = Embed(title=f"{int1 / int2}", color=color.invis(self))
                 await ctx.send(embed=e)
             else:
                 await ctx.send(f"Couldn't calculate {int1} and {int2}")
@@ -84,7 +65,7 @@ class Math(Cog, name="\U0001f9ee Math"):
 
 
     @command(name="text")
-    async def _text(self, ctx, text: str):
+    async def _text(self, ctx, text):
         """Converts text to binary"""
         e = Embed(
             title=convert.to_text(self, text=text),
