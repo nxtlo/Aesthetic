@@ -46,7 +46,6 @@ class Database(Cog):
     """
 
     @group(hidden=True)
-    @is_owner()
     async def db(self, ctx):
         pass
 
@@ -86,6 +85,7 @@ class Database(Cog):
             raise self._logger
     
     @db.command("SELECT", aliases=['select'])
+    @is_owner()
     async def select_db(self, ctx, option: str, from_table: str, *, coloumn: str) -> tuple:
         def _all():
             guilds = ctx.guild.id

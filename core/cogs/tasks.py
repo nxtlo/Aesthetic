@@ -5,7 +5,6 @@ from discord import Activity, ActivityType, Embed, Status, HTTPException
 from discord.ext.commands import Cog
 from discord.ext.commands import command, has_permissions, CheckFailure, is_owner, group
 from data import db
-from redbot.core.utils.chat_formatting import box
 from ..ext.utils import color
 
 class Tasks(Cog):
