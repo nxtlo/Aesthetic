@@ -3,11 +3,13 @@ __pycache__/
 
 # Environments
 .env
+.git
 .venv
 env/
 venv/
 
 # Stuff
+token.txt
 *.db
 .vscode/
 maker.sh

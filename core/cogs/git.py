@@ -4,7 +4,7 @@ import random
 
 
 
-class git(Cog, name="<a:github:767576538823524363> git"):
+class git(Cog, name="\U0001f4c1 git"):
     def __init__(self, bot):
         self.bot = bot
 

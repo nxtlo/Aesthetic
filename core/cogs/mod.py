@@ -1,11 +1,14 @@
 from data import db as d
-from discord.ext.commands import command, is_owner, Cog, has_permissions, guild_only, bot_has_permissions, Converter
+from discord.ext.commands import command, is_owner, Cog, has_permissions, guild_only, bot_has_permissions, Converter, Context, group
 from discord.ext import commands
 from discord import Embed, Member, Guild, NotFound, TextChannel
 from datetime import datetime
+from ..ext.utils import color
 from time import strftime
 from discord.utils import get
-from typing import Union
+from typing import Union, Optional
+from sqlite3 import ProgrammingError
+import logging
 from .commands import FetchedUser
 import asyncio
 import discord
@@ -19,24 +22,26 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
     @has_permissions(ban_members=True)
     @bot_has_permissions(ban_members=True)
     @guild_only()
-    async def ban(self, ctx, member: Member, *, reason=None):
+    async def ban(self, ctx, member: Union[Member, FetchedUser], *, reason=None):
         """
         Bans a member from the guild.
         """
         
-        d.cur.execute("SELECT * FROM bans WHERE Guild_Name = ?", (member.guild.name,))
+        d.cur.execute("SELECT * FROM bans WHERE id = ?", (member.guild.id,))
 
         fetched = d.cur.fetchone()
         
         # if the member is banned don't do anything
 
         if fetched:
+            await ctx.send(f"Member {member.display_name} is already banned.")
             return
+        
         # else inser the data to the database
 
         else:
             d.cur.execute("INSERT INTO bans VALUES (?,?,?,?,?)", (
-                member.guild.name,
+                member.guild.id,
                 member.id,
                 ctx.author.id,
                 ctx.message.created_at,
@@ -75,8 +80,6 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
                 return
         except commands.MissingPermissions as e:
             await ctx.send(e)
-
-
 
 
 
@@ -133,19 +136,19 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
         """
         kicks a member from the guild.
         """
-        d.cur.execute("SELECT * FROM kicks WHERE Guild_Name = ?", (member.guild.name,))
+        d.cur.execute("SELECT * FROM kicks WHERE id = ?", (member.guild.id,))
 
         fetched = d.cur.fetchone()
         
         # if the member is kicked don't do anything
 
         if fetched:
-            return
+            await ctx.send(f"Member {member.display_name} is already kicked.")
         
         # else insert the data to the database
         else:
             d.cur.execute("INSERT INTO kicks VALUES (?,?,?,?,?)", (
-                member.guild.name,
+                member.guild.id,
                 member.id,
                 ctx.author.id,
                 ctx.message.created_at,
@@ -165,7 +168,7 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
                 e.add_field(name=f"Member:", value=f"{member.name}#{member.discriminator}\nID:{member.id}", inline=False)
                 e.add_field(name="Occurred at", value=null, inline=False)
                 e.set_thumbnail(url=member.avatar_url)
-                await ctx.guild.ban(member)
+                await ctx.guild.kick(member)
                 await ctx.send(embed=e)
             elif reason:
                 null = strftime("%A, %d %Y/%m, %H:%M:%S %p")
@@ -182,9 +185,8 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
             else:
                 print(f"{ctx.author.name} tried to kick someone and he doesn't have perms")
                 return
-        except commands.MissingPermissions as e:
+        except ProgrammingError as e:
             await ctx.send(e)
-
 
 
 def setup(bot):

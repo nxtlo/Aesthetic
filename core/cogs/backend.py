@@ -1,26 +1,28 @@
-from data import db as d
-from discord.ext.commands import command, is_owner, Cog, has_permissions, guild_only, bot_has_permissions
+from data import db
+from discord.ext.commands import command, is_owner, Cog, has_permissions, guild_only, bot_has_permissions, group
 from discord.ext import commands
 from discord import Embed
 from datetime import datetime
 from time import strftime
 from core.ext.utils import color
+import typing
+import threading
+import subprocess
+import logging
+import sqlite3
 import asyncio
 import json
 import discord
 
-
-LOGGINGCHANNEL = 512946130691162112
-
 class Database(Cog):
     def __init__(self, bot):
         self.bot = bot
+        self._log_channel = 512946130691162112
+        self.default_prefix = "ae>"
+        self._logger = logging.getLogger(__name__)
 
 
-    @Cog.listener()
-    async def on_ready(self):
-        print("Database connected")
-        return
+    # you don't really need this listener unless you're not using this bot for a multi-guild
 
     """
     # automatically adds users in guilds to the database
@@ -43,6 +45,75 @@ class Database(Cog):
             d.con.commit()
     """
 
+    @group(hidden=True)
+    @is_owner()
+    async def db(self, ctx):
+        pass
+
+    @db.command(name="help")
+    async def db_help(self, ctx):
+        e = Embed(
+            title="Database commands.",
+            description="`init`: initializes the bot to the database\n "
+                        "`info`: gives info about the database system\n "
+                        "`SELECT`: returns anything from the database",
+            color=color.invis(self)
+        )
+        await ctx.send(embed=e)
+
+
+    @db.command(name="init", hidden=True)
+    @is_owner()
+    async def db_init(self, ctx):
+        """initialize the bot to the guild aka add it to the database\nincase it doesn't respond to commands"""
+        db.cur.execute("SELECT * FROM Guilds WHERE id = ?", (ctx.guild.id,))
+
+        init = db.cur.fetchall()
+        try:
+            if init:
+                return await ctx.send("Already initialized.")
+            else:
+                db.cur.execute("INSERT INTO Guilds VALUES (?,?,?,?,?,?)",
+                    (ctx.guild.id,
+                    self.default_prefix,
+                    ctx.guild.name, 
+                    ctx.guild.owner_id,
+                    ctx.guild.member_count,
+                    ctx.guild.me.joined_at))
+                db.con.commit()
+                await ctx.send(":thumbsup:")
+        except Exception:
+            raise self._logger
+    
+    @db.command("SELECT", aliases=['select'])
+    async def select_db(self, ctx, option: str, from_table: str, *, coloumn: str) -> tuple:
+        def _all():
+            guilds = ctx.guild.id
+            snowflake = db.cur.execute(f"SELECT {option} FROM {from_table} WHERE {coloumn} = ?", (guilds,))
+            for table in snowflake:
+                return table
+        try:
+            e = Embed(color=color.invis(self))
+            e.add_field(name="Table name:" ,value=from_table, inline=False)
+            e.add_field(name="Resaults:", value=_all(), inline=False)
+            await ctx.send(embed=e)
+        except Exception as e:
+            await ctx.send(e)
+        
+            
+
+    
+    @db.command(name="info")
+    async def db_info(self, ctx):
+        e = Embed(
+            color = color.invis(self)
+        )
+        e.add_field(name="Sqlite3 version:", value=f"{sqlite3.sqlite_version}", inline=False)
+        e.add_field(name="Paramstyle:", value=f"{sqlite3.paramstyle}", inline=False)
+        e.add_field(name="Thread Level:", value=sqlite3.threadsafety)
+        await ctx.send(embed=e)
+
+
     @Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
         roles = [role.name.replace('@', '@\u200b') for role in guild.roles]
@@ -59,24 +130,24 @@ class Database(Cog):
         e.add_field(name="Boost Level", value=guild.premium_tier)
         e.add_field(name='Roles', value=', '.join(roles) if len(roles) < 10 else f'{len(roles)} roles')
         e.set_thumbnail(url=guild.icon_url)
-        chan = self.bot.get_channel(LOGGINGCHANNEL)
+        chan = self.bot.get_channel(self._log_channel)
         await chan.send(embed=e)
+        print(f"Bot joined {guild.name} at {datetime.utcnow()}")
         
-        
-        d.cur.execute("SELECT * FROM Guilds WHERE id = ?", (guild.id,))
+        db.cur.execute("SELECT * FROM Guilds WHERE id = ?", (guild.id,))
 
-        res = d.cur.fetchone()
+        res = db.cur.fetchone()
         if res:
             return res
         else:
-            d.cur.execute("INSERT INTO Guilds VALUES (?,?,?,?,?)",
-                (guild.id, 
+            db.cur.execute("INSERT INTO Guilds VALUES (?,?,?,?,?,?)",
+                (guild.id,
+                self.default_prefix,
                 guild.name, 
                 guild.owner_id,
                 guild.member_count,
                 guild.me.joined_at))
-            print(f"Bot joined {guild.name} at {guild.me.joined_at}")
-            d.con.commit()
+            db.con.commit()
 
     @Cog.listener()
     async def on_guild_remove(self, guild):
@@ -92,8 +163,10 @@ class Database(Cog):
         e.add_field(name="Boosters", value=guild.premium_subscription_count)
         e.add_field(name="Boost Level", value=guild.premium_tier)
         e.set_thumbnail(url=guild.icon_url)
-        chan = self.bot.get_channel(LOGGINGCHANNEL)
+        chan = self.bot.get_channel(self._log_channel)
         await chan.send(embed=e)
+        print(f"Bot left {guild.name} at {datetime.utcnow()}")
+
 
 def setup(bot):
     bot.add_cog(Database(bot))

@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS Guilds (
     id INT PRIMARY KEY,
+    prefix TEXT DEFAULT "ae>",
     guild_name TEXT,
     guild_owner_id INT,
     member_count INT,
@@ -8,7 +9,7 @@ CREATE TABLE IF NOT EXISTS Guilds (
 
 
 CREATE TABLE IF NOT EXISTS bans ( 
-    Guild_Name TEXT,
+    id INT PRIMARY KEY,
     member_id INT,
     author_id INT,
     date INT,
@@ -18,7 +19,7 @@ CREATE TABLE IF NOT EXISTS bans (
 
 
 CREATE TABLE IF NOT EXISTS kicks (
-    Guild_name TEXT,
+    id INT PRIMARY KEY,
     member_id INT,
     author_id INT,
     date INT,

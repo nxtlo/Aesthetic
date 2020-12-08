@@ -12,8 +12,6 @@ class User(commands.Cog, name="\U0001f464 User"):
         self.bot = bot
 
 
-# From R.Danny for info command with some addition by me
-    
 
     @commands.command(name="info")
     async def user_info(self, ctx, *, user: Union[discord.Member, FetchedUser] = None):

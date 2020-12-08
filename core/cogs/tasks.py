@@ -1,12 +1,12 @@
 import json
 from datetime import datetime, timedelta
 from time import time
-
 from discord import Activity, ActivityType, Embed, Status, HTTPException
 from discord.ext.commands import Cog
 from discord.ext.commands import command, has_permissions, CheckFailure, is_owner, group
 from data import db
-
+from redbot.core.utils.chat_formatting import box
+from ..ext.utils import color
 
 class Tasks(Cog):
 	def __init__(self, bot):
@@ -36,7 +36,50 @@ class Tasks(Cog):
 		self.message = text
 		await self.set()
 
-	@command(name="sts", hidden=True)
+	@group(name="set")
+	async def setter(self, ctx):
+		"""Type `ae>set help` for more info"""
+		pass
+	
+	@setter.command(name="help")
+	async def set_command(self, ctx):
+		stuff = """
+				set prefix `<prefix>`
+				set stts `<status>` -> `idle` / `dnd` / `offline` / `online`
+				set avatar `<url>`
+				set username `<name>`
+				set <nickname> `<name>`
+				"""
+		e = Embed(
+			color=ctx.author.color,
+			title="Commands avilable for `set`",
+			description=stuff
+		)
+		await ctx.send(embed=e)
+			
+
+	@setter.command(name="prefix")
+	@has_permissions(administrator=True)
+	async def change_prefix(self, ctx, prefix):
+		"""
+		Change the bot's prefix
+		
+		Usaage: ae>set prefix <prefix>
+		"""
+		try:
+			if len(prefix) > 5:
+				await ctx.send("The prefix can not be more than 5 characters in length.")
+
+			else:
+				db.execute("UPDATE Guilds SET prefix = ? WHERE id = ?", prefix, ctx.guild.id)
+				db.con.commit()
+				e = Embed(description=f"{ctx.author.mention} has changed the prefix to `{prefix}`")
+				await ctx.send(embed=e)
+		except Exception as e:
+			raise
+			await ctx.send(e)
+
+	@setter.command(name="sts", hidden=True)
 	@is_owner()
 	async def change_sts(self, ctx, stts: str):
 		try:
@@ -59,19 +102,6 @@ class Tasks(Cog):
 					await ctx.send(f"Status changed to `{stts}`")
 		except:
 			raise
-
-
-	@command(name="set_avatar")
-	async def change_bot_avatar(self, bot, avatar):
-		pass
-
-	@command(name="ping", hidden=True)
-	async def ping(self, ctx):
-		start = time()
-		message = await ctx.send(f"Pong! DWSP latency: {self.bot.latency*1000:,.0f} ms.")
-		end = time()
-
-		await message.edit(content=f"Pong! DWSP latency: `{self.bot.latency*1000:,.0f}` ms. Response time: `{(end-start)*1000:,.0f}` ms.")
 
 def setup(bot):
 	bot.add_cog(Tasks(bot))
