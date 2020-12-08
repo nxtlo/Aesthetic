@@ -9,7 +9,7 @@ env/
 venv/
 
 # Stuff
-token.txt
+token.0
 *.db
 .vscode/
 maker.sh
