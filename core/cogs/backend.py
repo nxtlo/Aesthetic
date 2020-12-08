@@ -22,29 +22,6 @@ class Database(Cog):
         self._logger = logging.getLogger(__name__)
 
 
-    # you don't really need this listener unless you're not using this bot for a multi-guild
-
-    """
-    # automatically adds users in guilds to the database
-
-    @Cog.listener()
-    async def on_member_join(self, member: discord.Member):
-        
-        d.cur.execute("SELECT * FROM Users WHERE id=?", (member.id,))
-        
-        res = d.cur.fetchone()
-        
-        if res:
-            return
-        else:
-            d.cur.execute("INSERT INTO Users VALUES (?,?,?,?)", 
-                (member.id, 
-                member.created_at, 
-                member.name,
-                member.joined_at))
-            d.con.commit()
-    """
-
     @group(hidden=True)
     async def db(self, ctx):
         pass
@@ -166,6 +143,30 @@ class Database(Cog):
         chan = self.bot.get_channel(self._log_channel)
         await chan.send(embed=e)
         print(f"Bot left {guild.name} at {datetime.utcnow()}")
+
+    # you don't really need this listener unless you're not using this bot for a multi-guild
+
+    """
+    # automatically adds users in guilds to the database
+
+    @Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        
+        d.cur.execute("SELECT * FROM Users WHERE id=?", (member.id,))
+        
+        res = d.cur.fetchone()
+        
+        if res:
+            return
+        else:
+            d.cur.execute("INSERT INTO Users VALUES (?,?,?,?)", 
+                (member.id, 
+                member.created_at, 
+                member.name,
+                member.joined_at))
+            d.con.commit()
+    """
+
 
 
 def setup(bot):
