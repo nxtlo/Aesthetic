@@ -6,7 +6,7 @@ Invite Link [invite](https://discord.com/oauth2/authorize?client_id=760052204777
 ## hosting the bot
 
 * You need python >= 3.8 to run without issues
-* Go to `data/example_token.txt` and rename the file to `token.txt` then paste your token in the file
+* Go to `data/example_token.0` and rename the file to `token.0` then paste your token in the file
 
 ## venv setup
 
