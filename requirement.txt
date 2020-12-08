@@ -4,4 +4,4 @@ setuptools
 wheel
 Red-DiscordBot
 SimpleEconomy
-psutils
+psutil
