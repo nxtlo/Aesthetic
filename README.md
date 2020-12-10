@@ -28,4 +28,5 @@ Then activate by doing this, __Actually required to run the bot__
 ## Notes
 
 After running the bot for the first time, i highly suggest running this command `@YourBot db init`
+
 The bot prefix is `ae>` you can change it using `set prefix <prefix>` command
