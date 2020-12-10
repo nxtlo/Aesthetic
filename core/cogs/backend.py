@@ -6,12 +6,8 @@ from datetime import datetime
 from time import strftime
 from core.ext.utils import color
 import typing
-import threading
-import subprocess
 import logging
 import sqlite3
-import asyncio
-import json
 import discord
 
 class Database(Cog):
@@ -20,7 +16,10 @@ class Database(Cog):
         self._log_channel = 512946130691162112
         self.default_prefix = "ae>"
         self._logger = logging.getLogger(__name__)
-
+    
+    def db_update(self):
+        db.multiexec("INSERT OR IGNORE INTO Guilds (id) VALUES (?)", ((guild.id,) for guild in self.guild))
+        db.con.commit()
 
     @group(hidden=True)
     async def db(self, ctx):
@@ -47,7 +46,7 @@ class Database(Cog):
         init = db.cur.fetchall()
         try:
             if init:
-                return await ctx.send("Already initialized.")
+                return
             else:
                 db.cur.execute("INSERT INTO Guilds VALUES (?,?,?,?,?,?)",
                     (ctx.guild.id,
@@ -63,16 +62,21 @@ class Database(Cog):
     
     @db.command("SELECT", aliases=['select'])
     @is_owner()
-    async def select_db(self, ctx, option: str, from_table: str, *, coloumn: str) -> tuple:
+    async def select_db(self, ctx, option: str, from_table: str, *, coloumn: str, guilds: typing.Optional[str]=None) -> list:
         def _all():
-            guilds = ctx.guild.id
-            snowflake = db.cur.execute(f"SELECT {option} FROM {from_table} WHERE {coloumn} = ?", (guilds,))
-            for table in snowflake:
-                return table
+            if guilds:
+                snowflake = db.cur.execute(f"SELECT {option} FROM {from_table} WHERE {coloumn} = ?", (f"{guilds}",))
+            else:
+                if not guilds:
+                    all_guilds = ctx.guild.id or "member.guild.id"
+                    snowflake = db.cur.execute(f"SELECT {option} FROM {from_table} WHERE {coloumn} = ?", (f"{all_guilds}",))
+            
+            for table in snowflake.fetchall():
+                return "\n".join(map(str, table))
         try:
             e = Embed(color=color.invis(self))
-            e.add_field(name="Table name:" ,value=from_table, inline=False)
-            e.add_field(name="Resaults:", value=_all(), inline=False)
+            e.add_field(name="Table name:" ,value=f'```{from_table}```', inline=False)
+            e.add_field(name="Resaults:", value=f'{_all()}', inline=False)
             await ctx.send(embed=e)
         except Exception as e:
             await ctx.send(e)

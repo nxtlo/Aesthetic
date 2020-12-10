@@ -1,1 +1,1 @@
-from .bot import MainBot
+from .bot import Aesthetic

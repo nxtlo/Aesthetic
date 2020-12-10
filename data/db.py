@@ -1,3 +1,8 @@
+"""
+Main Database Module,
+Creds for :Parafoxia#1911 / :Carberra
+"""
+
 from os.path import isfile
 from sqlite3 import connect
 
