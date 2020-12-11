@@ -4,9 +4,9 @@ import pkg_resources
 import sys, platform, psutil
 from typing import Union
 from discord.ext import commands
-from discord import Member
+from discord import Member, Embed, Color
+from data import db
 from core.ext import utils as u
-
 start_time = time.time()
 
 
@@ -181,6 +181,20 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         )
         e.set_image(url=ctx.guild.icon_url)
         await ctx.send(embed=e)
+
+    @commands.command("prefx")
+    async def _pfx(self, ctx):
+        def inner():
+            pfx = db.cur.execute("SELECT prefix FROM Guilds WHERE id = ?", (ctx.guild.id,))
+            for prefix in pfx.fetchone():
+                return prefix
+        e = Embed(
+            title="Prefix is:",
+            description=inner(),
+            color=Color.blurple()
+            )
+        await ctx.send(embed=e)
+
 
 def setup(bot):
     bot.add_cog(Meta(bot))

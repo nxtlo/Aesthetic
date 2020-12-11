@@ -39,9 +39,6 @@ class Aesthetic(Bot):
         print(log)
         for server in self.guilds:
             try:
-                db.con.execute("INSERT OR IGNORE INTO Guilds VALUES (?, ?, ?, ?, ?, ?)",
-                            (str(server.id), "ae>", None, None, None, None))
-                db.con.commit()
                 db.con.execute("INSERT OR IGNORE INTO owners VALUES (?)", (self._owner,))
                 db.con.commit()
             except OperationalError:
@@ -68,9 +65,9 @@ class Aesthetic(Bot):
         
         print("\n Connecting to database....")
         if os.path.exists("./database/database.db"):
-            io.open_code("./database/database.db")
-            sleep(1)
-            print(" Database connected.\n")
+            if io.open_code("./database/sqhema.sql"):
+                sleep(1)
+                print(" Database connected.\n")
         else:
             warnings.simplefilter("always")
             warnings.warn("Database not connected!")

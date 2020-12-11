@@ -5,6 +5,7 @@ from discord import Embed
 from datetime import datetime
 from time import strftime
 from core.ext.utils import color
+import asyncio
 import typing
 import logging
 import sqlite3
@@ -48,7 +49,7 @@ class Database(Cog):
             if init:
                 return
             else:
-                db.cur.execute("INSERT INTO Guilds VALUES (?,?,?,?,?,?)",
+                db.cur.execute("INSERT OR IGNORE INTO Guilds VALUES (?,?,?,?,?,?)",
                     (ctx.guild.id,
                     self.default_prefix,
                     ctx.guild.name, 
@@ -57,32 +58,29 @@ class Database(Cog):
                     ctx.guild.me.joined_at))
                 db.con.commit()
                 await ctx.send(":thumbsup:")
+                asyncio.sleep(1)
+                await ctx.message.delete()
         except Exception:
             raise self._logger
     
     @db.command("SELECT", aliases=['select'])
     @is_owner()
-    async def select_db(self, ctx, option: str, from_table: str, *, coloumn: str, guilds: typing.Optional[str]=None) -> list:
+    async def select_db(self, ctx, option: str, from_table: str, coloumn: str, *, inp=None) -> list:
+        
         def _all():
-            if guilds:
-                snowflake = db.cur.execute(f"SELECT {option} FROM {from_table} WHERE {coloumn} = ?", (f"{guilds}",))
-            else:
-                if not guilds:
-                    all_guilds = ctx.guild.id or "member.guild.id"
-                    snowflake = db.cur.execute(f"SELECT {option} FROM {from_table} WHERE {coloumn} = ?", (f"{all_guilds}",))
-            
+            all_guilds = inp or ctx.guild.id
+            snowflake = db.cur.execute(f"SELECT {option} FROM {from_table} WHERE {coloumn} = ?", (all_guilds,))
+
             for table in snowflake.fetchall():
                 return "\n".join(map(str, table))
         try:
             e = Embed(color=color.invis(self))
             e.add_field(name="Table name:" ,value=f'```{from_table}```', inline=False)
-            e.add_field(name="Resaults:", value=f'{_all()}', inline=False)
+            e.add_field(name="Resaults:", value=format(_all()), inline=False)
             await ctx.send(embed=e)
         except Exception as e:
             await ctx.send(e)
         
-            
-
     
     @db.command(name="info")
     async def db_info(self, ctx):
@@ -93,7 +91,6 @@ class Database(Cog):
         e.add_field(name="Paramstyle:", value=f"{sqlite3.paramstyle}", inline=False)
         e.add_field(name="Thread Level:", value=sqlite3.threadsafety)
         await ctx.send(embed=e)
-
 
     @Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
