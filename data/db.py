@@ -1,8 +1,13 @@
+"""
+Main Database Module,
+Creds for :Parafoxia#1911 / :Carberra
+"""
+
 from os.path import isfile
 from sqlite3 import connect
 
 DB_PATH = "./database/database.db"
-BUILD_PATH = "./database/tables.sql"
+BUILD_PATH = "./database/sqhema.sql"
 
 
 con = connect(DB_PATH, check_same_thread=False)

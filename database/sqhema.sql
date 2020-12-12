@@ -33,3 +33,9 @@ CREATE TABLE IF NOT EXISTS Users (
     UserName TEXT,
     JoinedAt INT
 );
+
+-- this table interact with the append <owner> command.
+
+CREATE TABLE IF NOT EXISTS owners (
+    id INT PRIMARY KEY
+);

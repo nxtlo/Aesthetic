@@ -1,7 +1,7 @@
-from core import MainBot
+from core import Aesthetic
 
 def main():
-    bot = MainBot()
+    bot = Aesthetic()
     bot.remove_command("help")
     bot.run()
 
