@@ -6,16 +6,12 @@ from sqlite3 import OperationalError
 from time import sleep
 from core.cogs.commands import FetchedUser
 
-<<<<<<< HEAD
-OWNERID = 350750086357057537
-=======
 import io
 import os
 import copy
 import logging
 import warnings
 import re
->>>>>>> ab319af95de7c20e10659af729e11a8048f5768c
 
 log = logging.getLogger(__name__)
 
@@ -35,9 +31,6 @@ class Aesthetic(Bot):
             command_prefix=get_prefix,
             case_insensitive=True,
             intents=Intents.all(),
-<<<<<<< HEAD
-            owner_id=OWNERID)
-=======
             owner_id=self._owner)
 
     async def on_ready(self):
@@ -62,7 +55,6 @@ class Aesthetic(Bot):
                 new_content = msg.content[len(ctx.prefix):]
                 msg.content = "{}tag get {}".format(ctx.prefix, new_content)
                 await self.process_commands(msg)
->>>>>>> ab319af95de7c20e10659af729e11a8048f5768c
 
     def setup(self):
         print("Loading cogs...")

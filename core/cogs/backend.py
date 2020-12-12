@@ -20,13 +20,10 @@ class Database(Cog):
         self._log_channel = 512946130691162112
         self.default_prefix = "ae>"
         self._logger = logging.getLogger(__name__)
-<<<<<<< HEAD
-=======
     
     def db_update(self):
         db.multiexec("INSERT OR IGNORE INTO Guilds (id) VALUES (?)", ((guild.id,) for guild in self.guild))
         db.con.commit()
->>>>>>> ab319af95de7c20e10659af729e11a8048f5768c
 
     @group(hidden=True)
     async def db(self, ctx):

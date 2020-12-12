@@ -8,12 +8,7 @@ from data import db
 from discord import Color
 from ..ext.utils import color
 
-<<<<<<< HEAD
-
-class Tasks(Cog):
-=======
 class Tasks(Cog, name='\U00002699 Tasks'):
->>>>>>> ab319af95de7c20e10659af729e11a8048f5768c
 	def __init__(self, bot):
 		self.bot = bot
 

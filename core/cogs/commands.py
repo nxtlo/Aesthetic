@@ -9,10 +9,6 @@ from discord.ext import commands
 from discord import Member, Embed, Color
 from data import db
 from core.ext import utils as u
-<<<<<<< HEAD
-from ..bot import OWNERID
-=======
->>>>>>> ab319af95de7c20e10659af729e11a8048f5768c
 start_time = time.time()
 
 
