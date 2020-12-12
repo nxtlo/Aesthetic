@@ -1,3 +1,5 @@
+"""Misc commands"""
+
 import discord
 import datetime, time
 import pkg_resources
@@ -111,15 +113,13 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
 
 
     @commands.command(name="botinfo")
-    async def about(self, ctx):
+    async def about(self, ctx: commands.Context):
         """Tells you information about the bot itself."""
 
+        owner_name = f"<@{OWNERID}>"
         embed = discord.Embed(
         color=ctx.author.color)
-        embed.title=f'{u.emojis.proc(self)} Info about {self.bot.user.name}'
-
-        owner = "Fate ?#5957"
-        embed.set_author(name=str(owner), icon_url=self.bot.user.avatar_url)
+        embed.title=f'Info about {self.bot.user.name}'
 
         # statistics
         total_members = 0
@@ -155,6 +155,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         embed.add_field(name="Uptime", value=uptime)
         embed.add_field(name='Process', value=f'{memory_usage:.2f} MiB\n{cpu_usage:.2f}% CPU')
         embed.add_field(name="VM OS", value=os_name + os_release)
+        embed.add_field(name="Bot owner", value=owner_name)
         embed.set_footer(text=f'Made with discord.py v{version}', icon_url='http://i.imgur.com/5BFecvA.png')
         embed.timestamp = datetime.datetime.utcnow()
         await ctx.send(embed=embed)
