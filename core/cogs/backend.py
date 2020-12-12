@@ -173,32 +173,5 @@ class Database(Cog):
 
 
 
-
-
-    # you don't really need this listener unless you're not using this bot for a multi-guild
-
-    """
-    # automatically adds users in guilds to the database
-
-    @Cog.listener()
-    async def on_member_join(self, member: discord.Member):
-        
-        d.cur.execute("SELECT * FROM Users WHERE id=?", (member.id,))
-        
-        res = d.cur.fetchone()
-        
-        if res:
-            return
-        else:
-            d.cur.execute("INSERT INTO Users VALUES (?,?,?,?)", 
-                (member.id, 
-                member.created_at, 
-                member.name,
-                member.joined_at))
-            d.con.commit()
-    """
-
-
-
 def setup(bot):
     bot.add_cog(Database(bot))

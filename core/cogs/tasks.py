@@ -101,10 +101,6 @@ class Tasks(Cog, name='\U00002699 Tasks'):
 			raise
 
 
-	@command(name="ar")
-	async def ar_info(self, ctx):
-		pass
-
 
 def setup(bot):
 	bot.add_cog(Tasks(bot))

@@ -25,7 +25,7 @@ class Aesthetic(Bot):
     """
     def __init__(self):
         self._cogs = [p.stem for p in Path(".").glob("./core/cogs/*.py")]
-        self._owner = 350750086357057537
+        self._owner = 350750086357057537 # Replace this with your Discord ID
         
         super().__init__(
             command_prefix=get_prefix,

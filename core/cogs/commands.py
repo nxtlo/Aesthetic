@@ -115,8 +115,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
     @commands.command(name="botinfo")
     async def about(self, ctx: commands.Context):
         """Tells you information about the bot itself."""
-
-        owner_name = f"<@{OWNERID}>"
+        owner_name = f"<@{self.bot._owner}>"
         embed = discord.Embed(
         color=ctx.author.color)
         embed.title=f'Info about {self.bot.user.name}'
