@@ -4,7 +4,7 @@ from discord import Intents, Message
 from discord.ext import commands
 from data import db
 
-OWNER_IDS = [350750086357057537]
+OWNERID = 350750086357057537
 
 
 def get_prefix(bot, msg: Message):
@@ -19,7 +19,7 @@ class MainBot(commands.Bot):
             command_prefix=get_prefix,
             case_insensitive=True,
             intents=Intents.all(),
-            owner_ids=OWNER_IDS)
+            owner_id=OWNERID)
 
     def setup(self):
         print("Loading cogs...")

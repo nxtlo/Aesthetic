@@ -7,6 +7,7 @@ from discord.ext.commands import command, has_permissions, CheckFailure, is_owne
 from data import db
 from ..ext.utils import color
 
+
 class Tasks(Cog):
 	def __init__(self, bot):
 		self.bot = bot
@@ -101,6 +102,12 @@ class Tasks(Cog):
 					await ctx.send(f"Status changed to `{stts}`")
 		except:
 			raise
+
+
+	@command(name="ar")
+	async def ar_info(self, ctx):
+		pass
+
 
 def setup(bot):
 	bot.add_cog(Tasks(bot))
