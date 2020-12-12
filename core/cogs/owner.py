@@ -1,7 +1,10 @@
 from discord.ext.commands import Cog, is_owner,command, ExtensionError, group
 from contextlib import redirect_stdout
-from discord import Embed
+from discord import Embed, Member
 from core.ext import utils as ej
+from data import db
+from .commands import FetchedUser
+from ..ext.utils import color
 
     ### Red-bot api for botstats command and listguilds
 
@@ -10,7 +13,7 @@ from redbot.core.utils.common_filters import filter_invites
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils import chat_formatting as cf
 
-
+import typing
 import asyncio
 import time, datetime
 import ast
@@ -20,9 +23,15 @@ import textwrap
 import traceback
 import os, inspect
 
+
+
+
+
+
 class Owner(Cog):
     def __init__(self, bot):
         self.bot = bot
+        self._owner_ids = [350750086357057537, 515580374970007558]
 
     # command under is not mine -> aikaterna-cogs / redbot-core
 
@@ -199,22 +208,61 @@ class Owner(Cog):
         await ctx.send(msg)
 
 
-    @command(name='restart' ,discription="Restart command", hidden=True)
+    @command(name='shutdown' ,discription="Shutdown the bot", hidden=True)
     @is_owner()
-    async def restart_command(self, ctx):
+    async def _shutdown(self, ctx):
         try:
             embed = Embed(
-                title=f"*Restarting now...*",
+                title=f"*Shutting down...*",
                 timestamp=ctx.message.created_at
             )
             embed.set_author(name=f"{ctx.author}", icon_url=f"{ctx.author.avatar_url}")
             await ctx.send(embed=embed)
             await self.bot.logout()
-        except:
+            db.con.close()
+            
+        except ConnectionError as e:
+            raise e
+
+
+    @group(name="append", hidden=True)
+    async def _append(self, ctx):
+        pass
+
+    @_append.command(name="help")
+    async def _append_help(self, ctx):
+        description =   """
+                    Options for the command `append`:
+
+                    Add a member to the owners list\nThis command is extremely dangerous\nmembers in the owner list will bypass any other owner command: 
+                    
+                    Useage: append owner `<member>`
+                    """
+        e = Embed(
+            description=description,
+            color=color.invis(self)
+        )
+        await ctx.send(embed=e)
+
+    
+    @_append.command(name="owner")
+    async def apped_owners(self, ctx, member: typing.Union[Member, FetchedUser]):
+        already_owner = db.cur.execute(f"SELECT id FROM owners WHERE id = ?", (member.id,)).fetchone()
+        author_is_owner = db.cur.execute(f"SELECT id FROM owners WHERE id = ?", (ctx.author.id,)).fetchone()
+        try:
+            if not member:
+                await ctx.send("You need to specify a member.")
+            
+            elif already_owner:
+                await ctx.send(f"{member.display_name} is already part of owners.")
+            
+            elif author_is_owner or ctx.author.id in self._owner_ids:
+                db.cur.execute("INSERT OR IGNORE INTO owners VALUES (?)", (member.id,))
+                db.con.commit()
+                await ctx.send(f"{member.display_name} now can use owner commands.")
+            else:
+                await ctx.send("You don't have permission to use ths command.")
+        except Exception:
             raise
-
-
-
-
 def setup(bot):
     bot.add_cog(Owner(bot))

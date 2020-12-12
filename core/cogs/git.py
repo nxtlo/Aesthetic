@@ -12,7 +12,6 @@ class git(Cog, name="\U0001f4c1 git"):
 
     @group(name="git")
     async def git(self, ctx):
-        """Type `ae>git help` for commands's usage"""
         pass
 
     @git.command(name="help")

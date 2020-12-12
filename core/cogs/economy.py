@@ -107,4 +107,4 @@ class Economy(commands.Cog, name="\U0001f4b0 Economy"):
 
 
 def setup(bot):
-    bot.add_cog(Economy(bot))
+    bot.remove_cog(Economy(bot))

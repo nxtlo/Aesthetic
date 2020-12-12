@@ -8,11 +8,11 @@ from ..ext.utils import color
 class Fun(Cog, name="\U0001f3d3 Fun"):
     def __init__(self, bot):
         self.bot = bot
+        self.session = aiohttp.ClientSession()
 
 
     @group()
     async def random(self, ctx):
-        """Type `ae> random help` for more info"""
         pass
 
 
@@ -27,7 +27,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
     @random.command(name="joke")
     async def random_joke(self, ctx):
-        async with aiohttp.ClientSession() as cs:
+        async with self.session as cs:
             async with cs.get("https://official-joke-api.appspot.com/jokes/random") as r:
 
                 data = await r.json()
@@ -44,7 +44,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
     @random.command(name="pik")
     async def random_pic(self, ctx):
-        async with aiohttp.ClientSession() as s:
+        async with self.session as s:
             async with s.get("https://some-random-api.ml/img/pikachu") as r:
 
                 data = await r.json()
@@ -72,7 +72,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
     @random.command(name='cat')
     async def random_cat(self, ctx):
-        async with aiohttp.ClientSession() as cs:
+        async with self.session as cs:
             async with cs.get("http://aws.random.cat/meow") as r:
                 
                 data = await r.json()
@@ -90,7 +90,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
     @random.command(name='dog')
     async def random_dog(self, ctx):
-        async with aiohttp.ClientSession() as cs:
+        async with self.session as cs:
             async with cs.get("https://random.dog/woof.json") as r:
                 
                 data = await r.json()
@@ -104,7 +104,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
     @random.command(name='fox')
     async def random_fox(self, ctx):
-        async with aiohttp.ClientSession() as cs:
+        async with self.session as cs:
             async with cs.get("https://some-random-api.ml/img/fox") as r:
                 data = await r.json()
 
@@ -117,7 +117,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
     @random.command(name='meme')
     async def random_meme(self, ctx):
-        async with aiohttp.ClientSession() as cs:
+        async with self.session as cs:
             async with cs.get("https://some-random-api.ml/meme") as r:
                 data = await r.json()
 

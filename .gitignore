@@ -12,5 +12,4 @@ venv/
 token.0
 *.db
 .vscode/
-maker.sh
-aliases.sh
+*.sh

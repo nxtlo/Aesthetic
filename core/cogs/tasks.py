@@ -5,10 +5,15 @@ from discord import Activity, ActivityType, Embed, Status, HTTPException
 from discord.ext.commands import Cog
 from discord.ext.commands import command, has_permissions, CheckFailure, is_owner, group
 from data import db
+from discord import Color
 from ..ext.utils import color
 
+<<<<<<< HEAD
 
 class Tasks(Cog):
+=======
+class Tasks(Cog, name='\U00002699 Tasks'):
+>>>>>>> ab319af95de7c20e10659af729e11a8048f5768c
 	def __init__(self, bot):
 		self.bot = bot
 
@@ -38,7 +43,7 @@ class Tasks(Cog):
 
 	@group(name="set")
 	async def setter(self, ctx):
-		"""Type `ae>set help` for more info"""
+		"""Command to set the main Config for the bot"""
 		pass
 	
 	@setter.command(name="help")
@@ -63,8 +68,6 @@ class Tasks(Cog):
 	async def change_prefix(self, ctx, prefix):
 		"""
 		Change the bot's prefix
-		
-		Usaage: ae>set prefix <prefix>
 		"""
 		try:
 			if len(prefix) > 5:
@@ -76,7 +79,6 @@ class Tasks(Cog):
 				e = Embed(description=f"{ctx.author.mention} has changed the prefix to `{prefix}`")
 				await ctx.send(embed=e)
 		except Exception as e:
-			raise
 			await ctx.send(e)
 
 	@setter.command(name="sts", hidden=True)
