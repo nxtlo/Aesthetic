@@ -18,7 +18,7 @@ class Database(Cog):
     def __init__(self, bot):
         self.bot = bot
         self._log_channel = 512946130691162112
-        self.default_prefix = "ae>"
+        self.default_prefix = "a."
         self._logger = logging.getLogger(__name__)
     
     def db_update(self):
@@ -27,6 +27,7 @@ class Database(Cog):
 
     @group(hidden=True)
     async def db(self, ctx):
+        """Commands for returning stuff from the database"""
         pass
 
     @db.command(name="help")
@@ -69,6 +70,19 @@ class Database(Cog):
     @db.command("SELECT", aliases=['select'])
     @is_owner()
     async def select_db(self, ctx, option: str, from_table: str, coloumn: str, *, inp=None) -> list:
+        """
+        Select anything from the database
+        
+        Example: db select prefix Guilds id
+        
+        This will basically return the `prefix` from `Guilds` table\nwhere the guild `id` is `ctx.guild.id` or `member.guild.id`
+
+        Another Example: db SELECT * bans id
+
+        This one will select everything from bans where id = member.guild.id
+
+        You can get data for other guilds by doing this:\n\ndb select * Guilds id <guild_id>
+        """
         
         def _all():
             all_guilds = inp or ctx.guild.id
@@ -79,7 +93,7 @@ class Database(Cog):
         try:
             e = Embed(color=color.invis(self))
             e.add_field(name="Table name:" ,value=f'```{from_table}```', inline=False)
-            e.add_field(name="Resaults:", value=format(_all()), inline=False)
+            e.add_field(name="Resaults:", value=_all(), inline=False)
             await ctx.send(embed=e)
         except Exception as e:
             await ctx.send(e)

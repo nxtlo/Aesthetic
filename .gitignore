@@ -13,3 +13,4 @@ token.0
 *.db
 .vscode/
 *.sh
+config.py

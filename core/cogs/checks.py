@@ -39,11 +39,7 @@ class checks(commands.Cog):
             await ctx.send(embed=embed)
 
         elif isinstance(err, commands.NotOwner):
-            embed = discord.Embed(
-                title="Only owner can use this command.",
-                colour = random.randint(0, 0xFFFFFF)
-            )
-            await ctx.send(embed=embed)
+            return
         else:
             raise err
 

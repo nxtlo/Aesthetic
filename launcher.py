@@ -1,8 +1,7 @@
-from core import Aesthetic
+from core import Amaya
 
 def main():
-    bot = Aesthetic()
-    bot.remove_command("help")
+    bot = Amaya()
     bot.run()
 
 

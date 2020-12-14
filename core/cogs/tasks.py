@@ -38,31 +38,21 @@ class Tasks(Cog, name='\U00002699 Tasks'):
 
 	@group(name="set")
 	async def setter(self, ctx):
-		"""Command to set the main Config for the bot"""
+		"""
+			set prefix `<prefix>`
+			set avatar `<url>`
+			set username `<name>`
+			set <nickname> `<name>`
+		"""
 		pass
-	
-	@setter.command(name="help")
-	async def set_command(self, ctx):
-		stuff = """
-				set prefix `<prefix>`
-				set stts `<status>` -> `idle` / `dnd` / `offline` / `online`
-				set avatar `<url>`
-				set username `<name>`
-				set <nickname> `<name>`
-				"""
-		e = Embed(
-			color=ctx.author.color,
-			title="Commands avilable for `set`",
-			description=stuff
-		)
-		await ctx.send(embed=e)
 			
 
 	@setter.command(name="prefix")
-	@has_permissions(administrator=True)
+	@has_permissions(manage_guild=True)
 	async def change_prefix(self, ctx, prefix):
 		"""
-		Change the bot's prefix
+		Change the bot's prefix. 
+		You need the manage_guild perms to use this command.
 		"""
 		try:
 			if len(prefix) > 5:

@@ -1,10 +1,11 @@
 from pathlib import Path
-from discord import Intents, Message, Member
+from discord import Intents, Message, Member, __version__
 from discord.ext.commands import when_mentioned_or, Bot
 from data import db
 from sqlite3 import OperationalError
 from time import sleep
 from core.cogs.commands import FetchedUser
+from data import config
 
 import io
 import os
@@ -19,7 +20,7 @@ def get_prefix(bot, msg: Message):
 	_get_prefix = db.field("SELECT prefix FROM Guilds WHERE id = ?", msg.guild.id)
 	return when_mentioned_or(_get_prefix)(bot, msg.id)
 
-class Aesthetic(Bot):
+class Amaya(Bot):
     """
     Main `class` for the bot to acually run.
     """
@@ -36,6 +37,11 @@ class Aesthetic(Bot):
     async def on_ready(self):
         self.client_id = (await self.application_info()).id
         print("Bot ready.")
+        print('Logged in as:\n')
+        print('Bot name:\n', self.user.name)
+        print('Bot id:\n',self.user.id)
+        print('Discord Version:\n', __version__) 
+        print('------')
         print(log)
         for server in self.guilds:
             try:
@@ -74,8 +80,5 @@ class Aesthetic(Bot):
 
     def run(self):
         self.setup()
-        with open("data/token.0", "r",encoding="utf-8") as f:
-            TOKEN = f.read()
-
         print("Running bot...")
-        super().run(TOKEN, reconnect=True)
+        super().run(config.bot_token, reconnect=True)

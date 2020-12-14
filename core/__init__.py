@@ -1,1 +1,1 @@
-from .bot import Aesthetic
+from .bot import Amaya

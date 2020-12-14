@@ -4,7 +4,7 @@ import random
 
 
 
-class git(Cog, name="\U0001f4c1 git"):
+class Git(Cog, name="\U0001f4c1 git"):
     def __init__(self, bot):
         self.bot = bot
 
@@ -12,15 +12,9 @@ class git(Cog, name="\U0001f4c1 git"):
 
     @group(name="git")
     async def git(self, ctx):
+        """```Useage user: git user <username>```\n```Useage repo: git repo <username> <reponame>```"""
         pass
 
-    @git.command(name="help")
-    async def git_help(self, ctx):
-        usage = "```Useage user: git user <username>```\n```Useage repo: git repo <username> <reponame>```"
-        
-        e = discord.Embed(title="Usage", description=usage, color=0x36393f)
-        
-        await ctx.send(embed=e)
 
     @git.command(name="user")
     async def user_command(self, ctx, *, user: str):
@@ -48,4 +42,4 @@ class git(Cog, name="\U0001f4c1 git"):
             await ctx.send(repo_link)
         
 def setup(bot):
-    bot.add_cog(git(bot))
+    bot.add_cog(Git(bot))

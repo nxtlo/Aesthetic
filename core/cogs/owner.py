@@ -31,7 +31,7 @@ import os, inspect
 class Owner(Cog):
     def __init__(self, bot):
         self.bot = bot
-        self._owner_ids = [350750086357057537, 515580374970007558]
+        self._owner_ids = 350750086357057537
 
     # command under is not mine -> aikaterna-cogs / redbot-core
 

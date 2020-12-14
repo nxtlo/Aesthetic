@@ -11,21 +11,8 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
         self.session = aiohttp.ClientSession()
 
 
-    @group()
-    async def random(self, ctx):
-        pass
 
-
-    @random.command(name="help")
-    async def random_help(self, ctx):
-        usage = "Usage for random:\n\n`random pik`\n`random quote`\n`random meme`\n`rndom cat`\n`random dog`\n`random fox`"
-        
-        e = discord.Embed(title="Usage", description=usage, color=color.invis(self))
-        
-        await ctx.send(embed=e)
-
-
-    @random.command(name="joke")
+    @command(name="joke")
     async def random_joke(self, ctx):
         async with self.session as cs:
             async with cs.get("https://official-joke-api.appspot.com/jokes/random") as r:
@@ -42,7 +29,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
 
 
-    @random.command(name="pik")
+    @command(name="pik")
     async def random_pic(self, ctx):
         async with self.session as s:
             async with s.get("https://some-random-api.ml/img/pikachu") as r:
@@ -60,7 +47,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
 
 
-    @random.command(name="quote")
+    @command(name="quote")
     async def rancom_joke(self, ctx):
     
         with open("./data/choises.txt", "r") as r:
@@ -70,7 +57,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
         
         await ctx.send(nil)
 
-    @random.command(name='cat')
+    @command(name='cat')
     async def random_cat(self, ctx):
         async with self.session as cs:
             async with cs.get("http://aws.random.cat/meow") as r:
@@ -88,7 +75,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
 
 
-    @random.command(name='dog')
+    @command(name='dog')
     async def random_dog(self, ctx):
         async with self.session as cs:
             async with cs.get("https://random.dog/woof.json") as r:
@@ -102,7 +89,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
                 await ctx.send(embed=embed)
 
 
-    @random.command(name='fox')
+    @command(name='fox')
     async def random_fox(self, ctx):
         async with self.session as cs:
             async with cs.get("https://some-random-api.ml/img/fox") as r:
@@ -115,7 +102,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
                 embed.set_image(url=data['link'])
                 await ctx.send(embed=embed)
 
-    @random.command(name='meme')
+    @command(name='meme')
     async def random_meme(self, ctx):
         async with self.session as cs:
             async with cs.get("https://some-random-api.ml/meme") as r:

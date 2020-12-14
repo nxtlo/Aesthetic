@@ -10,12 +10,9 @@ class Math(Cog, name="\U0001f9ee Math"):
     def __init__(self, bot):
         self.bot = bot
 
-
-    _all = "**Available Operations:**\n `+`: **Sum two numbers.**\n `-`: **Remove a numbers**\n `*`: **Multiply numbers**\n `%`: **Modulo division**\n `/`: **Divides two numbers**"
-
-    @command(name="calc", description=_all)
+    @command(name="calc")
     async def calculator(self, ctx, int1: int, opp: str, int2: int):
-        """Do some math with numbers"""
+        """**Available Operations:**\n `+`: **Sum two numbers.**\n `-`: **Remove a numbers**\n `*`: **Multiply numbers**\n `%`: **Modulo division**\n `/`: **Divides two numbers**"""
         try:
             if opp == '+':
                 e = Embed(title=f"{int1 + int2}", color=color.invis(self))

@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS Guilds (
     id INT PRIMARY KEY,
-    prefix TEXT DEFAULT "ae>",
+    prefix TEXT DEFAULT "a.",
     guild_name TEXT,
     guild_owner_id INT,
     member_count INT,

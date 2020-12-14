@@ -1,9 +1,10 @@
 from data import db as d
-from discord.ext.commands import command, is_owner, Cog, has_permissions, guild_only, bot_has_permissions, Converter, Context, group
+from discord.ext.commands import command, is_owner, Cog, has_guild_permissions, guild_only, Converter, Context, group, bot_has_guild_permissions
 from discord.ext import commands
 from discord import Embed, Member, Guild, NotFound, TextChannel
 from datetime import datetime
 from ..ext.utils import color
+from ..ext import check
 from time import strftime
 from discord.utils import get
 from typing import Union, Optional
@@ -19,8 +20,8 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
 
 
     @command(name="ban")
-    @has_permissions(ban_members=True)
-    @bot_has_permissions(ban_members=True)
+    @has_guild_permissions(ban_members=True)
+    @bot_has_guild_permissions(ban_members=True)
     @guild_only()
     async def ban(self, ctx, member: Union[Member, FetchedUser], *, reason=None):
         """
@@ -81,8 +82,8 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
 
 
     @command(name="unban")
-    @has_permissions(ban_members=True)
-    @bot_has_permissions(ban_members=True)
+    @has_guild_permissions(ban_members=True)
+    @bot_has_guild_permissions(ban_members=True)
     @guild_only()
     async def unban_command(self, ctx, member: Union[Member, FetchedUser], *, reason=None):
         
@@ -123,8 +124,8 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
 
 
     @command(name="kick")
-    @has_permissions(kick_members=True)
-    @bot_has_permissions(kick_members=True)
+    @has_guild_permissions(kick_members=True)
+    @bot_has_guild_permissions(kick_members=True)
     @guild_only()
     async def kick_command(self, ctx, member: Union[Member, FetchedUser], *, reason=None):
         """
@@ -183,6 +184,49 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
         except ProgrammingError as e:
             await ctx.send(e)
 
+
+    @command(name="clean", aliases=["purge", "del"], useage="clean <ammount>")
+    @guild_only()
+    @has_guild_permissions(manage_messages=True)
+    async def _purge(self, ctx, amount=4):
+        """
+        Clean chat messages
+
+        if no amount was provided. this command will delete the last 5 messages
+        """
+        await ctx.channel.purge(limit=amount+1)
+
+
+    @command(name="leave")
+    @guild_only()
+    @check.is_mod()
+    async def leave_guild(self, ctx, guild: Guild=None):
+        """Make the bot leave from the guild"""
+        try:
+            msg = ctx.message
+            if guild is None:
+                await msg.add_reaction("\U00002611")
+                await ctx.guild.leave()
+            return
+        except Exception:
+            pass
+
+    @commands.command(name='perms', aliases=['permissions'])
+    @check.is_mod()
+    @commands.guild_only()
+    async def check_permissions(self, ctx, *, member: discord.Member=None):
+        """A simple command which checks a members Guild Permissions."""
+        if not member:
+            member = ctx.author
+        perms = '\n'.join(perm for perm, value in member.guild_permissions if value)
+
+        embed = discord.Embed(title='Permissions:', colour=member.colour)
+
+        embed.set_author(icon_url=member.avatar_url, name=str(member))
+        embed.add_field(name='\uFEFF', value=perms)
+        embed.set_footer(text=f'Requested by: {ctx.author}')
+        await ctx.send(content=None, embed=embed)
+        # Thanks to Gio for the Command.
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
