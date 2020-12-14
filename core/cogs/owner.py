@@ -112,7 +112,7 @@ class Owner(Cog):
             if appd_index != len(text)-1:
                 pages.append(text[last:curr])
             return list(filter(lambda a: a != '', pages))
-        
+
         try:
             exec(to_compile, env)
         except Exception as e:
@@ -131,7 +131,7 @@ class Owner(Cog):
             if ret is None:
                 if value:
                     try:
-                        
+
                         out = await ctx.send(f'```py\n{value}\n```')
                     except:
                         paginated_text = paginate(value)
@@ -218,8 +218,8 @@ class Owner(Cog):
             )
             embed.set_author(name=f"{ctx.author}", icon_url=f"{ctx.author.avatar_url}")
             await ctx.send(embed=embed)
-            await self.bot.logout()
             db.con.close()
+            await self.bot.logout()
             
         except ConnectionError as e:
             raise e
@@ -234,8 +234,8 @@ class Owner(Cog):
         description =   """
                     Options for the command `append`:
 
-                    Add a member to the owners list\nThis command is extremely dangerous\nmembers in the owner list will bypass any other owner command: 
-                    
+                    Add a member to the owners list\nThis command is extremely dangerous\nmembers in the owner list will bypass any other owner command:
+
                     Useage: append owner `<member>`
                     """
         e = Embed(
@@ -244,7 +244,7 @@ class Owner(Cog):
         )
         await ctx.send(embed=e)
 
-    
+
     @_append.command(name="owner")
     async def apped_owners(self, ctx, member: typing.Union[Member, FetchedUser]):
         already_owner = db.cur.execute(f"SELECT id FROM owners WHERE id = ?", (member.id,)).fetchone()
@@ -252,10 +252,10 @@ class Owner(Cog):
         try:
             if not member:
                 await ctx.send("You need to specify a member.")
-            
+
             elif already_owner:
                 await ctx.send(f"{member.display_name} is already part of owners.")
-            
+
             elif author_is_owner or ctx.author.id in self._owner_ids:
                 db.cur.execute("INSERT OR IGNORE INTO owners VALUES (?)", (member.id,))
                 db.con.commit()

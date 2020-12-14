@@ -188,13 +188,13 @@ class PaginatedHelpCommand(commands.HelpCommand):
 
 
         menu = HelpMenu(BotHelpPageSource(self, all_commands))
-        
+
         await menu.start(self.context)
 
     async def send_cog_help(self, cog):
         entries = await self.filter_commands(cog.get_commands(), sort=True)
         menu = HelpMenu(GroupHelpPageSource(cog, entries, prefix=self.clean_prefix))
-        
+
         await menu.start(self.context)
 
     def common_command_formatting(self, embed_like, command):
@@ -243,37 +243,37 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
             timestamp =ctx.message.created_at,
         )
         embed.add_field(
-            name=f"{u.emojis.insta(self)} ```Instagram```", 
+            name=f"{u.emojis.insta(self)} ```Instagram```",
             value=u.url.insta, inline=True)
 
         embed.add_field(
-            name=f"{u.emojis.twitter(self)} ```Twitter```", 
+            name=f"{u.emojis.twitter(self)} ```Twitter```",
             value=u.url.twitter, inline=True)
 
         embed.add_field(
-            name=f"{u.emojis.youtube(self)} ```Youtube```", 
+            name=f"{u.emojis.youtube(self)} ```Youtube```",
             value=u.url.youtube, inline=True)
 
         embed.add_field(
-            name=f"{u.emojis.steam(self)} ```Steam```", 
+            name=f"{u.emojis.steam(self)} ```Steam```",
             value=u.url.steam, inline=True)
 
         embed.add_field(
-            name=f"{u.emojis.github(self)} ```Github```", 
+            name=f"{u.emojis.github(self)} ```Github```",
             value=u.url.github, inline=True)
 
         embed.add_field(
-            name=f"{u.emojis.github(self)} ```Bungie```", 
+            name=f"{u.emojis.github(self)} ```Bungie```",
             value=u.url.bungie)
 
         embed.set_author(
-            name=f"{self.bot.user.name}", 
+            name=f"{self.bot.user.name}",
             icon_url=self.bot.user.avatar_url)
-            
+
         embed.set_footer(text=f"Requested {ctx.author}")
         await ctx.send(embed=embed)
 
-    
+
     @commands.command(name="invite", usage="invite")
     async def invite(self, ctx):
         """
@@ -342,7 +342,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
                     voice += 1
 
 
-        
+
         current_time = time.time()
         difference = int(round(current_time - start_time))
         uptime = str(datetime.timedelta(seconds=difference))
@@ -440,6 +440,8 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
                 await channel.send(embed=embed)
         else:
             await channel.send("City not found.")
+
+
     @commands.command(name="source", aliases=['src'])
     async def _src(self, ctx):
         await ctx.send("https://github.com/nxtlo/Amaya")
@@ -459,7 +461,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         role_count = len(ctx.guild.roles)
         embed = discord.Embed(
             colour = color.invis(self)
-        )     
+        )
 
         sOWNER = discord.utils.get(self.bot.emojis, name="owner")
         sID = discord.utils.get(self.bot.emojis, name='rich_presence')
@@ -496,7 +498,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         e = discord.Embed()
         e.color = ctx.author.color
         roles = [role.name.replace('@', '@\u200b') for role in getattr(user, 'roles', [])]
-        
+
         mob = user.is_on_mobile()
         custom_stats = user.activity
         booster = user.premium_since
@@ -509,21 +511,21 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         e.add_field(name=f"{emj.mem(self)} ID", value=user.id, inline=False)
         e.add_field(name=f"{emj.plus(self)} Joined server at", value=user.joined_at, inline=False)
         e.add_field(name=f"{emj.dscord(self)} Created account",value=user.created_at, inline=False)
-        
+
         if booster:
             e.add_field(name=f"{emj.boost(self)} Booster since", value=user.premium_since, inline=False)
         if mob:
             e.add_field(name="<:phone:779159717388877846> Is on Mobile", value=mob, inline=False)
-        
+
         if user.status == online:
             e.add_field(name="Status", value=f"{emj.online(self)} {user.status}")
-        
+
         elif user.status == dnd:
             e.add_field(name="Status", value=f"{emj.dnd(self)} {user.status}")
-        
+
         elif user.status == idle:
             e.add_field(name="Status", value=f"{emj.idle(self)} {user.status}")
-        
+
         elif user.status == offline:
             e.add_field(name="Status", value=f"{emj.offline(self)} {user.status}")
 

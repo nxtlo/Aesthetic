@@ -27,7 +27,7 @@ class Amaya(Bot):
     def __init__(self):
         self._cogs = [p.stem for p in Path(".").glob("./core/cogs/*.py")]
         self._owner = 350750086357057537 # Replace this with your Discord ID
-        
+
         super().__init__(
             command_prefix=get_prefix,
             case_insensitive=True,
@@ -40,7 +40,7 @@ class Amaya(Bot):
         print('Logged in as:\n')
         print('Bot name:\n', self.user.name)
         print('Bot id:\n',self.user.id)
-        print('Discord Version:\n', __version__) 
+        print('Discord Version:\n', __version__)
         print('------')
         print(log)
         for server in self.guilds:
@@ -68,7 +68,7 @@ class Amaya(Bot):
         for cog in self._cogs:
             self.load_extension(f"core.cogs.{cog}")
             print(f" Loaded {cog} cog.")
-        
+
         print("\n Connecting to database....")
         if os.path.exists("./database/database.db"):
             if io.open_code("./database/sqhema.sql"):
