@@ -2,7 +2,6 @@
 
 import discord
 import datetime, time
-import pkg_resources
 import sys, platform, psutil
 import asyncio
 from ..ext.pagination import Pages
@@ -350,7 +349,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         cpu_usage = self.process.cpu_percent() / psutil.cpu_count()
         os_name = platform.system()
         os_release = platform.release()
-        version = pkg_resources.get_distribution('discord.py').version
+        version = discord.__version__
 
         embed.add_field(name='Members', value=f'{total_members} total\n{total_unique} unique')
         embed.add_field(name='Channels', value=f'{text + voice} total\n{text} text\n{voice} voice')
@@ -396,7 +395,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
                 return prefix
         e = Embed(
             title="Prefix is:",
-            description=inner(),
+            description=f"1: **{inner()}**",
             color=Color.blurple()
             )
         await ctx.send(embed=e)

@@ -14,7 +14,7 @@ import logging
 import sqlite3
 import discord
 
-class Database(Cog):
+class Sql(Cog):
     def __init__(self, bot):
         self.bot = bot
         self._log_channel = 512946130691162112
@@ -188,4 +188,4 @@ class Database(Cog):
 
 
 def setup(bot):
-    bot.add_cog(Database(bot))
+    bot.add_cog(Sql(bot))

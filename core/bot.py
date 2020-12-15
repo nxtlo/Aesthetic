@@ -1,18 +1,23 @@
 from pathlib import Path
 from discord import Intents, Message, Member, __version__
 from discord.ext.commands import when_mentioned_or, Bot
+from discord.ext import commands
 from data import db
 from sqlite3 import OperationalError
 from time import sleep
 from core.cogs.commands import FetchedUser
 from data import config
+from core.ext.utils import color
 
+import discord
 import io
 import os
 import copy
 import logging
 import warnings
 import re
+import traceback
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -62,12 +67,44 @@ class Amaya(Bot):
                 msg.content = "{}tag get {}".format(ctx.prefix, new_content)
                 await self.process_commands(msg)
 
+
+    async def on_command_error(self, ctx, err):
+        if isinstance(err, commands.NoPrivateMessage):
+            await ctx.author.send('This command cannot be used in private messages.')
+
+        elif isinstance(err, commands.BotMissingPermissions):
+            embed = discord.Embed(
+                title="I don't have permissions to do that.",
+                colour = color.invis(self)
+            )
+            await ctx.send(embed=embed)
+        
+        elif isinstance(err, commands.CommandInvokeError):
+            original = err.original
+            if not isinstance(original, discord.HTTPException):
+                print(f'In {ctx.command.qualified_name}:', file=sys.stderr)
+                traceback.print_tb(original.__traceback__)
+                print(f'{original.__class__.__name__}: {original}', file=sys.stderr)
+
+        elif isinstance(err, commands.CommandOnCooldown):
+            embed = discord.Embed(
+                title="This command is on cooldown.",
+                colour = color.invis(self)
+            )
+            await ctx.send(embed=embed)
+        else:
+            pass
+
     def setup(self):
         print("Loading cogs...")
 
         for cog in self._cogs:
-            self.load_extension(f"core.cogs.{cog}")
-            print(f" Loaded {cog} cog.")
+            try:
+	            self.load_extension(f"core.cogs.{cog}")
+	            print(f" Loaded {cog} cog.")
+            except Exception as e:
+                print(f'\nFailed to load extension {cog}.', file=sys.stderr)
+                traceback.print_exc()
 
         print("\n Connecting to database....")
         if os.path.exists("./database/database.db"):
