@@ -17,6 +17,8 @@ from core.ext import utils as u
 start_time = time.time()
 
 
+# yes the help command is frm R.Danny
+
 class FetchedUser(commands.Converter):
     async def convert(self, ctx, argument):
         if not argument.isdigit():
@@ -101,7 +103,7 @@ class GroupHelpPageSource(menus.ListPageSource):
         self.description = self.group.description
 
     async def format_page(self, menu, commands):
-        embed = discord.Embed(title=self.title, description=self.description, colour=discord.Colour.blurple())
+        embed = discord.Embed(title=self.title, description=self.description, colour=color.invis(self))
 
         for command in commands:
             signature = f'{command.qualified_name} {command.signature}'
@@ -122,7 +124,7 @@ class HelpMenu(Pages):
     async def show_bot_help(self, payload):
         """shows how to use the bot"""
 
-        embed = discord.Embed(title='Using the bot', colour=discord.Colour.blurple())
+        embed = discord.Embed(title='Using the bot', colour=color.invis(self))
         embed.title = 'Using the bot'
         embed.description = 'Hello! Welcome to the help page.'
 
@@ -205,7 +207,7 @@ class PaginatedHelpCommand(commands.HelpCommand):
 
     async def send_command_help(self, command):
         # No pagination necessary for a single command.
-        embed = discord.Embed(colour=discord.Colour.blurple())
+        embed = discord.Embed(colour=color.invis(self))
         self.common_command_formatting(embed, command)
         await self.context.send(embed=embed)
 
@@ -238,7 +240,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
 
         embed = discord.Embed(
             title="*Fate's social info*",
-            color = ctx.author.color,
+            color = color.invis(self),
             timestamp =ctx.message.created_at,
         )
         embed.add_field(
@@ -273,8 +275,8 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         await ctx.send(embed=embed)
 
 
-    @commands.command(name="invite", usage="invite")
-    async def invite(self, ctx):
+    @commands.command(name="invite", aliases=['join', 'inv'])
+    async def _invite(self, ctx):
         """
         Invite this bot
         """
@@ -282,8 +284,8 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
             embed=discord.Embed(
                 title="Invite Link",
                 description=f"https://discordapp.com/api/oauth2/authorize?client_id={self.bot.user.id}"
-                    "&permissions=1372056695&scope=bot",
-                colour=ctx.author.colour,
+                    "&permissions=0&scope=bot",
+                colour=color.invis(self),
                 )
             )
 
@@ -297,14 +299,14 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
             if member is not None:
                 e = discord.Embed(
                     description=f"The member {member.mention}'s status is `{member.status}`",
-                    color=ctx.author.color
+                    color=color.invis(self)
                 )
                 await ctx.send(embed=e)
             else:
                 member = member or ctx.author
                 e = discord.Embed(
                     description=f"Your status is `{member.status}`",
-                    color=ctx.author.color
+                    color=color.invis(self)
                 )
                 await ctx.send(embed=e)
                 await ctx.send(e)
@@ -321,7 +323,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         """Tells you information about the bot itself."""
         owner_name = f"<@{self.bot._owner}>"
         embed = discord.Embed(
-        color=ctx.author.color)
+        color=color.invis(self))
         embed.title=f'Info about {self.bot.user.name}'
 
         # statistics
@@ -368,7 +370,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
     @commands.command()
     async def avatar(self, ctx, *, user: Union[discord.Member, FetchedUser] = None):
         """Shows a user's enlarged avatar"""
-        embed = discord.Embed()
+        embed = discord.Embed(color=color.invis(self))
         user = user or ctx.author
         avatar = user.avatar_url_as(static_format='png')
         embed.set_author(name=str(user), url=avatar)
@@ -382,7 +384,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         """*Shows the guild icon*"""
         e = discord.Embed(
             title=ctx.guild.name,
-            color=ctx.author.color
+            color=color.invis(self)
         )
         e.set_image(url=ctx.guild.icon_url)
         await ctx.send(embed=e)
@@ -396,7 +398,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         e = Embed(
             title="Prefix is:",
             description=f"1: **{inner()}**",
-            color=Color.blurple()
+            color=color.invis(self)
             )
         await ctx.send(embed=e)
 
@@ -495,7 +497,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         """Show user info"""
         user = user or ctx.author
         e = discord.Embed()
-        e.color = ctx.author.color
+        e.color = color.invis(self)
         roles = [role.name.replace('@', '@\u200b') for role in getattr(user, 'roles', [])]
 
         mob = user.is_on_mobile()
