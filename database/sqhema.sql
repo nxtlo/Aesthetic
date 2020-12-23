@@ -39,3 +39,11 @@ CREATE TABLE IF NOT EXISTS Users (
 CREATE TABLE IF NOT EXISTS owners (
     id INT PRIMARY KEY
 );
+
+
+
+CREATE TABLE IF NOT EXISTS logs (
+    id TEXT,
+    logchannel TEXT
+
+);
