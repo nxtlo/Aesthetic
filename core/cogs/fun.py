@@ -67,7 +67,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
                 
                 embed = discord.Embed(
                     title="Kitten",
-                    color = ctx.author.color
+                    color=color.invis(self)
                 )
                 embed.set_image(url=data['file'])
                 embed.set_footer(text='random cat', icon_url=img)
@@ -83,7 +83,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
                 data = await r.json()
                 embed = discord.Embed(
                     title="Doggo",
-                    color = ctx.author.color
+                    color = color.invis(self)
                 )
                 embed.set_image(url=data['url'])
                 await ctx.send(embed=embed)
@@ -97,7 +97,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
                 embed = discord.Embed(
                     title='Fox',
-                    color = ctx.author.color
+                    color = color.invis(self)
                 )
                 embed.set_image(url=data['link'])
                 await ctx.send(embed=embed)
@@ -110,7 +110,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
                 embed = discord.Embed(
                     title='random meme',
-                    color = ctx.author.color
+                    color = color.invis(self)
                 )
                 embed.set_image(url=data['image'])
                 await ctx.send(embed=embed)
