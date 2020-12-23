@@ -1,10 +1,11 @@
 import json
 from datetime import datetime, timedelta
 from time import time
-from discord import Activity, ActivityType, Embed, Status, HTTPException
+from discord import Activity, ActivityType, Embed, Status, HTTPException, TextChannel
 from discord.ext.commands import Cog
 from discord.ext.commands import command, has_permissions, CheckFailure, is_owner, group
 from data import db
+from ..ext import check
 from discord import Color
 from ..ext.utils import color
 
@@ -38,12 +39,6 @@ class Tasks(Cog, name='\U00002699 Tasks'):
 
 	@group(name="set")
 	async def setter(self, ctx):
-		"""
-			set prefix `<prefix>`
-			set avatar `<url>`
-			set username `<name>`
-			set <nickname> `<name>`
-		"""
 		pass
 			
 
@@ -90,7 +85,26 @@ class Tasks(Cog, name='\U00002699 Tasks'):
 		except:
 			raise
 
-
+	@setter.command(name="logs")
+	@check.is_mod()
+	async def _log(self, ctx, chan: TextChannel=None):
+		"""Set the main logging channel for the bot."""
+		
+		db.cur.execute("SELECT * FROM logs WHERE id = ?", (ctx.guild.id,))
+		result = db.cur.fetchone()
+		
+		if chan is None:
+			return await ctx.send("You must specify a channel #name.")
+		
+		if result is None:
+				db.cur.execute("INSERT INTO logs VALUES (?,?)", (ctx.message.guild.id, chan.id))
+				db.con.commit()
+				await ctx.send(f"Logs will be in {chan.mention}")
+		else:
+			db.cur.execute("UPDATE logs SET logchannel = ? WHERE id = ?", (chan.id, ctx.guild.id))
+			db.con.commit()
+			await ctx.send(f"Updated logging channel to {chan.mention}")
+			
 
 def setup(bot):
 	bot.add_cog(Tasks(bot))
