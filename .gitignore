@@ -13,4 +13,6 @@ token.0
 *.db
 .vscode/
 *.sh
+build.nix
 config.py
+leftovers

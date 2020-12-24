@@ -473,20 +473,26 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
 
         boosters = int(ctx.guild.premium_subscription_count)
 
+        if ctx.guild.icon:
+            embed.set_thumbnail(url=ctx.guild.icon_url)
 
-        embed.set_author(name=f'Server info for {ctx.guild.name}', icon_url=ctx.guild.icon_url)
+        embed.set_author(name=f'{ctx.guild.name}', icon_url=ctx.guild.icon_url)
         embed.add_field(name=f"{sOWNER} **Server Owner**", value=f"{owner}", inline=False)
-        embed.add_field(name=f"**<:ser_emoji:763034584425431110> Server ID**", value=f"{id}", inline=False)
+        embed.add_field(name=f"**<:ser_emoji:763034584425431110> Server ID**", value=f"{id}", inline=True)
+
+        if ctx.guild.premium_tier:
+            embed.add_field(name=f"{u.emojis.boost(self)} **Boost tier**", value=ctx.guild.premium_tier, inline=True)
         embed.add_field(name=f"**<a:calen:763440423347290124> Creation date**", value=f"{ctx.guild.created_at}", inline=False)
-        embed.add_field(name=f"{sREGION} **Server Region**", value=f"{region}", inline=False)
+        embed.add_field(name=f"{sREGION} **Server Region**", value=f"{region}", inline=True)
+
         if boosters:
-            embed.add_field(name=f"{u.emojis.boost(self)} **Boosters**", value=f"{boosters}", inline=False)
+            embed.add_field(name=f"{u.emojis.boost(self)} **Boosters**", value=f"{boosters}", inline=True)
         if memberCount:
             embed.add_field(name=f"{sMEMBERS} **Members**", value=f"{memberCount}", inline=False)
         if emoji_count:
-            embed.add_field(name=f"**Emojis**", value=f"{emoji_count}", inline=False)
+            embed.add_field(name=f"**Emojis**", value=f"{emoji_count}", inline=True)
         if role_count:
-            embed.add_field(name=f"**Roles**", value=f"{role_count}", inline=False)
+            embed.add_field(name=f"**Roles**", value=f"{role_count}", inline=True)
         embed.set_footer(text=f"{ctx.author}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
 
@@ -534,6 +540,37 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         e.set_author(name=str(user))
         e.set_thumbnail(url=user.avatar_url)
         await ctx.send(embed=e)
+
+    @commands.group(name="git")
+    async def git(self, ctx):
+        """```Useage user: git user <username>```\n```Useage repo: git repo <username> <reponame>```"""
+        pass
+
+
+    @git.command(name="user")
+    async def user_command(self, ctx, *, user: str):
+        
+        try:
+            name = user.replace(" ", "+")
+            github = "https://github.com/" + name
+            await ctx.send(github)
+        
+        except Exception as e:
+            if user is None:
+                await ctx.send("Please provide a user" + e)
+
+
+    @git.command(name="repo")
+    async def repo_command(self, ctx, user: str, *, repo: str):
+        if user is None:
+            await ctx.send("Please provide a user or type `pls git` for more info")
+        elif repo is None:
+            await ctx.send("Please provide a repo name or type `pls git` for more info")
+        
+        else:
+            repo = repo.replace(" ", "+")
+            repo_link = "https://github.com/" + user + "/" + repo
+            await ctx.send(repo_link)
 
 
 

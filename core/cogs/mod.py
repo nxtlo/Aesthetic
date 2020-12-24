@@ -1,4 +1,3 @@
-from data import db as d
 from discord.ext.commands import command, is_owner, Cog, has_guild_permissions, guild_only, Converter, Context, group, bot_has_guild_permissions
 from discord.ext import commands
 from discord import Embed, Member, Guild, NotFound, TextChannel
@@ -27,24 +26,6 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
         """
         Bans a member from the guild.
         """
-        
-        foo = d.cur.execute("SELECT * FROM bans WHERE id = ?", (member.id,))
-
-        fetched = foo.fetchone()
-
-        if fetched:
-            return await ctx.send(f"Member {member.display_name} is already banned.")
-            
-
-        else:
-            d.cur.execute("INSERT OR IGNORE INTO bans VALUES (?,?,?,?,?)", (
-                member.guild.id,
-                member.id,
-                ctx.author.id,
-                ctx.message.created_at,
-                reason))
-        d.con.commit()
-
         try:
             if reason is None:
 
@@ -86,8 +67,6 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
     @bot_has_guild_permissions(ban_members=True)
     @guild_only()
     async def unban_command(self, ctx, member: Union[Member, FetchedUser], *, reason=None):
-        
-        d.cur.execute("DELETE FROM bans WHERE member_id = ?", (member.id,))
 
         try:
             if reason is None:
@@ -131,13 +110,6 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
         """
         kicks a member from the guild.
         """
-        foo = d.cur.execute("SELECT * FROM kicks WHERE id = ?", (member.id,))
-
-        fetched = foo.fetchone()
-
-        if fetched:
-            return await ctx.send(f"Member {member.display_name} is already kicked.")
-
         try:
             if reason is None:
 
@@ -152,12 +124,7 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
                 e.set_thumbnail(url=member.avatar_url)
                 await ctx.guild.kick(member)
                 await ctx.send(embed=e)
-                d.cur.execute("INSERT OR IGNORE INTO kicks VALUES (?,?,?,?,?)", (
-                    member.guild.id,
-                    member.id,
-                    ctx.author.id,
-                    ctx.message.created_at))
-                d.con.commit()
+
             elif reason:
                 null = strftime("%A, %d %Y/%m, %H:%M:%S %p")
                 e = Embed(
@@ -170,19 +137,11 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
                 e.set_thumbnail(url=member.avatar_url)
                 await ctx.guild.kick(member)
                 await ctx.send(embed=e)
-                
-                d.cur.execute("INSERT OR IGNORE INTO kicks VALUES (?,?,?,?,?)", (
-                    member.guild.id,
-                    member.id,
-                    ctx.author.id,
-                    ctx.message.created_at,
-                    reason))
-                d.con.commit()
             else:
                 print(f"{ctx.author.name} tried to kick someone and he doesn't have perms")
                 return
-        except ProgrammingError as e:
-            await ctx.send(e)
+        except:
+            pass
 
 
     @command(name="clean", aliases=["purge", "del"], useage="clean <ammount>")

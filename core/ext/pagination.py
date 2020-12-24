@@ -2,6 +2,7 @@ import asyncio
 import discord
 from discord.ext.commands import Paginator as CommandPaginator
 from discord.ext import menus
+from ..ext.utils import color
 
 class Pages(menus.MenuPages):
     def __init__(self, source):
@@ -66,7 +67,7 @@ class FieldPageSource(menus.ListPageSource):
     """A page source that requires (field_name, field_value) tuple items."""
     def __init__(self, entries, *, per_page=12):
         super().__init__(entries, per_page=per_page)
-        self.embed = discord.Embed(colour=discord.Colour.blurple())
+        self.embed = discord.Embed(colour=color.invis(self))
 
     async def format_page(self, menu, entries):
         self.embed.clear_fields()
@@ -126,4 +127,4 @@ class SimplePages(Pages):
 
     def __init__(self, entries, *, per_page=12):
         super().__init__(SimplePageSource(entries, per_page=per_page))
-        self.embed = discord.Embed(colour=discord.Colour.blurple())
+        self.embed = discord.Embed(colour=color.invis(self))

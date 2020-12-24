@@ -4,7 +4,6 @@ from time import time
 from discord import Activity, ActivityType, Embed, Status, HTTPException, TextChannel
 from discord.ext.commands import Cog
 from discord.ext.commands import command, has_permissions, CheckFailure, is_owner, group
-from data import db
 from ..ext import check
 from discord import Color
 from ..ext.utils import color
@@ -40,10 +39,10 @@ class Tasks(Cog, name='\U00002699 Tasks'):
 	@group(name="set")
 	async def setter(self, ctx):
 		pass
-			
+
 
 	@setter.command(name="prefix")
-	@has_permissions(manage_guild=True)
+	@check.is_mod()
 	async def change_prefix(self, ctx, prefix):
 		"""
 		Change the bot's prefix. 
@@ -51,13 +50,28 @@ class Tasks(Cog, name='\U00002699 Tasks'):
 		"""
 		try:
 			if len(prefix) > 5:
-				await ctx.send("The prefix can not be more than 5 characters in length.")
-
-			else:
-				db.execute("UPDATE Guilds SET prefix = ? WHERE id = ?", prefix, ctx.guild.id)
-				db.con.commit()
-				e = Embed(description=f"{ctx.author.mention} has changed the prefix to `{prefix}`")
+				await ctx.send("Prefix cannot be longer the 5")
+			get = await self.bot.pool.tables['prefixes'].select(
+				'prefix',
+				where={
+					'id': ctx.guild.id
+				}
+			)
+			if not get:
+				await self.bot.pool.tables['prefixes'].insert(
+					prefix=prefix,
+					id=ctx.guild.id
+				)
+				e = Embed(description=f"prefix changed to `{prefix}`")
 				await ctx.send(embed=e)
+			else:
+				await self.bot.pool.tables['prefixes'].update(
+						prefix=prefix,
+						where={
+							'id': ctx.guild.id
+						}
+					)
+				await ctx.send(f"Updated prefix to {prefix}")
 		except Exception as e:
 			await ctx.send(e)
 
@@ -85,26 +99,6 @@ class Tasks(Cog, name='\U00002699 Tasks'):
 		except:
 			raise
 
-	@setter.command(name="logs")
-	@check.is_mod()
-	async def _log(self, ctx, chan: TextChannel=None):
-		"""Set the main logging channel for the bot."""
-		
-		db.cur.execute("SELECT * FROM logs WHERE id = ?", (ctx.guild.id,))
-		result = db.cur.fetchone()
-		
-		if chan is None:
-			return await ctx.send("You must specify a channel #name.")
-		
-		if result is None:
-				db.cur.execute("INSERT INTO logs VALUES (?,?)", (ctx.message.guild.id, chan.id))
-				db.con.commit()
-				await ctx.send(f"Logs will be in {chan.mention}")
-		else:
-			db.cur.execute("UPDATE logs SET logchannel = ? WHERE id = ?", (chan.id, ctx.guild.id))
-			db.con.commit()
-			await ctx.send(f"Updated logging channel to {chan.mention}")
-			
 
 def setup(bot):
 	bot.add_cog(Tasks(bot))

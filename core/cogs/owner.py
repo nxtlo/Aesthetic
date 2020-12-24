@@ -225,44 +225,5 @@ class Owner(Cog):
             raise e
 
 
-    @group(name="append", hidden=True)
-    async def _append(self, ctx):
-        pass
-
-    @_append.command(name="help")
-    async def _append_help(self, ctx):
-        description =   """
-                    Options for the command `append`:
-
-                    Add a member to the owners list\nThis command is extremely dangerous\nmembers in the owner list will bypass any other owner command:
-
-                    Useage: append owner `<member>`
-                    """
-        e = Embed(
-            description=description,
-            color=color.invis(self)
-        )
-        await ctx.send(embed=e)
-
-
-    @_append.command(name="owner")
-    async def apped_owners(self, ctx, member: typing.Union[Member, FetchedUser]):
-        already_owner = db.cur.execute(f"SELECT id FROM owners WHERE id = ?", (member.id,)).fetchone()
-        author_is_owner = db.cur.execute(f"SELECT id FROM owners WHERE id = ?", (ctx.author.id,)).fetchone()
-        try:
-            if not member:
-                await ctx.send("You need to specify a member.")
-
-            elif already_owner:
-                await ctx.send(f"{member.display_name} is already part of owners.")
-
-            elif author_is_owner or ctx.author.id in self._owner_ids:
-                db.cur.execute("INSERT OR IGNORE INTO owners VALUES (?)", (member.id,))
-                db.con.commit()
-                await ctx.send(f"{member.display_name} now can use owner commands.")
-            else:
-                await ctx.send("You don't have permission to use ths command.")
-        except Exception:
-            raise
 def setup(bot):
     bot.add_cog(Owner(bot))

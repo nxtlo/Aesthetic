@@ -5,8 +5,21 @@ You can [invite](https://discord.com/oauth2/authorize?client_id=7600522047775047
 
 ## hosting the bot yourself
 
+* Postrges 9.5 or higher
 * You need python 3.8 to run without issues
-* Go to `data/example_config.py` and rename to `config.py` then paste your tokens there
+* Go to `data/example_config.py` and rename to `config.py` then paste your configs there
+
+
+## Database Setup
+
+Just type in psql this:
+
+```sql
+CREATE ROLE fate WITH LOGIN PASSWORD 'yourpass';
+CREATE DATABASE fate OWNER fate;
+ALTER USER fate WITH SUPERUSER;
+```
+
 
 ## venv setup
 
@@ -24,9 +37,3 @@ Then activate by doing this, _Actually required to run the bot_
 
 * windows: `py -3.8 launcher.py`
 * Linux/Mac: `python3.8 launcher.py`
-
-## Notes
-
-After running the bot for the first time, i highly suggest running this command `@YourBot db init`
-
-The bot prefix is `a.` you can change it using `set prefix <prefix>` command
