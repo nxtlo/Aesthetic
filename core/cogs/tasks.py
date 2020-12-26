@@ -8,33 +8,10 @@ from ..ext import check
 from discord import Color
 from ..ext.utils import color
 
-class Tasks(Cog, name='\U00002699 Tasks'):
+class Utility(Cog, name='\U00002699 Utility'):
 	def __init__(self, bot):
 		self.bot = bot
 
-	@property
-	def message(self):
-		return self._message.format(users=len(self.bot.users), guilds=len(self.bot.guilds))
-
-	@message.setter
-	def message(self, value):
-		if value.split(" ")[0] not in ("playing", "watching", "listening", "streaming"):
-			raise ValueError("Invalid activity type.")
-
-		self._message = value
-
-	async def set(self):
-		_type, _name = self.message.split(" ", maxsplit=1)
-
-		await self.bot.change_presence(activity=Activity(
-			name=_name, type=getattr(ActivityType, _type, ActivityType.playing)
-		))
-	
-	@command(name="activity", aliases=['act'], hidden=True)
-	@is_owner()
-	async def set_activity_message(self, ctx, *, text: str):
-		self.message = text
-		await self.set()
 
 	@group(name="set")
 	async def setter(self, ctx):
@@ -101,4 +78,4 @@ class Tasks(Cog, name='\U00002699 Tasks'):
 
 
 def setup(bot):
-	bot.add_cog(Tasks(bot))
+	bot.add_cog(Utility(bot))
