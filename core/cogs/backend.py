@@ -10,6 +10,7 @@ from core.ext.utils import color
 from typing import Optional
 from ..ext import check
 from ..bot import Amaya
+from data import config
 #--------------
 import requests
 import mystbin
@@ -17,6 +18,7 @@ import subprocess
 import asyncio
 import logging
 import discord
+import texttable
 
 
 class Sql(Cog):
@@ -25,6 +27,7 @@ class Sql(Cog):
         self._log_channel = 789614938247266305
         self._logger = logging.getLogger(__name__)
         self._mystbin = mystbin.Client(session=requests.Session())
+        self.table = texttable.Texttable()
 
     @group(hidden=True)
     async def db(self, ctx):
@@ -35,21 +38,20 @@ class Sql(Cog):
     @is_owner()
     async def _pragma(self, ctx, *, table: str):
         """
-        Format the database and render it as rST format
+        Format the table and render it as rST format
         """
         try:
             async with ctx.typing():
-                cmd = f'psql -U fate -d fate -c "SELECT * FROM {table}"'
+                cmd = f'psql -U {config.db_user} -d {config.database} -c "\d {table}"'
+                result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, close_fds=True, encoding='utf8')
                 if table:
                     if len(cmd) < 2000:
-                        result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, close_fds=True, encoding='utf8')
                         await ctx.send(f"```\n{result.communicate()[0]}\n```")
                     else:
-                        if len(cmd) > 2000:
-                            content = self._mystbin.post(f"{result.communicate()[0]}", syntax='sql').url
-                            return await ctx.send(f"Too many results... Uploaded to mystbin -> {content}")
-        except Exception as e:
-            await ctx.send(f"```{e.__class__.__name__}: {e}```")
+                        content = self._mystbin.post(f"{result.communicate()[0]}", syntax='sql').url
+                        return await ctx.send(f"Too many results... Uploaded to mystbin -> {content}")
+        except Exception:
+            raise
         finally:
             pass
 
@@ -59,19 +61,79 @@ class Sql(Cog):
         """Show the database schema"""
         try:
             async with ctx.typing():
-                cmd = 'psql fate fate -c "\dt"'
+                cmd = f'psql {config.db_user} {config.database} -c "\dt"'
                 schema = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, close_fds=True, encoding='utf8')
                 if len(cmd) < 2000:
-                    await ctx.send(f"```sql\n{schema.communicate()[0]}\n```")
+                    e = Embed(description=f"```sql\n{schema.communicate()[0]}\n```")
+                    await ctx.send(embed=e)
                 elif len(cmd) > 2000:
                     content = self._mystbin.post(f"{schema.communicate()[0]}", syntax='sql').url
                     return await ctx.send(f"Too many results... Uploaded to mystbin -> {content}")
         except Exception as e:
-            await ctx.send(f"```{e.__class__.__name__}: {e}```")
+            raise e
+    
+    @db.command(name="rows", aliases=['select'], hidden=True)
+    async def _rows(self, ctx, *, column: str):
+        try:
+            async with ctx.typing():
+                cmd = f'psql {config.db_user} {config.database} -c "SELECT * FROM {column};"'
+                schema = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, close_fds=True, encoding='utf8')
+                if len(cmd) < 2000:
+                    e = Embed(description=f"```sql\n{schema.communicate()[0]}\n```")
+                    await ctx.send(embed=e)
+                elif len(cmd) > 2000:
+                    content = self._mystbin.post(f"{schema.communicate()[0]}", syntax='sql').url
+                    return await ctx.send(f"Too many results... Uploaded to mystbin -> {content}")
+        except Exception as e:
+            raise e
+
+    
+    @command(name="format", hidden=True)
+    @is_owner()
+    async def _format(self, ctx, *, member: discord.Member=None):
+        """Testing a rst table format with textable"""
+        
+        member = member or ctx.author
+        if member is not None:
+            self.table.set_cols_align(["l", "r", "c"])
+            self.table.set_cols_valign(["t", "m", "b"])
+            self.table.add_rows([
+                [
+                    "Member",
+                    "ID",
+                    "JoinedAt"
+                ],
+                [
+                    member.name,
+                    member.id,
+                    member.joined_at
+                ]
+            ])
+            fmt = self.table.draw()
+            e = Embed(description=f"```\n{fmt}\n```")
+            await ctx.send(embed=e)
+        else:
+            self.table.set_cols_align(["l", "r", "c"])
+            self.table.set_cols_valign(["t", "m", "b"])
+            self.table.add_rows([
+                [
+                    "Member",
+                    "ID",
+                    "JoinedAt"
+                ],
+                [
+                    member.name,
+                    member.id,
+                    member.joined_at
+                ]
+            ])
+            fmt = self.table.draw()
+            e = Embed(description=f"```\n{fmt}\n```")
+            await ctx.send(embed=e)
 
     @Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
-        roles = [role.name.replace('@', '@\u200b') for role in guild.roles]
+        roles = [role.mention for role in guild.roles]
         e = Embed(
             title="Joined a new server!",
             color=color.invis(self),
@@ -83,7 +145,7 @@ class Sql(Cog):
         e.add_field(name="Server region", value=guild.region)
         e.add_field(name="Boosters", value=guild.premium_subscription_count)
         e.add_field(name="Boost Level", value=guild.premium_tier)
-        e.add_field(name='Roles', value=', '.join(roles) if len(roles) < 10 else f'{len(roles)} roles')
+        e.add_field(name='Roles', value=', '.join(roles) if len(roles) < 20 else f'{len(roles)} roles')
         e.set_thumbnail(url=guild.icon_url)
         chan = self.bot.get_channel(self._log_channel)
         await chan.send(embed=e)
@@ -93,6 +155,7 @@ class Sql(Cog):
 
     @Cog.listener()
     async def on_guild_remove(self, guild):
+        roles = [role.mention for role in guild.roles]
         e = Embed(
             title="Left a server!",
             color=color.invis(self),
@@ -104,35 +167,11 @@ class Sql(Cog):
         e.add_field(name="Server region", value=guild.region)
         e.add_field(name="Boosters", value=guild.premium_subscription_count)
         e.add_field(name="Boost Level", value=guild.premium_tier)
+        e.add_field(name='Roles', value=', '.join(roles) if len(roles) < 20 else f'{len(roles)} roles')
         e.set_thumbnail(url=guild.icon_url)
         chan = self.bot.get_channel(self._log_channel)
         await chan.send(embed=e)
         print(f"Bot left {guild.name} at {datetime.utcnow()}")
 
-
-
-    @Cog.listener()
-
-    async def on_ready(self):
-        await self.bot.pool.create_table(
-            'tags_conn',
-            [
-                ('id', str),
-                ('tag_name', str)
-            ],
-            prim_key='id',
-            foreign_keys={
-                'id': {
-                    'table': 'tags',
-                    'ref': 'guild_id',
-                    'mods': 'ON UPDATE CASCADE ON DELETE CASCADE'
-                }
-            }
-        )
-
-
-
 def setup(bot):
-
     bot.add_cog(Sql(bot))
-
