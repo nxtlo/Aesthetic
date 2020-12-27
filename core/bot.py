@@ -7,6 +7,7 @@ from core.cogs.commands import FetchedUser
 from data import config
 from core.ext.utils import color
 
+import asyncio
 import discord
 import os
 import copy
@@ -14,8 +15,6 @@ import logging
 import traceback
 import sys
 from aiopyql.data import Database as db
-
-log = logging.getLogger(__name__)
 
 
 class Amaya(Bot):
@@ -31,22 +30,19 @@ class Amaya(Bot):
             case_insensitive=True,
             intents=Intents.all(),
             owner_id=self._owner)
+
     @property
     def fate(self):
         return self._owner or self.owner_id
 
     async def on_ready(self):
-        self.client_id = (await self.application_info()).id
         print("Bot ready.")
         print('Logged in as:\n')
         print('Bot name:\n', self.user.name)
         print('Bot id:\n',self.user.id)
         print('Discord Version:\n', __version__)
-        print('------')
-        print(log)
 
-        # Create and prepare the database/tables...
-
+        # Create and prepare the database/tables...   
         if not 'tags' in self.pool.tables or 'prefixes' not in self.pool.tables:
             await self.pool.create_table(
                 'tags',
@@ -76,11 +72,13 @@ class Amaya(Bot):
                 'id': message.guild.id
             }
         )
+        if message.guild is None:
+            return ('a.', 'a!')
         if not pfx:
             return when_mentioned_or("a.", "a!")(self, message)
         return when_mentioned_or(pfx[0]['prefix'])(self, message)
 
-    async def pool_connect(self) -> db.create:    
+    async def pool_connect(self) -> db.create:
         self.pool: db.create() = await db.create(
             database=config.database,
             user=config.db_user,
@@ -88,8 +86,8 @@ class Amaya(Bot):
             host=config.host,
             port=config.port,
             db_type=config.db_type,
-            cache_enabled=True,
-            max_cache_len=128)
+            cache_enabled=True, # Enable db read caching
+            max_cache_len=256)
 
     async def on_message(self, message):
         if message.author.bot:
