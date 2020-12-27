@@ -9,7 +9,6 @@ from time import strftime
 from core.ext.utils import color
 from typing import Optional
 from ..ext import check
-from ..bot import Amaya
 from data import config
 #--------------
 import requests
@@ -22,7 +21,7 @@ import texttable
 
 
 class Sql(Cog):
-    def __init__(self, bot: Amaya):
+    def __init__(self, bot):
         self.bot = bot
         self._log_channel = 789614938247266305
         self._logger = logging.getLogger(__name__)
@@ -72,8 +71,10 @@ class Sql(Cog):
         except Exception as e:
             raise e
     
-    @db.command(name="rows", aliases=['select'], hidden=True)
+    @db.command(name="rows", hidden=True)
+    @is_owner()
     async def _rows(self, ctx, *, column: str):
+        """View table rows"""
         try:
             async with ctx.typing():
                 cmd = f'psql {config.db_user} {config.database} -c "SELECT * FROM {column};"'
@@ -88,6 +89,60 @@ class Sql(Cog):
             raise e
 
     
+    @db.command(name='grab', hidden=True)
+    @is_owner()
+    async def _select(self, ctx, option, *, table):
+        """Select content from a table"""
+        try:
+            if not table in self.bot.pool.tables:
+                return await ctx.send("Couldn't find the table")
+            else:
+                content = await self.bot.pool.tables[table].select(option)
+
+                fmt = "".join(str(content).replace("{","").replace("}", "").replace("'content': ", "").replace("'", "").replace("'", "")).replace("[", "").replace("]", "").replace(",", "\n")
+                final = f'```\n{fmt}\n```'
+                e = Embed(description=final)
+                await ctx.send(embed=e)
+        except Exception as e:
+            await ctx.send(e)
+
+
+    @db.command(name="new", aliases=['crt'], hidden=True)
+    @is_owner()
+    async def cr_tbl(
+                    self, 
+                    ctx, 
+                    name, 
+                    col1 = None, 
+                    type1 = None, 
+                    col2 = None, 
+                    type2 = None, 
+                    col3 = None, 
+                    type3 = None, 
+                    pkey = None
+                    ):
+        """
+        Create database tables from discord.
+        Limit is 3 coloumns.
+        """
+        try:
+            if not name in self.bot.pool.tables:
+                await self.bot.pool.create_table(
+                    name,
+                    [
+                        (col1, type1),
+                        (col2, type2),
+                        (col3, type3)
+                    ],
+                    prim_key=pkey
+                )
+                await asyncio.sleep(2)
+                await ctx.send("Done!")
+            else:
+                await ctx.send("Table is already in the database.")
+        except Exception as e:
+            await ctx.send(e)
+
     @command(name="format", hidden=True)
     @is_owner()
     async def _format(self, ctx, *, member: discord.Member=None):
@@ -100,12 +155,12 @@ class Sql(Cog):
             self.table.add_rows([
                 [
                     "Member",
-                    "ID",
+                    "Discriminator ",
                     "JoinedAt"
                 ],
                 [
                     member.name,
-                    member.id,
+                    member.discriminator,
                     member.joined_at
                 ]
             ])
