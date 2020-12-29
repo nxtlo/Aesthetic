@@ -4,20 +4,18 @@ import discord
 import datetime, time
 import sys, platform, psutil
 import asyncio
-from ..ext.pagination import Pages
 from ..ext.utils import color, emojis as emj
 import requests
 from data import config
 from discord.ext import menus
 from typing import Union
+from time import strftime
 from discord.ext import commands
 from discord import Member, Embed, Color, Status, Guild
-from data import db
 from core.ext import utils as u
+from ..ext.help import PaginatedHelpCommand
+
 start_time = time.time()
-
-
-# yes the help command is frm R.Danny
 
 class FetchedUser(commands.Converter):
     async def convert(self, ctx, argument):
@@ -31,199 +29,6 @@ class FetchedUser(commands.Converter):
             raise commands.BadArgument('An error occurred while fetching the user.') from None
 
 
-class BotHelpPageSource(menus.ListPageSource):
-    def __init__(self, help_command, commands):
-        # entries = [(cog, len(sub)) for cog, sub in commands.items()]
-        # entries.sort(key=lambda t: (t[0].qualified_name, t[1]), reverse=True)
-        super().__init__(entries=sorted(commands.keys(), key=lambda c: c.qualified_name), per_page=6)
-        self.commands = commands
-        self.help_command = help_command
-        self.prefix = help_command.clean_prefix
-
-    def format_commands(self, cog, commands):
-        # A field can only have 1024 characters so we need to paginate a bit
-        # just in case it doesn't fit perfectly
-        # However, we have 6 per page so I'll try cutting it off at around 800 instead
-        # Since there's a 6000 character limit overall in the embed
-        if cog.description:
-            short_doc = cog.description.split('\n', 1)[0] + '\n'
-        else:
-            short_doc = '\u0020'
-
-        current_count = len(short_doc)
-        ending_note = '+%d not shown'
-        ending_length = len(ending_note)
-
-        page = []
-        for command in commands:
-            value = f'`{command.name}`'
-            count = len(value) + 1 # The space
-            if count + current_count < 800:
-                current_count += count
-                page.append(value)
-            else:
-                # If we're maxed out then see if we can add the ending note
-                if current_count + ending_length + 1 > 800:
-                    # If we are, pop out the last element to make room
-                    page.pop()
-
-                # Done paginating so just exit
-                break
-
-        if len(page) == len(commands):
-            # We're not hiding anything so just return it as-is
-            return short_doc + ' '.join(page)
-
-        hidden = len(commands) - len(page)
-        return short_doc + ' '.join(page) + '\n' + (ending_note % hidden)
-
-
-    async def format_page(self, menu, cogs):
-        prefix = menu.ctx.prefix
-        description = f'Use "{prefix}help command" for more info on a command.'
-
-        embed = discord.Embed(title=f'Commands available', description=description, colour=color.invis(self))
-
-        for cog in cogs:
-            commands = self.commands.get(cog)
-            if commands:
-                value = self.format_commands(cog, commands)
-                embed.add_field(name=cog.qualified_name, value=value, inline=True)
-
-        maximum = self.get_max_pages()
-        embed.set_footer(text=f'Page {menu.current_page + 1}/{maximum}')
-        return embed
-
-class GroupHelpPageSource(menus.ListPageSource):
-    def __init__(self, group, commands, *, prefix):
-        super().__init__(entries=commands, per_page=6)
-        self.group = group
-        self.prefix = prefix
-        self.title = f'{self.group.qualified_name} Commands'
-        self.description = self.group.description
-
-    async def format_page(self, menu, commands):
-        embed = discord.Embed(title=self.title, description=self.description, colour=color.invis(self))
-
-        for command in commands:
-            signature = f'{command.qualified_name} {command.signature}'
-            embed.add_field(name=signature, value=command.short_doc or 'No help given...', inline=False)
-
-        maximum = self.get_max_pages()
-        if maximum > 1:
-            embed.set_author(name=f'Page {menu.current_page + 1}/{maximum} ({len(self.entries)} commands)')
-
-        embed.set_footer(text=f'Use "{self.prefix}help command" for more info on a command.')
-        return embed
-
-class HelpMenu(Pages):
-    def __init__(self, source):
-        super().__init__(source)
-
-    @menus.button('\N{WHITE QUESTION MARK ORNAMENT}', position=menus.Last(5))
-    async def show_bot_help(self, payload):
-        """shows how to use the bot"""
-
-        embed = discord.Embed(title='Using the bot', colour=color.invis(self))
-        embed.title = 'Using the bot'
-        embed.description = 'Hello! Welcome to the help page.'
-
-        entries = (
-            ('<argument>', 'This means the argument is __**required**__.'),
-            ('[argument]', 'This means the argument is __**optional**__.'),
-            ('[A|B]', 'This means that it can be __**either A or B**__.'),
-            ('[argument...]', 'This means you can have multiple arguments.\n' \
-                              'Now that you know the basics, it should be noted that...\n' \
-                              '__**You do not type in the brackets!**__')
-        )
-
-        embed.add_field(name='How do I use this bot?', value='Reading the bot signature is pretty simple.')
-
-        for name, value in entries:
-            embed.add_field(name=name, value=value, inline=False)
-
-        embed.set_footer(text=f'We were on page {self.current_page + 1} before this message.')
-        await self.message.edit(embed=embed)
-
-        async def go_back_to_current_page():
-            await asyncio.sleep(30.0)
-            await self.show_page(self.current_page)
-
-        self.bot.loop.create_task(go_back_to_current_page())
-
-class PaginatedHelpCommand(commands.HelpCommand):
-    def __init__(self):
-        super().__init__(command_attrs={
-            'cooldown': commands.Cooldown(1, 3.0, commands.BucketType.member),
-            'help': 'Shows help about the bot, a command, or a category'
-        })
-
-    async def on_help_command_error(self, ctx, error):
-        if isinstance(error, commands.CommandInvokeError):
-            await ctx.send(str(error.original))
-
-    def get_command_signature(self, command):
-        parent = command.full_parent_name
-        if len(command.aliases) > 0:
-            aliases = '|'.join(command.aliases)
-            fmt = f'[{command.name}|{aliases}]'
-            if parent:
-                fmt = f'{parent} {fmt}'
-            alias = fmt
-        else:
-            alias = command.name if not parent else f'{parent} {command.name}'
-        return f'{alias} {command.signature}'
-
-    async def send_bot_help(self, mapping):
-        bot = self.context.bot
-        entries = await self.filter_commands(bot.commands, sort=True)
-
-        all_commands = {}
-        for command in entries:
-            if command.cog is None:
-                continue
-            try:
-                all_commands[command.cog].append(command)
-            except KeyError:
-                all_commands[command.cog] = [command]
-
-
-        menu = HelpMenu(BotHelpPageSource(self, all_commands))
-
-        await menu.start(self.context)
-
-    async def send_cog_help(self, cog):
-        entries = await self.filter_commands(cog.get_commands(), sort=True)
-        menu = HelpMenu(GroupHelpPageSource(cog, entries, prefix=self.clean_prefix))
-
-        await menu.start(self.context)
-
-    def common_command_formatting(self, embed_like, command):
-        embed_like.title = self.get_command_signature(command)
-        if command.description:
-            embed_like.description = f'{command.description}\n\n{command.help}'
-        else:
-            embed_like.description = command.help or None
-
-    async def send_command_help(self, command):
-        # No pagination necessary for a single command.
-        embed = discord.Embed(colour=color.invis(self))
-        self.common_command_formatting(embed, command)
-        await self.context.send(embed=embed)
-
-    async def send_group_help(self, group):
-        subcommands = group.commands
-        if len(subcommands) == 0:
-            return await self.send_command_help(group)
-
-        entries = await self.filter_commands(subcommands, sort=True)
-        if len(entries) == 0:
-            return await self.send_command_help(group)
-
-        source = GroupHelpPageSource(group, entries, prefix=self.clean_prefix)
-        self.common_command_formatting(source, group)
-        menu = HelpMenu(source)
-        await menu.start(self.context)
 
 
 class Meta(commands.Cog, name="\U0001f587 Meta"):
@@ -350,7 +155,6 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         memory_usage = self.process.memory_full_info().uss / 1024**2
         cpu_usage = self.process.cpu_percent() / psutil.cpu_count()
         os_name = platform.system()
-        os_release = platform.release()
         version = discord.__version__
 
         embed.add_field(name='Members', value=f'{total_members} total\n{total_unique} unique')
@@ -359,7 +163,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         embed.add_field(name='Guilds', value=guilds)
         embed.add_field(name="Uptime", value=uptime)
         embed.add_field(name='Process', value=f'{memory_usage:.2f} MiB\n{cpu_usage:.2f}% CPU')
-        embed.add_field(name="VM OS", value=os_name + os_release)
+        embed.add_field(name="VM OS", value=os_name)
         embed.add_field(name="Bot owner", value=owner_name)
         embed.set_thumbnail(url=self.bot.user.avatar_url)
         embed.set_footer(text=f'Made with discord.py v{version}', icon_url='http://i.imgur.com/5BFecvA.png')
@@ -387,19 +191,6 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
             color=color.invis(self)
         )
         e.set_image(url=ctx.guild.icon_url)
-        await ctx.send(embed=e)
-
-    @commands.command("prefx")
-    async def _pfx(self, ctx):
-        def inner():
-            pfx = db.cur.execute("SELECT prefix FROM Guilds WHERE id = ?", (ctx.guild.id,))
-            for prefix in pfx.fetchone():
-                return prefix
-        e = Embed(
-            title="Prefix is:",
-            description=f"1: **{inner()}**",
-            color=color.invis(self)
-            )
         await ctx.send(embed=e)
 
     @commands.command(name="weather")
@@ -493,6 +284,19 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
             embed.add_field(name=f"**Emojis**", value=f"{emoji_count}", inline=True)
         if role_count:
             embed.add_field(name=f"**Roles**", value=f"{role_count}", inline=True)
+
+        # Get the current guild prefix from the database,
+        # We can obviously make it less easier but why bit ¯\_(ツ)_/¯
+        current_prefix = await self.bot.pool.tables['prefixes'].select(
+            'prefix',
+            where={
+                'id': ctx.guild.id
+            }
+        )
+
+        if current_prefix:
+            embed.add_field(name="**Guild Prefix**", value=f"`{current_prefix[0]['prefix']}`")
+        
         embed.set_footer(text=f"{ctx.author}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
 
@@ -504,7 +308,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         user = user or ctx.author
         e = discord.Embed()
         e.color = color.invis(self)
-        roles = [role.name.replace('@', '@\u200b') for role in getattr(user, 'roles', [])]
+        roles = [role.mention for role in getattr(user, 'roles', [])]
 
         mob = user.is_on_mobile()
         custom_stats = user.activity
@@ -514,15 +318,20 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         dnd = Status.dnd
         idle = Status.idle
         offline = Status.offline
+        
+        fmt_time = '%A, %Y/%d/%m, %H:%M:%S %p'
 
         e.add_field(name=f"{emj.mem(self)} ID", value=user.id, inline=False)
-        e.add_field(name=f"{emj.plus(self)} Joined server at", value=user.joined_at, inline=False)
+        e.add_field(name=f"{emj.plus(self)} Joined server at", value=user.joined_at.strftime(fmt_time), inline=False)
         e.add_field(name=f"{emj.dscord(self)} Created account",value=user.created_at, inline=False)
 
         if booster:
             e.add_field(name=f"{emj.boost(self)} Booster since", value=user.premium_since, inline=False)
         if mob:
             e.add_field(name="<:phone:779159717388877846> Is on Mobile", value=mob, inline=False)
+        
+        if user.top_role:
+            e.add_field(name="Top role", value=user.top_role.mention, inline=False)
 
         if user.status == online:
             e.add_field(name="Status", value=f"{emj.online(self)} {user.status}")

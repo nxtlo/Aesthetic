@@ -17,13 +17,28 @@ import sys
 from aiopyql.data import Database as db
 
 
+COGS = (
+    'jishaku',
+    'core.cogs.tools',
+    'core.cogs.anime',
+    'core.cogs.nsfw',
+    'core.cogs.backend',
+    'core.cogs.commands',
+    'core.cogs.fun',
+    'core.cogs.math',
+    'core.cogs.mod',
+    'core.cogs.owner',
+    'core.cogs.tags',
+    'core.cogs.tasks'
+)
+
 class Amaya(Bot):
     """
     Main `class` for the bot to acually run.
     """
     def __init__(self):
-        self._cogs = [p.stem for p in Path(".").glob("./core/cogs/*.py")]
-        self._owner = 350750086357057537 # Replace this with your Discord ID
+        # self._cogs = [p.stem for p in Path(".").glob("./core/cogs/*.py")]
+        self._owner = 350750086357057537
 
         super().__init__(
             command_prefix=self.get_prefix,
@@ -32,8 +47,15 @@ class Amaya(Bot):
             owner_id=self._owner)
 
     @property
-    def fate(self):
+    def fate(self) -> int:
         return self._owner or self.owner_id
+
+
+    async def query(self, query: str) -> None:
+        try:
+            return await self.pool.run(query)
+        except Exception:
+            raise
 
     async def on_ready(self):
         print("Bot ready.")
@@ -43,7 +65,7 @@ class Amaya(Bot):
         print('Discord Version:\n', __version__)
 
         # Create and prepare the database/tables...   
-        if not 'tags' in self.pool.tables or 'prefixes' not in self.pool.tables:
+        try:
             await self.pool.create_table(
                 'tags',
                 [
@@ -63,7 +85,9 @@ class Amaya(Bot):
                 prim_key='id'
             )
             print(" \nConnected to the Database...")
-    
+        except Exception:
+            return
+
     # idk why i did this but yeh :<|
     async def get_prefix(self, message):
         pfx = await self.pool.tables['prefixes'].select(
@@ -131,10 +155,9 @@ class Amaya(Bot):
 
     def setup(self):
         print("Loading cogs...")
-
-        for cog in self._cogs:
+        for cog in COGS:
             try:
-	            self.load_extension(f"core.cogs.{cog}")
+	            self.load_extension(f"{cog}")
 	            print(f" Loaded {cog} cog.")
             except Exception:
                 print(f'\nFailed to load extension {cog}.', file=sys.stderr)

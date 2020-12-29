@@ -3,6 +3,7 @@ The backend and database for the bot
 """
 from discord.ext.commands import command, is_owner, Cog, has_permissions, guild_only, bot_has_permissions, group
 from discord.ext import commands
+from discord.ext.tasks import loop
 from discord import Embed, TextChannel
 from datetime import datetime
 from time import strftime
@@ -18,6 +19,14 @@ import asyncio
 import logging
 import discord
 import texttable
+import json
+
+
+__all__ = ('row', 'column', 'table', 'database')
+
+
+class TableExists(Exception):
+    pass
 
 
 class Sql(Cog):
@@ -27,6 +36,14 @@ class Sql(Cog):
         self._logger = logging.getLogger(__name__)
         self._mystbin = mystbin.Client(session=requests.Session())
         self.table = texttable.Texttable()
+
+    @staticmethod
+    def ToJson(obj):
+        if isinstance(obj, set):
+            return list(obj)
+        raise TypeError
+
+
 
     @group(hidden=True)
     async def db(self, ctx):
@@ -38,6 +55,7 @@ class Sql(Cog):
     async def _pragma(self, ctx, *, table: str):
         """
         Format the table and render it as rST format
+        this command access your psql commandline
         """
         try:
             async with ctx.typing():
@@ -53,11 +71,11 @@ class Sql(Cog):
             raise
         finally:
             pass
-
+    
     @db.command(name="schema", hidden=True)
     @is_owner()
     async def _schema(self, ctx):
-        """Show the database schema"""
+        """Show the database schema from psql"""
         try:
             async with ctx.typing():
                 cmd = f'psql {config.db_user} {config.database} -c "\dt"'
@@ -74,16 +92,16 @@ class Sql(Cog):
     @db.command(name="rows", hidden=True)
     @is_owner()
     async def _rows(self, ctx, *, column: str):
-        """View table rows"""
+        """View table rows from psql"""
         try:
             async with ctx.typing():
                 cmd = f'psql {config.db_user} {config.database} -c "SELECT * FROM {column};"'
-                schema = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, close_fds=True, encoding='utf8')
+                rows = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, close_fds=True, encoding='utf8')
                 if len(cmd) < 2000:
-                    e = Embed(description=f"```sql\n{schema.communicate()[0]}\n```")
+                    e = Embed(description=f"```sql\n{rows.communicate()[0]}\n```")
                     await ctx.send(embed=e)
                 elif len(cmd) > 2000:
-                    content = self._mystbin.post(f"{schema.communicate()[0]}", syntax='sql').url
+                    content = self._mystbin.post(f"{rows.communicate()[0]}", syntax='sql').url
                     return await ctx.send(f"Too many results... Uploaded to mystbin -> {content}")
         except Exception as e:
             raise e
@@ -92,20 +110,40 @@ class Sql(Cog):
     @db.command(name='grab', hidden=True)
     @is_owner()
     async def _select(self, ctx, option, *, table):
-        """Select content from a table"""
+        """
+        Select content from a table.
+        This command is similar to `query` command but formatted in an Embed.
+        in this command as well you can use sql syntax such as `LIMIT, GROUP BY, DESC` etc.
+        """
         try:
             if not table in self.bot.pool.tables:
                 return await ctx.send("Couldn't find the table")
             else:
                 content = await self.bot.pool.tables[table].select(option)
-
-                fmt = "".join(str(content).replace("{","").replace("}", "").replace("'content': ", "").replace("'", "").replace("'", "")).replace("[", "").replace("]", "").replace(",", "\n")
-                final = f'```\n{fmt}\n```'
-                e = Embed(description=final)
-                await ctx.send(embed=e)
+                if len(content) == 0:
+                    await ctx.send("Nothing was found in that table.")
+                else:
+                    fmt = "".join(str(content).replace("{","").replace("}", "").replace("'content': ", "").replace("'", "").replace("'", "")).replace("[", "").replace("]", "").replace(",", "\n")
+                    final = f'```\n{fmt}\n```'
+                    e = Embed(description=final)
+                    await ctx.send(embed=e)
         except Exception as e:
             await ctx.send(e)
 
+    @db.command(name="query", hidden=True)
+    @is_owner()
+    async def _eq(self, ctx, *, query: str):
+        '''Run real sql queries'''
+        try:
+            async with ctx.typing():
+                if query:
+                    rest = await self.bot.query(query)
+                    await ctx.author.send(f"```\n{rest}\n```")
+                    return await ctx.message.add_reaction('\U00002705')
+                if '[]' in query:
+                    return None
+        except Exception as e:
+            await ctx.send(f"```{e}```")
 
     @db.command(name="new", aliases=['crt'], hidden=True)
     @is_owner()
@@ -137,7 +175,7 @@ class Sql(Cog):
                     prim_key=pkey
                 )
                 await asyncio.sleep(2)
-                await ctx.send("Done!")
+                await ctx.send(f"Created table {name}!")
             else:
                 await ctx.send("Table is already in the database.")
         except Exception as e:
