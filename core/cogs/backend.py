@@ -50,6 +50,40 @@ class Sql(Cog):
         """Commands for returning stuff from the database"""
         pass
 
+
+    @db.command(name='init', hidden=True)
+    @is_owner()
+    async def init_db(self, ctx):
+        try:
+            if not ('tags' or 'warns' in self.bot.pool.tables):
+                await self.bot.pool.create_table(
+                    'tags',
+                    [
+                        ('guild_id', str),
+                        ('tag_name', str),
+                        ('tag_owner', str),
+                        ('content', str)
+                    ],
+                    prim_key='guild_id'
+                )
+                await self.bot.pool.create_table(
+                    'warns',
+                    [
+                        ('guild_id', str),
+                        ('warn_id', str, 'UNIQUE'),
+                        ('member_id', str),
+                        ('author_id', str),
+                        ('reason', str),
+                        ('date', str)
+                    ],
+                    prim_key='warn_id'
+                )
+                await ctx.message.add_reaction('\U00002705')
+            else:
+                return
+        except Exception as e:
+            await ctx.author.send(e)
+
     @db.command(name="table", aliases=['tbl'], hidden=True)
     @is_owner()
     async def _pragma(self, ctx, *, table: str):
@@ -98,8 +132,7 @@ class Sql(Cog):
                 cmd = f'psql {config.db_user} {config.database} -c "SELECT * FROM {column};"'
                 rows = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, close_fds=True, encoding='utf8')
                 if len(cmd) < 2000:
-                    e = Embed(description=f"```sql\n{rows.communicate()[0]}\n```")
-                    await ctx.send(embed=e)
+                    await ctx.send(f"```sql\n{rows.communicate()[0]}\n```")
                 elif len(cmd) > 2000:
                     content = self._mystbin.post(f"{rows.communicate()[0]}", syntax='sql').url
                     return await ctx.send(f"Too many results... Uploaded to mystbin -> {content}")
@@ -226,6 +259,9 @@ class Sql(Cog):
 
     @Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
+        # if a guild has less then 5 members then we leave 
+        if guild.member_count <= 5:
+            await guild.leave()
         roles = [role.mention for role in guild.roles]
         e = Embed(
             title="Joined a new server!",

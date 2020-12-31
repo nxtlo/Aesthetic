@@ -18,7 +18,6 @@ from aiopyql.data import Database as db
 
 
 COGS = (
-    'jishaku',
     'core.cogs.tools',
     'core.cogs.anime',
     'core.cogs.nsfw',
@@ -64,29 +63,21 @@ class Amaya(Bot):
         print('Bot id:\n',self.user.id)
         print('Discord Version:\n', __version__)
 
-        # Create and prepare the database/tables...   
+        # Create and prepare the prefix table. 
         try:
-            await self.pool.create_table(
-                'tags',
-                [
-                    ('guild_id', str),
-                    ('tag_name', str),
-                    ('tag_owner', str),
-                    ('content', str)
-                ],
-                prim_key='guild_id'
-            )
-            await self.pool.create_table(
-                'prefixes',
-                [
-                    ('id', str),
-                    ('prefix', str)
-                ],
-                prim_key='id'
-            )
-            print(" \nConnected to the Database...")
+            if not 'prefixes' in self.pool.tables:
+                await self.pool.create_table(
+                    'prefixes',
+                    [
+                        ('id', str),
+                        ('prefix', str)
+                    ],
+                    prim_key='id'
+                )
+            else:
+                return
         except Exception:
-            return
+            raise
 
     # idk why i did this but yeh :<|
     async def get_prefix(self, message):
@@ -150,8 +141,6 @@ class Amaya(Bot):
                 colour = color.invis(self)
             )
             await ctx.send(embed=embed)
-        else:
-            pass
 
     def setup(self):
         print("Loading cogs...")
