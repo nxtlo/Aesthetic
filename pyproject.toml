@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "amaya"
+version = "0.1.0"
+description = "General purpose and functional discord bot."
+authors = ["nxtlo <dhmony-99@hotmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+"discord.py" = {git = "https://github.com/Rapptz/discord.py"}
+discord-ext-menus = {git = "https://github.com/Rapptz/discord-ext-menus"}
+"mystbin.py" = "^0.3.3"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
