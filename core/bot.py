@@ -7,6 +7,7 @@ from core.cogs.commands import FetchedUser
 from data import config
 from core.ext.utils import color
 
+import datetime
 import asyncio
 import discord
 import os
@@ -18,10 +19,12 @@ from aiopyql.data import Database as db
 
 
 COGS = (
+    'jishaku',
+    'core.cogs.c',
     'core.cogs.tools',
     'core.cogs.anime',
     'core.cogs.nsfw',
-    'core.cogs.backend',
+    'core.cogs.db',
     'core.cogs.commands',
     'core.cogs.fun',
     'core.cogs.math',
@@ -45,9 +48,29 @@ class Amaya(Bot):
             intents=Intents.all(),
             owner_id=self._owner)
 
+    def _uptime(self):
+        now = datetime.datetime.utcnow()
+        delta = now - self.uptime
+        hours, remainder = divmod(int(delta.total_seconds()), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        days, hours = divmod(hours, 24)
+        if days:
+            fmt = '{d} days\n{h} hours\n{m} minutes\nand {s} seconds'
+        else:
+            fmt = '{h} hours\n{m} minutes\nand {s} seconds'
+        return fmt.format(d=days, h=hours, m=minutes, s=seconds)
+
     @property
     def fate(self) -> int:
         return self._owner or self.owner_id
+
+    # next funcs just to make me run queries easier
+
+    async def fetch(self, *, table):
+        try:
+            return await self.pool.tables[table].select('*')
+        except Exception:
+            raise
 
 
     async def query(self, query: str) -> None:
@@ -57,6 +80,7 @@ class Amaya(Bot):
             raise
 
     async def on_ready(self):
+        self.uptime = datetime.datetime.utcnow()
         print("Bot ready.")
         print('Logged in as:\n')
         print('Bot name:\n', self.user.name)
