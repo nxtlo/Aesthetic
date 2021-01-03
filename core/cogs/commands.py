@@ -10,6 +10,7 @@ from data import config
 from discord.ext import menus
 from typing import Union
 from time import strftime
+from discord.utils import snowflake_time, cached_property
 from discord.ext import commands
 from discord import Member, Embed, Color, Status, Guild
 from core.ext import utils as u
@@ -32,6 +33,7 @@ class FetchedUser(commands.Converter):
 
 
 class Meta(commands.Cog, name="\U0001f587 Meta"):
+    '''Main commands for the bot.'''
     def __init__(self, bot):
         self.old_help_command = bot.help_command
         bot.help_command = PaginatedHelpCommand()
@@ -123,13 +125,14 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
 
 
 
-    @commands.command(name="botinfo")
+    @commands.command(name="botinfo", aliases=['about', 'bot'])
     async def about(self, ctx: commands.Context):
         """Tells you information about the bot itself."""
         owner_name = f"<@{self.bot._owner}>"
         embed = discord.Embed(
+            description=f'Info about [{self.bot.user.name}](https://github.com/nxtlo/Amaya)',
         color=color.invis(self))
-        embed.title=f'Info about {self.bot.user.name}'
+        embed.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar_url)
 
         # statistics
         total_members = 0
@@ -157,14 +160,15 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         os_name = platform.system()
         version = discord.__version__
 
-        embed.add_field(name='Members', value=f'{total_members} total\n{total_unique} unique')
-        embed.add_field(name='Channels', value=f'{text + voice} total\n{text} text\n{voice} voice')
-        embed.add_field(name='Members', value=f'{total_members} total\n{total_unique} unique')
-        embed.add_field(name='Guilds', value=guilds)
-        embed.add_field(name="Uptime", value=uptime)
-        embed.add_field(name='Process', value=f'{memory_usage:.2f} MiB\n{cpu_usage:.2f}% CPU')
-        embed.add_field(name="VM OS", value=os_name)
-        embed.add_field(name="Bot owner", value=owner_name)
+        embed.add_field(name='<:members:770769874040520734> Members', value=f'{total_members} total\n{total_unique} unique')
+        embed.add_field(name='<:channel:585783907841212418> Channels', value=f'{text + voice} total\n{text} text\n{voice} voice')
+        embed.add_field(name='<:ser_emoji:763034584425431110> Guilds', value=guilds)
+        embed.add_field(name="<:online:772775766030417962> Uptime", value='{}'.format(self.bot._uptime()))
+        embed.add_field(name='<a:processing:770769875051347978> Process', value=f'{memory_usage:.2f} MiB\n{cpu_usage:.2f}% CPU')
+        embed.add_field(name='<:psql:794233423320711210> Database', value=f'(PostgreSQL) 13.1')
+        embed.add_field(name="<:centos:794233424730259456> VM OS", value=f"{os_name}\n" + ' ' + 'CentOS 8')
+        embed.add_field(name="<a:loading:393852367751086090> Created at", value=snowflake_time(id=self.bot.user.id).strftime("%A\n%Y/%d/%m\n%H:%M:%S %p"))
+        embed.add_field(name="<:dev:763073500155215874> Bot dev", value=owner_name)
         embed.set_thumbnail(url=self.bot.user.avatar_url)
         embed.set_footer(text=f'Made with discord.py v{version}', icon_url='http://i.imgur.com/5BFecvA.png')
         embed.timestamp = datetime.datetime.utcnow()
