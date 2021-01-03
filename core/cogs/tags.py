@@ -143,7 +143,6 @@ class Tags(Cog, name="\U0001f4cc Tags"):
             if check:
                 await self.bot.pool.tables['tags'].update(
                     content=new,
-                    jumpurl=ctx.message.jump_url,
                     where={
                         'tag_name': tag,
                         'guild_id': ctx.guild.id
