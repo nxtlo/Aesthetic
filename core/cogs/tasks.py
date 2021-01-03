@@ -9,8 +9,15 @@ from discord import Color
 from ..ext.utils import color
 
 class Utility(Cog, name='\U00002699 Utility'):
+	'''Commands for config the bot.'''
 	def __init__(self, bot):
 		self.bot = bot
+
+
+
+	@command(name='ping')
+	async def _ping(self, ctx):
+		await ctx.message.add_reaction('\U00002705')
 
 
 	@group(name="set")
