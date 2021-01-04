@@ -64,27 +64,29 @@ class Tags(Cog, name="\U0001f4cc Tags"):
         
         if name == 'me':
             return
+        
+        if content is None:
+            return await ctx.send("You're missing the content.")
 
         istag = await self.bot.pool.tables['tags'].select(
             'tag_name',
             where={'guild_id': ctx.guild.id}
             )
-        
-        for _tag in istag:
-            if name == _tag['tag_name']:
-                print(_tag)
-                return await ctx.send("Tag name already taken.")
-            else:
-                print(_tag)
-                await self.bot.pool.tables['tags'].insert(
-                    guild_id=ctx.guild.id,
-                    tag_name=name,
-                    tag_id=str(uuid4())[:8],
-                    created_at=ctx.message.created_at,
-                    tag_owner=ctx.author.id,
-                    content=content
-                )
-                return await ctx.send(f"Created tag `{name}`")
+        exists = [t['tag_name'] for t in istag]
+
+        if not name in exists:
+            await self.bot.pool.tables['tags'].insert(
+                guild_id=ctx.guild.id,
+                tag_name=name,
+                tag_id=str(uuid4())[:8],
+                created_at=ctx.message.created_at,
+                tag_owner=ctx.author.id,
+                content=content
+            )
+            await ctx.send(f"Created tag `{name}`")
+        else:
+            return await ctx.send("Tag name already taken.")
+
 
 
     @tag.command(name='remove', aliases=['del', 'rem'])
