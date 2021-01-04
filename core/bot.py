@@ -6,7 +6,9 @@ from time import sleep
 from core.cogs.commands import FetchedUser
 from data import config
 from core.ext.utils import color
+from typing import Optional, Any, Union, Dict
 
+import asyncpg
 import datetime
 import asyncio
 import discord
@@ -47,6 +49,21 @@ class Amaya(Bot):
             case_insensitive=True,
             intents=Intents.all(),
             owner_id=self._owner)
+    
+    def doc(self, cdr=None):
+        try:
+            return cdr.__doc__
+        except ModuleNotFoundError:
+            return None
+
+    def __eq__(self, other):
+        try:
+            return self.fate == other.value or self._owner == other.value
+        except:
+            raise "London"
+        
+    def __hash__(self):
+        return hash(self.fate)
 
     def _uptime(self):
         now = datetime.datetime.utcnow()
@@ -64,11 +81,27 @@ class Amaya(Bot):
     def fate(self) -> int:
         return self._owner or self.owner_id
 
-    # next funcs just to make me run queries easier
-
-    async def fetch(self, *, table):
+    
+    # funcs just to make me run queries easier
+    async def script_exe(self, path):
+        '''execute `.sql` files.'''
         try:
-            return await self.pool.tables[table].select('*')
+            with open(path, 'r', encoding='utf-8') as sc:
+                return await self.pool.execute(sc.read())
+        except Exception:
+            raise
+
+    async def fetch(self, table, *, match: Optional[Dict] = None):
+        '''fetches everything from a table.'''
+        try:
+            if match is None:
+                return await self.pool.tables[table].select('*')
+            return await self.pool.tables[table].select(
+                '*',
+                where={
+                    match: None
+                }
+            )
         except Exception:
             raise
 
@@ -117,7 +150,7 @@ class Amaya(Bot):
             return when_mentioned_or("a.", "a!")(self, message)
         return when_mentioned_or(pfx[0]['prefix'])(self, message)
 
-    async def pool_connect(self) -> db.create:
+    async def pool_connect(self) -> Optional[db.create]:
         self.pool: db.create() = await db.create(
             database=config.database,
             user=config.db_user,
@@ -125,7 +158,7 @@ class Amaya(Bot):
             host=config.host,
             port=config.port,
             db_type=config.db_type,
-            cache_enabled=True, # Enable db read caching
+            cache_enabled=True, # db caching.
             max_cache_len=256)
 
     async def on_message(self, message):
