@@ -6,7 +6,7 @@ from time import sleep
 from core.cogs.commands import FetchedUser
 from data import config
 from core.ext.utils import color
-from typing import Optional, Any, Union, Dict
+from typing import Optional, Any, Union, Dict, Tuple
 
 import asyncpg
 import datetime
@@ -53,8 +53,8 @@ class Amaya(Bot):
     def doc(self, cdr=None):
         try:
             return cdr.__doc__
-        except ModuleNotFoundError:
-            return None
+        except:
+            return
 
     def __eq__(self, other):
         try:
@@ -106,7 +106,7 @@ class Amaya(Bot):
             raise
 
 
-    async def query(self, query: str) -> None:
+    async def query(self, query: str, *, options: Optional[str] = None) -> None:
         try:
             return await self.pool.run(query)
         except Exception:
@@ -120,46 +120,27 @@ class Amaya(Bot):
         print('Bot id:\n',self.user.id)
         print('Discord Version:\n', __version__)
 
-        # Create and prepare the prefix table. 
-        try:
-            if not 'prefixes' in self.pool.tables:
-                await self.pool.create_table(
-                    'prefixes',
-                    [
-                        ('id', str),
-                        ('prefix', str)
-                    ],
-                    prim_key='id'
-                )
-            else:
-                return
-        except Exception:
-            raise
 
-    # idk why i did this but yeh :<|
-    async def get_prefix(self, message):
-        pfx = await self.pool.tables['prefixes'].select(
-            'prefix',
-            where={
-                'id': message.guild.id
-            }
-        )
-        if message.guild is None:
+    async def get_prefix(self, msg):
+        if not msg.guild:
             return ('a.', 'a!')
-        if not pfx:
-            return when_mentioned_or("a.", "a!")(self, message)
-        return when_mentioned_or(pfx[0]['prefix'])(self, message)
+        else:
+            query = 'SELECT prefix FROM prefixes WHERE id = $1'
+            prefix = await self.pool.fetchval(query, str(msg.guild.id))
 
-    async def pool_connect(self) -> Optional[db.create]:
-        self.pool: db.create() = await db.create(
+            if not prefix:
+                return commands.when_mentioned_or('a!', 'a.')(self, msg)
+            return commands.when_mentioned_or(prefix)(self, msg)
+
+    async def pool_connect(self) -> Optional[asyncpg.pool.Pool]:
+        self.pool: asyncpg.create_pool() = await asyncpg.create_pool(
             database=config.database,
             user=config.db_user,
             password=config.password,
             host=config.host,
             port=config.port,
-            db_type=config.db_type,
-            cache_enabled=True, # db caching.
-            max_cache_len=256)
+            max_inactive_connection_lifetime=0
+        )
 
     async def on_message(self, message):
         if message.author.bot:

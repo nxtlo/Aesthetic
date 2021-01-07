@@ -28,100 +28,99 @@ from discord import Embed, Member, Color
 from typing import Optional
 from uuid import uuid4
 from datetime import datetime
+from ..ext.converters import convert
 
 
 # this is a simple tag system nothing interesting to see here.
 
+
 class Tags(Cog, name="\U0001f4cc Tags"):
     '''Commands related to Tags.'''
+    _slots_ = ('me', 'add', 'create', 'remove', 'me', 'edit', 'info')
+
     def __init__(self, bot):
         self.bot = bot
 
 
+
     @group(invoke_without_command=True)
     async def tag(self, ctx, *, name):
-        try:
-            tag = await self.bot.pool.tables['tags'].select(
-            'content',
-            where={
-                'guild_id': ctx.guild.id,
-                'tag_name': name
-            }
-        )
-            if tag:
-                for t in tag:
-                    fmt = t = "".join((str(t['content']).replace("{","").replace("}", "").replace("'content': ", "").replace("'", "").replace("'", "")))
-                    await ctx.send(f"{fmt}")
-            else:
-                pass
-        
-        except Exception:
-            return None
+        fetched = await self.bot.pool.fetch('''
+                                            SELECT content
+                                            FROM tags 
+                                            WHERE tag_name = $1 AND guild_id = $2''',
+                                            str(name), str(ctx.guild.id))
+        if not fetched:
+            return await ctx.send("Tag was not found.")
+        else:
+            content = [c['content'] for c in fetched]
+            await ctx.send(*content)
 
-    @tag.command(aliases=['new', 'create'])
-    async def add(self, ctx, name, *, content: str = None):
+    @tag.command(aliases=['create'])
+    async def add(self, ctx: Context, name, *, content: str = None):
         """Creates a new tag."""
         
-        if name == 'me':
+        if name in self._slots_:
             return
         
         if content is None:
             return await ctx.send("You're missing the content.")
 
-        istag = await self.bot.pool.tables['tags'].select(
-            'tag_name',
-            where={'guild_id': ctx.guild.id}
-            )
+        istag = await self.bot.pool.fetch(
+                                        '''
+                                        SELECT tag_name
+                                        FROM tags
+                                        WHERE tag_name = $1 AND guild_id = $2
+                                        ''', str(name), str(ctx.guild.id)
+                                    )
         exists = [t['tag_name'] for t in istag]
 
         if not name in exists:
-            await self.bot.pool.tables['tags'].insert(
-                guild_id=ctx.guild.id,
-                tag_name=name,
-                tag_id=str(uuid4())[:8],
-                created_at=ctx.message.created_at,
-                tag_owner=ctx.author.id,
-                content=content
-            )
+            query = '''INSERT INTO tags(guild_id, tag_name, created_at, tag_id, tag_owner, content) VALUES($1, $2, $3, $4, $5, $6)'''
+            await self.bot.pool.execute(query, 
+                                        str(ctx.guild.id), 
+                                        str(name), 
+                                        str(datetime.utcnow().strftime('%A, %Y/%d/%m, %H:%M:%S %p')), 
+                                        str(uuid4())[:8], 
+                                        str(ctx.author.id), 
+                                        str(content))
             await ctx.send(f"Created tag `{name}`")
         else:
             return await ctx.send("Tag name already taken.")
 
 
 
-    @tag.command(name='remove', aliases=['del', 'rem'])
+    @tag.command(name='remove')
     async def rem_tag(self, ctx, *, name):
         """Removes a tag by its name."""
-        check = await self.bot.pool.tables['tags'].select(
-            'tag_owner',
-            where={
-                'tag_owner': ctx.author.id,
-                'guild_id': ctx.guild.id
-            }
-        )
-        if check:
-            await self.bot.pool.tables['tags'].delete(
-                where={
-                    'guild_id': ctx.guild.id,
-                    'tag_name': name,
-                    'tag_owner': ctx.author.id
-                }
-            )
-            await ctx.send(f"Tag {name} has been deleted.")
-        else:
-            if ctx.author.id not in check:
-                await ctx.send("You can't remove this tag.")
+        check = await self.bot.pool.fetch(
+            '''SELECT tag_owner, tag_name  
+               FROM tags 
+               WHERE tag_owner = $1 
+               AND guild_id = $2''', 
+               str(ctx.author.id), str(ctx.guild.id))
         
+        Name = [t['tag_name'] for t in check]
+        
+        if not name in Name:
+            return await ctx.send("No tag found.")
+        else:
+            if check or ctx.author.id == self.bot.fate:
+                await self.bot.pool.execute(
+                    '''
+                    DELETE FROM tags
+                    WHERE tag_name = $1
+                    ''', str(name)
+                )
+                await ctx.send(f"Tag {name} has been deleted.")
+            else:
+                await ctx.send("You can't remove this tag.")
+
+
     @tag.command(name='me', hidden=True)
     async def my_tags(self, ctx: Context):
         """Shows your own tags."""
-        query = await self.bot.pool.tables['tags'].select(
-            '*',
-            where={
-                'tag_owner': ctx.author.id,
-                'guild_id': ctx.guild.id
-            }
-        )
+        query = await self.bot.pool.fetch("SELECT * FROM tags WHERE guild_id = $1", str(ctx.guild.id))
 
         if len(query) == 0 or query is None:
             await ctx.send("No tags found.")
@@ -162,27 +161,20 @@ class Tags(Cog, name="\U0001f4cc Tags"):
     async def _tag_info(self, ctx, *, tag):
         '''returns info about a specific tag.'''
         
-        found = await self.bot.pool.tables['tags'].select(
-            '*',
-            where={
-                'tag_name': tag,
-                'guild_id': ctx.guild.id
-            }
-        )
+        found = await self.bot.pool.fetchrow('''SELECT tag_name, tag_owner, created_at, tag_id 
+                                             FROM tags WHERE tag_name = $1 AND guild_id = $2''',str(tag), str(ctx.guild.id))
         if found:
-            for _tag in found:
+            name = found['tag_name']
+            owner = f'<@{found["tag_owner"]}>'
+            created_at = found['created_at']
+            tag_id = found['tag_id']
 
-                name = _tag['tag_name']
-                owner = f'<@{_tag["tag_owner"]}>'
-                created_at = _tag['created_at']
-                tag_id = _tag['tag_id']
-
-                e = Embed(title=f"Info about {tag}", color=color.invis(self))
-                e.add_field(name='Name', value=name)
-                e.add_field(name='Owner', value=owner)
-                e.add_field(name='ID', value=tag_id)
-                e.add_field(name='Created At', value=created_at)
-                await ctx.send(embed=e)
+            e = Embed(title=f"Info about {tag}", color=color.invis(self))
+            e.add_field(name='Name', value=name)
+            e.add_field(name='Owner', value=owner)
+            e.add_field(name='ID', value=tag_id)
+            e.add_field(name='Created At', value=created_at)
+            await ctx.send(embed=e)
         else:
             await ctx.send('Tag not found.')
 

@@ -4,6 +4,7 @@ from time import time
 from discord import Activity, ActivityType, Embed, Status, HTTPException, TextChannel
 from discord.ext.commands import Cog
 from discord.ext.commands import command, has_permissions, CheckFailure, is_owner, group
+from typing import Optional
 from ..ext import check
 from discord import Color
 from ..ext.utils import color
@@ -27,37 +28,25 @@ class Utility(Cog, name='\U00002699 Utility'):
 
 	@setter.command(name="prefix")
 	@check.is_mod()
-	async def change_prefix(self, ctx, prefix):
+	async def change_prefix(self, ctx, prefix: Optional[str]):
 		"""
 		Change the bot's prefix. 
 		You need the manage_guild perms to use this command.
 		"""
-		try:
-			if len(prefix) > 5:
-				await ctx.send("Prefix cannot be longer the 5")
-			get = await self.bot.pool.tables['prefixes'].select(
-				'prefix',
-				where={
-					'id': ctx.guild.id
-				}
-			)
-			if not get:
-				await self.bot.pool.tables['prefixes'].insert(
-					prefix=prefix,
-					id=ctx.guild.id
-				)
-				e = Embed(description=f"prefix changed to `{prefix}`")
-				await ctx.send(embed=e)
-			else:
-				await self.bot.pool.tables['prefixes'].update(
-						prefix=prefix,
-						where={
-							'id': ctx.guild.id
-						}
-					)
-				await ctx.send(f"Updated prefix to {prefix}")
-		except Exception as e:
-			await ctx.send(e)
+		if len(prefix) > 6:
+			await ctx.send("Prefix too long.")
+			
+		query = "SELECT prefix FROM prefixes WHERE id = $1"
+		method = await self.bot.pool.fetchval(query, str(ctx.guild.id))
+
+		if not method:
+			await self.bot.pool.execute("INSERT INTO prefixes(id, prefix) VALUES ($1, $2)", str(ctx.guild.id), prefix)
+			await ctx.send(f"Prefix changed to {prefix}")
+		else:
+			query = "UPDATE prefixes SET prefix = $1 WHERE id = $2"
+			await self.bot.pool.execute(query, prefix, str(ctx.guild.id))
+			await ctx.send(f"Prefix updated to {prefix}")
+
 
 	@setter.command(name="sts", hidden=True)
 	@is_owner()
