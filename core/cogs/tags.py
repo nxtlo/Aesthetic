@@ -51,7 +51,7 @@ class Tags(Cog, name="\U0001f4cc Tags"):
                                             WHERE tag_name = $1 AND guild_id = $2''',
                                             str(name), str(ctx.guild.id))
         if not fetched:
-            return await ctx.send("Tag was not found.")
+            return
         else:
             content = [c['content'] for c in fetched]
             await ctx.send(*content)

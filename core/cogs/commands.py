@@ -243,7 +243,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         await ctx.send("https://github.com/nxtlo/Amaya")
 
 
-    @commands.command(aliases=["serverinfo"])
+    @commands.command(aliases=["serverinfo", 'si'])
     async def sinfo(self, ctx):
         """
         Show server info.
@@ -291,22 +291,17 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
 
         # Get the current guild prefix from the database,
         # We can obviously make it less easier but why bit ¯\_(ツ)_/¯
-        current_prefix = await self.bot.pool.tables['prefixes'].select(
-            'prefix',
-            where={
-                'id': ctx.guild.id
-            }
-        )
+        current_prefix = await self.bot.pool.fetchval("SELECT prefix FROM prefixes WHERE id = $1", str(ctx.guild.id))
 
         if current_prefix:
-            embed.add_field(name="**Guild Prefix**", value=f"`{current_prefix[0]['prefix']}`")
+            embed.add_field(name="**Guild Prefix**", value=f"`{current_prefix}`")
         
         embed.set_footer(text=f"{ctx.author}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
 
 
 
-    @commands.command(name="info")
+    @commands.command(name="info", aliases=['ui'])
     async def user_info(self, ctx, *, user: Union[discord.Member, FetchedUser] = None):
         """Show user info"""
         user = user or ctx.author
@@ -349,7 +344,9 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         elif user.status == offline:
             e.add_field(name="Status", value=f"{emj.offline(self)} {user.status}")
 
-        e.add_field(name=f'{emj.setting(self)} Roles', value=', '.join(roles) if len(roles) < 10 else f'{len(roles)} roles', inline=False)
+        if user.roles:
+
+            e.add_field(name=f'{emj.setting(self)} Roles', value=', '.join(roles) if len(roles) < 10 else f'{len(roles)} roles', inline=False)
         e.set_author(name=str(user))
         e.set_thumbnail(url=user.avatar_url)
         await ctx.send(embed=e)

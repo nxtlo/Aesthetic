@@ -17,12 +17,11 @@ import copy
 import logging
 import traceback
 import sys
-from aiopyql.data import Database as db
 
 
 COGS = (
     'jishaku',
-    'core.cogs.c',
+    'core.cogs.logging',
     'core.cogs.tools',
     'core.cogs.anime',
     'core.cogs.nsfw',
@@ -91,26 +90,7 @@ class Amaya(Bot):
         except Exception:
             raise
 
-    async def fetch(self, table, *, match: Optional[Dict] = None):
-        '''fetches everything from a table.'''
-        try:
-            if match is None:
-                return await self.pool.tables[table].select('*')
-            return await self.pool.tables[table].select(
-                '*',
-                where={
-                    match: None
-                }
-            )
-        except Exception:
-            raise
 
-
-    async def query(self, query: str, *, options: Optional[str] = None) -> None:
-        try:
-            return await self.pool.run(query)
-        except Exception:
-            raise
 
     async def on_ready(self):
         self.uptime = datetime.datetime.utcnow()
