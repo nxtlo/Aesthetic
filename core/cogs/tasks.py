@@ -37,14 +37,14 @@ class Utility(Cog, name='\U00002699 Utility'):
 			await ctx.send("Prefix too long.")
 			
 		query = "SELECT prefix FROM prefixes WHERE id = $1"
-		method = await self.bot.pool.fetchval(query, str(ctx.guild.id))
+		method = await self.bot.pool.fetchval(query, ctx.guild.id)
 
 		if not method:
-			await self.bot.pool.execute("INSERT INTO prefixes(id, prefix) VALUES ($1, $2)", str(ctx.guild.id), prefix)
+			await self.bot.pool.execute("INSERT INTO prefixes(id, prefix) VALUES ($1, $2)", ctx.guild.id, prefix)
 			await ctx.send(f"Prefix changed to {prefix}")
 		else:
 			query = "UPDATE prefixes SET prefix = $1 WHERE id = $2"
-			await self.bot.pool.execute(query, prefix, str(ctx.guild.id))
+			await self.bot.pool.execute(query, prefix, ctx.guild.id)
 			await ctx.send(f"Prefix updated to {prefix}")
 
 

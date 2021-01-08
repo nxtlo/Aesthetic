@@ -32,6 +32,7 @@ class TableExists(Exception):
     pass
 
 
+
 class Database(Cog):
     def __init__(self, bot: Amaya):
         self.bot = bot
@@ -56,13 +57,16 @@ class Database(Cog):
     @db.command(name='init', hidden=True)
     @is_owner()
     async def _init_(self, ctx):
+        '''Init the bot database and creates the tables.'''
         try:
-            with open('./data/schema.sql', 'r', encoding='utf8') as schema:
-                await self.bot.pool.execute(schema.read())
-                await ctx.message.add_reaction('\U00002705')
-
-        except Exception:
-            raise
+            async with ctx.typing():
+                await asyncio.sleep(2)
+                with open('./data/schema.sql', 'r', encoding='utf8') as schema:
+                    read = schema.read()
+                    await self.bot.pool.execute(read)
+                    await ctx.send("\U00002705")
+        except Exception as e:
+            await ctx.send(f"```{e}```")
 
 
     @db.command(name="table", aliases=['info'], hidden=True)

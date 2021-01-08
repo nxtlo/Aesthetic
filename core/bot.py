@@ -106,7 +106,7 @@ class Amaya(Bot):
             return ('a.', 'a!')
         else:
             query = 'SELECT prefix FROM prefixes WHERE id = $1'
-            prefix = await self.pool.fetchval(query, str(msg.guild.id))
+            prefix = await self.pool.fetchval(query, msg.guild.id)
 
             if not prefix:
                 return commands.when_mentioned_or('a!', 'a.')(self, msg)

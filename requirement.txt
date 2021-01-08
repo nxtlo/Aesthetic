@@ -1,9 +1,8 @@
 git+https://github.com/Rapptz/discord.py@master
 git+https://github.com/Rapptz/discord-ext-menus@84caae8038d0d
-git+https://github.com/AbstractUmbra/mystbin-py.git
-git+https://github.com/codemation/aiopyql.git
+git+https://github.com/AbstractUmbra/mystbin-py.git 
 setuptools 
 wheel
 Red-DiscordBot
-asyncpg
+asyncpg>=0.21.0
 psutil

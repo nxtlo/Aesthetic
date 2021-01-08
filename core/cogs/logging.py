@@ -216,10 +216,6 @@ class Logging(Cog):
             e.add_field(name='Members was', value=before.members)
             e.add_field(name='Members now', value=after.members)
         
-        if before.user_limit != after.user_limit:
-            e.add_field(name='Userlimit was', value=before.user_limit)
-            e.add_field(name='UserLimit now', value=after.user_limit)
-        
         await chan.send(embed=e)
 
     @Cog.listener()

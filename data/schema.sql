@@ -19,13 +19,12 @@ CREATE TABLE IF NOT EXISTS warns (
 );
 
 CREATE TABLE IF NOT EXISTS prefixes (
-    guild_id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     prefix TEXT
 );
 
 
 CREATE TABLE IF NOT EXISTS logging (
     guild_id BIGINT PRIMARY KEY,
-    logchannel BIGINT NOT NULL,
-    chan_name TEXT
+    logchannel BIGINT NOT NULL
 );

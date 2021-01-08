@@ -36,7 +36,7 @@ from ..ext.converters import convert
 
 class Tags(Cog, name="\U0001f4cc Tags"):
     '''Commands related to Tags.'''
-    _slots_ = ('me', 'add', 'create', 'remove', 'me', 'edit', 'info')
+    _slots_ = ('me', 'add', 'create', 'remove', 'edit', 'info')
 
     def __init__(self, bot):
         self.bot = bot
@@ -46,11 +46,12 @@ class Tags(Cog, name="\U0001f4cc Tags"):
     @group(invoke_without_command=True)
     async def tag(self, ctx, *, name):
         fetched = await self.bot.pool.fetch('''
-                                            SELECT content
+                                            SELECT content, tag_name
                                             FROM tags 
                                             WHERE tag_name = $1 AND guild_id = $2''',
-                                            str(name), str(ctx.guild.id))
-        if not fetched:
+                                            name, ctx.guild.id)
+
+        if not name in fetched:
             return
         else:
             content = [c['content'] for c in fetched]
@@ -71,19 +72,19 @@ class Tags(Cog, name="\U0001f4cc Tags"):
                                         SELECT tag_name
                                         FROM tags
                                         WHERE tag_name = $1 AND guild_id = $2
-                                        ''', str(name), str(ctx.guild.id)
+                                        ''', name, ctx.guild.id
                                     )
         exists = [t['tag_name'] for t in istag]
 
         if not name in exists:
             query = '''INSERT INTO tags(guild_id, tag_name, created_at, tag_id, tag_owner, content) VALUES($1, $2, $3, $4, $5, $6)'''
             await self.bot.pool.execute(query, 
-                                        str(ctx.guild.id), 
-                                        str(name), 
-                                        str(datetime.utcnow().strftime('%A, %Y/%d/%m, %H:%M:%S %p')), 
+                                        ctx.guild.id, 
+                                        name, 
+                                        datetime.utcnow(), 
                                         str(uuid4())[:8], 
-                                        str(ctx.author.id), 
-                                        str(content))
+                                        ctx.author.id, 
+                                        content)
             await ctx.send(f"Created tag `{name}`")
         else:
             return await ctx.send("Tag name already taken.")
@@ -98,7 +99,7 @@ class Tags(Cog, name="\U0001f4cc Tags"):
                FROM tags 
                WHERE tag_owner = $1 
                AND guild_id = $2''', 
-               str(ctx.author.id), str(ctx.guild.id))
+               ctx.author.id, ctx.guild.id)
         
         Name = [t['tag_name'] for t in check]
         
@@ -110,7 +111,7 @@ class Tags(Cog, name="\U0001f4cc Tags"):
                     '''
                     DELETE FROM tags
                     WHERE tag_name = $1
-                    ''', str(name)
+                    ''', name
                 )
                 await ctx.send(f"Tag {name} has been deleted.")
             else:
@@ -120,7 +121,7 @@ class Tags(Cog, name="\U0001f4cc Tags"):
     @tag.command(name='me', hidden=True)
     async def my_tags(self, ctx: Context):
         """Shows your own tags."""
-        query = await self.bot.pool.fetch("SELECT * FROM tags WHERE guild_id = $1", str(ctx.guild.id))
+        query = await self.bot.pool.fetch("SELECT * FROM tags WHERE guild_id = $1", ctx.guild.id)
 
         if len(query) == 0 or query is None:
             await ctx.send("No tags found.")
@@ -130,28 +131,31 @@ class Tags(Cog, name="\U0001f4cc Tags"):
             e.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
             await ctx.send(embed=e)
 
-    
+
     @tag.command(name="edit")
     async def _edit(self, ctx, tag, *, new):
         """Edits your tag."""
-        check = await self.bot.pool.tables['tags'].select(
-            'tag_owner',
-            where={
-                'tag_owner': ctx.author.id
-            }
-        )
+        checks = await self.bot.pool.fetch(
+                     '''SELECT tag_owner, tag_name
+                        FROM tags
+                        WHERE tag_owner = $1
+                        AND tag_name = $2
+                     ''', ctx.author.id, tag)
         try:
-            if check:
-                await self.bot.pool.tables['tags'].update(
-                    content=new,
-                    where={
-                        'tag_name': tag,
-                        'guild_id': ctx.guild.id
-                    }
-                )
+            NotFound = [t['tag_name'] for t in checks]
+            if not tag in NotFound:
+                await ctx.send("Tag not found.")
+            elif checks:
+                query = '''
+                        UPDATE tags
+                        SET content = $1
+                        WHERE tag_name = $2
+                        AND guild_id = $3
+                        '''
+                await self.bot.pool.execute(query, new, tag, ctx.guild.id)
                 await ctx.send("Tag edited.")
             else:
-                return await ctx.send("You can't edit this tag.")
+                pass
         except Exception:
             raise
 
@@ -162,7 +166,7 @@ class Tags(Cog, name="\U0001f4cc Tags"):
         '''returns info about a specific tag.'''
         
         found = await self.bot.pool.fetchrow('''SELECT tag_name, tag_owner, created_at, tag_id 
-                                             FROM tags WHERE tag_name = $1 AND guild_id = $2''',str(tag), str(ctx.guild.id))
+                                             FROM tags WHERE tag_name = $1 AND guild_id = $2''',tag, ctx.guild.id)
         if found:
             name = found['tag_name']
             owner = f'<@{found["tag_owner"]}>'
