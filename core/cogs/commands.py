@@ -291,7 +291,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
 
         # Get the current guild prefix from the database,
         # We can obviously make it less easier but why bit ¯\_(ツ)_/¯
-        current_prefix = await self.bot.pool.fetchval("SELECT prefix FROM prefixes WHERE id = $1", str(ctx.guild.id))
+        current_prefix = await self.bot.pool.fetchval("SELECT prefix FROM prefixes WHERE id = $1", ctx.guild.id)
 
         if current_prefix:
             embed.add_field(name="**Guild Prefix**", value=f"`{current_prefix}`")
