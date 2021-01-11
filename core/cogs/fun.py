@@ -3,53 +3,46 @@ from discord.ext.commands import command, Cog, group
 import random
 import aiohttp
 import json
+import sr_api as sr
 from ..ext.utils import color
+from animals import Animals
+from typing import Any, Optional
+from sr_api.image import Image
 
 class Fun(Cog, name="\U0001f3d3 Fun"):
     def __init__(self, bot):
         self.bot = bot
-        self.session = aiohttp.ClientSession()
+        self.animal = Animals
+        self.session = sr.Client()
 
 
 
     @command(name="joke")
     async def random_joke(self, ctx):
-        async with self.session as cs:
-            async with cs.get("https://official-joke-api.appspot.com/jokes/random") as r:
-
-                data = await r.json()
-
-                e = discord.Embed(
-                    title=data['setup'],
-                    description=data['punchline'],
-                    color=color.invis(self)
-                )
-                await ctx.send(embed=e)
-
-
+        '''Random joke.'''
+        e = discord.Embed(
+            description = await self.session.get_joke(),
+            color=color.invis(self)
+        )
+        await ctx.send(embed=e)
 
 
     @command(name="pik")
     async def random_pic(self, ctx):
-        async with self.session as s:
-            async with s.get("https://some-random-api.ml/img/pikachu") as r:
-
-                data = await r.json()
-
-                e = discord.Embed(
-                    title="Random picture",
-                    color=color.invis(self)
-                )
-                e.set_image(url=data['link'])
-                e.set_footer(text=ctx.author.name)
-                await ctx.send(embed=e)
+        '''Random pikachu picture.'''
+        pika = await self.session.get_image(name='pikachu')
+        e = discord.Embed(
+            title="Random Pikachu",
+            color=color.invis(self)
+        )
+        e.set_image(url=pika)
+        e.set_footer(text=ctx.author.name)
+        await ctx.send(embed=e)
                 
-
-
 
     @command(name="quote")
     async def rancom_joke(self, ctx):
-    
+        '''Random quote.'''
         with open("./data/choises.txt", "r") as r:
             reads = r.readlines()
 
@@ -59,62 +52,89 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
     @command(name='cat')
     async def random_cat(self, ctx):
-        async with self.session as cs:
-            async with cs.get("http://aws.random.cat/meow") as r:
-                
-                data = await r.json()
-                img = 'https://kittenrescue.org/wp-content/uploads/2016/11/KittenRescue-TheKRCatSanctuary.png'
-                
-                embed = discord.Embed(
-                    title="Kitten",
-                    color=color.invis(self)
-                )
-                embed.set_image(url=data['file'])
-                embed.set_footer(text='random cat', icon_url=img)
-                await ctx.send(embed=embed)
+        '''Random cat picture.'''
+        embed = discord.Embed(
+            title="Kitten",
+            color=color.invis(self)
+        )
+        embed.set_image(url=self.animal('cat').image())
+        await ctx.send(embed=embed)
 
+
+    @command(name='panda')
+    async def random_panda(self, ctx):
+        '''Random panda picture'''
+        embed = discord.Embed(
+            title="Panda",
+            color=color.invis(self)
+        )
+        embed.set_image(url=self.animal('panda').image())
+        await ctx.send(embed=embed)
 
 
     @command(name='dog')
     async def random_dog(self, ctx):
-        async with self.session as cs:
-            async with cs.get("https://random.dog/woof.json") as r:
-                
-                data = await r.json()
-                embed = discord.Embed(
-                    title="Doggo",
-                    color = color.invis(self)
-                )
-                embed.set_image(url=data['url'])
-                await ctx.send(embed=embed)
+            '''Random doggo picture :D'''
+            embed = discord.Embed(
+                title="Doggo",
+                color = color.invis(self)
+            )
+            embed.set_image(url=self.animal('dog').image())
+            await ctx.send(embed=embed)
 
 
     @command(name='fox')
     async def random_fox(self, ctx):
-        async with self.session as cs:
-            async with cs.get("https://some-random-api.ml/img/fox") as r:
-                data = await r.json()
-
-                embed = discord.Embed(
-                    title='Fox',
-                    color = color.invis(self)
-                )
-                embed.set_image(url=data['link'])
-                await ctx.send(embed=embed)
+            '''Random fox picture'''
+            embed = discord.Embed(
+                title="foxie",
+                color = color.invis(self)
+            )
+            embed.set_image(url=self.animal('fox').image())
+            await ctx.send(embed=embed)
 
     @command(name='meme')
     async def random_meme(self, ctx):
-        async with self.session as cs:
-            async with cs.get("https://some-random-api.ml/meme") as r:
-                data = await r.json()
+        '''Random meme.'''
+        _meme = await self.session.get_meme()
+        embed = discord.Embed(
+            title=_meme.caption,
+            color = color.invis(self)
+        )
+        embed.set_image(url=_meme.image)
+        await ctx.send(embed=embed)
 
-                embed = discord.Embed(
-                    title='random meme',
-                    color = color.invis(self)
-                )
-                embed.set_image(url=data['image'])
-                await ctx.send(embed=embed)
 
-        
+    @command(name='lyric', aliases=['lyrics', 'lyr'])
+    async def _lyric(self, ctx, *, song: str = None):
+        '''Get the lyrics for a song.'''
+        if not song:
+            return await ctx.send('No song was provided.')
+        else:
+            try:
+                query = await self.session.get_lyrics(title=song)
+                if len(query.lyrics) < 2048:
+                    e = discord.Embed(
+                                    title=f"Lyrics for {query.title}", 
+                                    description=query.lyrics,
+                                    color=color.invis(self),
+                                    timestamp=ctx.message.created_at)
+                    e.set_thumbnail(url=query.thumbnail)
+                    await ctx.send(embed=e)
+                else:
+                    await ctx.send(f"Lyrics for the song {query.title} is too long... here's the link {query.link}")
+            except Exception as e:
+                await ctx.send(e)
+
+
+    '''@command(name='define', aliases=['def'])
+    async def _def(self, ctx, *, name):
+        defe = await self.session.define(name)
+        try:
+            _e = discord.Embed(title = f"{defe.word}'s Definition", color = color.invis(self))
+            await ctx.send(embed=_e)
+        except Exception as e:
+            await ctx.send(e)'''
+
 def setup(bot):
     bot.add_cog(Fun(bot))

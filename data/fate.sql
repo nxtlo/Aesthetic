@@ -10,7 +10,6 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
-
 CREATE FUNCTION public.show_tables() RETURNS SETOF text
     LANGUAGE sql
     AS $$

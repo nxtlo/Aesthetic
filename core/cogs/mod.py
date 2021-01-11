@@ -9,7 +9,6 @@ from discord.utils import get
 from typing import Union, Optional
 from .commands import FetchedUser
 from uuid import uuid4 # for generating a random warn ID
-import logging
 import asyncio
 import discord
 import random
@@ -120,11 +119,12 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
 
 
     @group(invoke_without_command=True)
-    @check.is_mod()
+    @guild_only()
+    @check.admin_or_permissions(manage_guild=True)
     async def warn(self, ctx, member: Union[Member, FetchedUser], *, reason: Optional[str]=None):
         """
         Warn a member by their name or id.
-        You will need the `manage_guild` perms to use this command.
+        You will need the admin or `manage_guild` perms to use this command.
         ```Usage: warn <@member/id> <reason>```
         """
         try:
@@ -133,15 +133,12 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
             if not reason:
                     return await ctx.send(f"a reason is required.")
             else:
-                await self.bot.pool.tables['warns'].insert(
-                guild_id=str(ctx.guild.id),
-                warn_id=str(uuid4())[:8],
-                author_id=str(ctx.author.id),
-                member_id=str(member.id),
-                reason=reason,
-                date=str(ctx.message.created_at)
-                )
-                await ctx.message.add_reaction('\U00002705')
+                query = '''
+                        INSERT INTO warns(guild_id, warn_id, author_id, member_id, reason, warned_at)
+                        VALUES($1, $2, $3, $4, $5, $6)
+                        '''
+                await self.bot.pool.execute(query, ctx.guild.id, str(uuid4())[:8], ctx.author.id, member.id, reason, ctx.message.created_at)
+                await ctx.send(f"Warned {member.mention} for {reason}")
         except Exception as e:
             raise e
 
@@ -152,47 +149,35 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
 
 
     @warn.command(name='remove', aliases=['del'], usage='')
-    @check.is_mod()
+    @guild_only()
+    @check.admin_or_permissions(manage_guild=True)
     async def _del_warn(self, ctx, *, warn_id: str):
         '''
         Delete a member's warn
         ```Usage: warn remove <@member/id> <warn_id>```
+        if you don't know the warm id just type warns @member
         '''
-        _check = await self.bot.pool.tables['warns'].select(
-            'warn_id',
-            where={
-                'warn_id': warn_id,
-                'guild_id': ctx.guild.id
-            }
-        )
+        _check = await self.bot.pool.fetch("SELECT warn_id FROM warns WHERE guild_id = $1 AND warn_id = $2", ctx.guild.id, warn_id)
         if _check:
-            await self.bot.pool.tables['warns'].delete(
-                where={
-                    'warn_id': warn_id,
-                    'guild_id': ctx.guild.id
-                }
-            )
+            await self.bot.pool.execute("DELETE FROM warns WHERE warn_id = $1 AND guild_id = $2", warn_id, ctx.guild.id)
             await ctx.send("Warn removed.")
         else:
             await ctx.send("Couldn't find that id.")
 
 
     @warn.command(name='info')
-    @check.is_mod()
+    @guild_only()
+    @check.admin_or_permissions(manage_guild=True)
     async def _warn_info(self, ctx, *, warn_id: str):
-        '''info about a warn by its ID'''
-        
+        '''
+        info about a warn by its ID
+        if you don't know the warm id just type warns @member
+        '''
         if not warn_id:
             await ctx.send('No warn id was provided.')
 
         else:
-            found = await self.bot.pool.tables['warns'].select(
-                '*',
-                where={
-                    'guild_id': ctx.guild.id,
-                    'warn_id': warn_id
-                }
-            )
+            found = await self.bot.pool.fetch("SELECT * FROM warns WHERE warn_id = $1 AND guild_id = $2", warn_id, ctx.guild.id)
             if found:
                 for warn in found:
                     
@@ -205,37 +190,33 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
                     e.add_field(name='Warn ID', value=warn_id)
                     e.add_field(name='Warned by', value=author_id, inline=True)
                     e.add_field(name='Reason', value=reason, inline=False)
-                    e.add_field(name='Occurred at', value=warn['date'])
+                    e.add_field(name='Warned at', value=warn['warned_at'])
                     await ctx.send(embed=e)
             else:
                 await ctx.send("No warns found.")
 
 
     @command()
-    @check.is_mod()
+    @guild_only()
+    @check.admin_or_permissions(manage_guild=True)
     async def warns(self, ctx, member: Union[Member, FetchedUser]= None):
         '''
         Show a member's warns.
-        ```Usage: warns <member_id>```
+        You will need the admin or `manage_guild` perms to use this command.
+        ```Usage: warns <member_id> or <member name> or <@member>```
         '''
         if not member:
-            return
+            return await ctx.send(f"{member.name} has no warns.")
         else:
-            found = await self.bot.pool.tables['warns'].select(
-                '*',
-                where={
-                    'guild_id': ctx.guild.id,
-                    'member_id': member.id
-                }
-            )
+            found = await self.bot.pool.fetch("SELECT * FROM warns WHERE member_id = $1 AND guild_id = $2", member.id, ctx.guild.id)
             if found:
                 fmt = '\n'.join(r['reason'] + ' ' + f"(ID: {r['warn_id']})" for r in found)
-                pages = Pages(title='Warns', color=color.invis(self), embed=True, timeout=90, use_defaults=True,
-                        entries=[fmt], length=10)
+                '''pages = Pages(title='Warns', color=color.invis(self), embed=True, timeout=90, use_defaults=True,
+                        entries=[fmt], length=10)'''
                 e = Embed(color=color.invis(self), description=fmt)
                 e.set_author(name=member.display_name, icon_url=member.avatar_url)
-                await pages.start(ctx)
-                # await ctx.send(embed=e)
+                '''await pages.start(ctx)'''
+                await ctx.send(embed=e)
             else:
                 await ctx.send("No warns found.")
 
