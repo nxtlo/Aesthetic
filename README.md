@@ -37,3 +37,5 @@ Then activate by doing this, _Actually required to run the bot_
 
 * windows: `py -3.8 launcher.py`
 * Linux/Mac: `python3.8 launcher.py`
+
+after running the bot just type `a.db init`

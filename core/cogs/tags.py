@@ -50,8 +50,8 @@ class Tags(Cog, name="\U0001f4cc Tags"):
                                             FROM tags 
                                             WHERE tag_name = $1 AND guild_id = $2''',
                                             name, ctx.guild.id)
-
-        if not name in fetched:
+        _name = [t['tag_name'] for t in fetched]
+        if not name in _name:
             return
         else:
             content = [c['content'] for c in fetched]
@@ -118,7 +118,7 @@ class Tags(Cog, name="\U0001f4cc Tags"):
                 await ctx.send("You can't remove this tag.")
 
 
-    @tag.command(name='me', hidden=True)
+    @tag.command(name='me')
     async def my_tags(self, ctx: Context):
         """Shows your own tags."""
         query = await self.bot.pool.fetch("SELECT * FROM tags WHERE guild_id = $1", ctx.guild.id)

@@ -6,14 +6,60 @@ from discord.ext.commands import Cog
 from discord.ext.commands import command, has_permissions, CheckFailure, is_owner, group
 from typing import Optional
 from ..ext import check
-from discord import Color
 from ..ext.utils import color
+from typing import Optional
+import wikipedia
+from corona_python import Country, World
+from sr_api import image, Client as _client
 
 class Utility(Cog, name='\U00002699 Utility'):
-	'''Commands for config the bot.'''
+	'''Commands for config the bot and other Utils.'''
 	def __init__(self, bot):
 		self.bot = bot
 
+	
+	@command(name='color')
+	async def _color(self, ctx, *, clr):
+		'''
+		returns a color by its hex
+		color a773f5
+		'''
+		cl = _client()
+		e = Embed(color=color.invis(self))
+		e.set_image(url=cl.view_color(clr))
+		await ctx.send(embed=e)
+	
+	
+	@command()
+	async def covid(self, ctx, *, country: Optional[str]=None):
+		if country is not None:
+			e = Embed(title=f"Covid stats for {country}", color=color.invis(self))
+			country = self.country(country)
+			if country.flag():
+				e.set_image(url=country.flag())
+			e.add_field(name='\U0000274c Active cases', value=country.active())
+			e.add_field(name="\U0000274c Today's cases", value=country.today_cases())
+			e.add_field(name='\U0000274c Total cases', value=country.total_cases())
+			e.add_field(name="\U0000274c Today's deaths", value=country.today_deaths())
+			e.add_field(name='\U0000274c Total deaths', value=country.total_deaths())
+			e.add_field(name='\U0000274c Total criticals', value=country.critical())
+			e.add_field(name='\U00002705 Total recovered', value=country.recovered())
+			e.add_field(name='\U0001f30e Continent', value=country.continent())
+			e.add_field(name="\U00002705 Today's recovered", value=country.today_recovered())
+			await ctx.send(embed=e)
+		else:
+			e = Embed(title=f"Covid stats for the world. \U0001f30e", color=color.invis(self))
+			e.add_field(name='\U0000274c Active cases', value=self.world.active_cases())
+			e.add_field(name="\U0000274c Today's cases", value=self.world.today_cases())
+			e.add_field(name='\U0000274c Total cases', value=self.world.total_cases())
+			e.add_field(name='\U0000274c Last Updated', value=self.world.last_updated())
+			e.add_field(name="\U0000274c Today's deaths", value=self.world.today_deaths())
+			e.add_field(name='\U0000274c Total deaths', value=self.world.total_deaths())
+			e.add_field(name='\U0000274c Total criticals', value=self.world.critical_cases())
+			e.add_field(name='\U00002705 Total recovered', value=self.world.recovered())
+			e.add_field(name="\U00002705 Today's recovered", value=self.world.today_recovered())
+			e.set_footer(text=f"World Population {self.world.population()}")
+			await ctx.send(embed=e)
 
 
 	@command(name='ping')
@@ -71,6 +117,7 @@ class Utility(Cog, name='\U00002699 Utility'):
 					await ctx.send(f"Status changed to `{stts}`")
 		except:
 			raise
+
 
 
 def setup(bot):

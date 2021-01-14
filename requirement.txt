@@ -6,3 +6,4 @@ wheel
 Red-DiscordBot
 asyncpg>=0.21.0
 psutil
+sr_api
