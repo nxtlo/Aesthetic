@@ -1,18 +1,12 @@
 """
 Commands for running sql stuff
 """
-from discord.ext.commands import command, is_owner, Cog, has_permissions, guild_only, bot_has_permissions, group, Context
-from discord.ext import menus
-from discord.ext import commands
-from discord.ext.tasks import loop
-from discord import Embed, TextChannel
+from discord.ext.commands import is_owner, Cog, group
+from discord import Embed
 from datetime import datetime
 from time import strftime
 from core.ext.utils import color
-from typing import Optional
-from ..ext import check
 from data import config
-from uuid import uuid4
 from .. import Amaya
 #--------------
 import requests
@@ -21,16 +15,6 @@ import subprocess
 import asyncio
 import logging
 import discord
-import texttable
-import json
-
-
-__all__ = ('row', 'column', 'table', 'database')
-
-
-class TableExists(Exception):
-    pass
-
 
 
 class Database(Cog):
@@ -39,7 +23,6 @@ class Database(Cog):
         self._log_channel = 789614938247266305
         self._logger = logging.getLogger(__name__)
         self._mystbin = mystbin.Client(session=requests.Session())
-        self.table = texttable.Texttable()
 
     @staticmethod
     def ToJson(obj):
@@ -57,16 +40,40 @@ class Database(Cog):
     @db.command(name='init', hidden=True)
     @is_owner()
     async def _init_(self, ctx):
-        '''Init the bot database and creates the tables.'''
+        '''
+        Init the bot database and creates the tables.
+        **THIS COMMAND SHOULD ONLY ONCE AND RUN IN THE MAIN BOT SERVER.**
+        '''
         try:
             async with ctx.typing():
-                await asyncio.sleep(2)
+                guilds = 0
+                members = 0
+                
+                for guild in self.bot.guilds:
+                    guilds += 1
+                    members += guild.member_count
+
                 with open('./data/schema.sql', 'r', encoding='utf8') as schema:
                     read = schema.read()
                     await self.bot.pool.execute(read)
+                    await self.bot.pool.execute(
+                                                '''
+                                                INSERT INTO amaya(bot_id, owner_id, guild_id) VALUES($1, $2, $3)
+                                                ''', self.bot.user.id, ctx.author.id, ctx.guild.id)
                     await ctx.send("\U00002705")
         except Exception as e:
             await ctx.send(f"```{e}```")
+
+
+    @db.command(name='sql', aliases=['query', 'sqlx'], hidden=True)
+    @is_owner()
+    async def run_query(self, ctx, *, query):
+        '''runs sql querys.'''
+        if not query:
+            return
+        else:
+            reslut = await self.bot.query(query)
+            await ctx.send(f"```\n{reslut}\n```")
 
 
     @db.command(name="table", aliases=['info'], hidden=True)
@@ -123,49 +130,6 @@ class Database(Cog):
                     return await ctx.send(f"Too many results... Uploaded to mystbin -> {content}")
         except Exception as e:
             raise e
-
-
-    @Cog.listener()
-    async def on_guild_join(self, guild: discord.Guild):
-        roles = [role.mention for role in guild.roles]
-        e = Embed(
-            title="Joined a new server!",
-            color=color.invis(self),
-            timestamp=datetime.utcnow()
-        )
-        e.add_field(name="Server name", value=guild.name)
-        e.add_field(name="Server Owner", value=guild.owner)
-        e.add_field(name="Members", value=guild.member_count)
-        e.add_field(name="Server region", value=guild.region)
-        e.add_field(name="Boosters", value=guild.premium_subscription_count)
-        e.add_field(name="Boost Level", value=guild.premium_tier)
-        e.add_field(name='Roles', value=', '.join(roles) if len(roles) < 20 else f'{len(roles)} roles')
-        e.set_thumbnail(url=guild.icon_url)
-        chan = self.bot.get_channel(self._log_channel)
-        await chan.send(embed=e)
-        print(f"Bot joined {guild.name} at {datetime.utcnow()}")
-
-
-
-    @Cog.listener()
-    async def on_guild_remove(self, guild):
-        roles = [role.mention for role in guild.roles]
-        e = Embed(
-            title="Left a server!",
-            color=color.invis(self),
-            timestamp=datetime.utcnow()
-        )
-        e.add_field(name="Server name", value=guild.name)
-        e.add_field(name="Server Owner", value=guild.owner)
-        e.add_field(name="Members", value=guild.member_count)
-        e.add_field(name="Server region", value=guild.region)
-        e.add_field(name="Boosters", value=guild.premium_subscription_count)
-        e.add_field(name="Boost Level", value=guild.premium_tier)
-        e.add_field(name='Roles', value=', '.join(roles) if len(roles) < 20 else f'{len(roles)} roles')
-        e.set_thumbnail(url=guild.icon_url)
-        chan = self.bot.get_channel(self._log_channel)
-        await chan.send(embed=e)
-        print(f"Bot left {guild.name} at {datetime.utcnow()}")
 
 def setup(bot):
     bot.add_cog(Database(bot))

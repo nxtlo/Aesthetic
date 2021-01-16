@@ -7,8 +7,7 @@ from typing import Optional
 from discord import abc
 import discord
 
-
-class Logging(Cog):
+class Logging(Cog, name='<:channel:585783907841212418> Logging'):
     def __init__(self, bot):
         self.bot = bot
 
@@ -93,6 +92,23 @@ class Logging(Cog):
             await ctx.send(f"Logging channel updated to {channel.mention}")
 
 
+    @log.command(name='stop')
+    @check.admin_or_permissions(manage_guild=True)
+    async def stop_logging(self, ctx):
+        '''Stop the bot from logging.'''
+        try:
+            if not await self.exists(ctx.guild.id):
+                return await ctx.send("No channel was found.")
+            else:
+                query = '''
+                        DELETE FROM logging
+                        WHERE guild_id = $1
+                        '''
+                await self.bot.pool.execute(query, ctx.guild.id)
+                await ctx.send("Not logging anymore.")
+        except Exception as e:
+            await ctx.send(e)
+
 
     
     @Cog.listener()
@@ -140,6 +156,9 @@ class Logging(Cog):
                 return
 
             if before.activities != after.activities:
+                return
+
+            if before.mobile_status != after.mobile_status:
                 return
 
             await chan.send(embed=e)

@@ -28,3 +28,10 @@ CREATE TABLE IF NOT EXISTS logging (
     guild_id BIGINT PRIMARY KEY,
     logchannel BIGINT NOT NULL
 );
+
+
+CREATE TABLE IF NOT EXISTS amaya (
+    bot_id BIGINT PRIMARY KEY NOT NULL,
+    owner_id BIGINT NOT NULL,
+    guild_id BIGINT -- main bot guild.
+);
