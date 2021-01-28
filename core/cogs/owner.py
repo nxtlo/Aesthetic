@@ -1,11 +1,9 @@
 from discord.ext.commands import Cog, is_owner,command, ExtensionError, group
 from contextlib import redirect_stdout
-from discord import Embed, Member
-from core.ext import utils as ej
-from data import db
+from discord import Embed, Member, TextChannel, Guild
+from core.ext import utils as ej, check
 from .commands import FetchedUser
 from ..ext.utils import color
-
     ### Red-bot api for botstats command and listguilds
 
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS, close_menu
@@ -218,11 +216,22 @@ class Owner(Cog):
             )
             embed.set_author(name=f"{ctx.author}", icon_url=f"{ctx.author.avatar_url}")
             await ctx.send(embed=embed)
-            db.con.close()
             await self.bot.logout()
             
         except ConnectionError as e:
             raise e
+    
+    @command(name="say", hidden=True)
+    @is_owner()
+    async def _say(self, ctx, chan: TextChannel=None, *, msg):
+        chan = chan or chan.id
+        try:
+            if not chan:
+                await ctx.send(msg)
+            await chan.send(msg)
+        except Exception:
+            raise
+
 
 
 def setup(bot):
