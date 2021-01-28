@@ -22,7 +22,7 @@ import sys
 COGS = (
     'jishaku',
     'core.cogs.tech',
-    'core.cogs.logging', # still broken
+    #'core.cogs.logging', # still broken
     'core.cogs.anime',
     'core.cogs.nsfw',
     'core.cogs.db',
@@ -40,7 +40,6 @@ class Amaya(Bot):
     Main `class` for the bot to acually run.
     """
     def __init__(self):
-        # self._cogs = [p.stem for p in Path(".").glob("./core/cogs/*.py")]
         self._owner = 350750086357057537
         self._log_channel = 789614938247266305
 
@@ -200,7 +199,7 @@ class Amaya(Bot):
         e = discord.Embed(
             title="Joined a new server!",
             color=color.invis(self),
-            timestamp=datetime.utcnow()
+            timestamp=datetime.datetime.utcnow()
         )
         e.add_field(name="Server name", value=guild.name)
         e.add_field(name="Server Owner", value=guild.owner)
@@ -219,7 +218,7 @@ class Amaya(Bot):
         e = discord.Embed(
             title="Left a server!",
             color=color.invis(self),
-            timestamp=datetime.utcnow()
+            timestamp=datetime.datetime.utcnow()
         )
         e.add_field(name="Server name", value=guild.name)
         e.add_field(name="Server Owner", value=guild.owner)

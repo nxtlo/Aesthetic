@@ -1,4 +1,3 @@
-import json
 from datetime import datetime, timedelta
 from time import time
 from discord import Activity, ActivityType, Embed, Status, HTTPException, TextChannel
@@ -8,7 +7,6 @@ from typing import Optional
 from ..ext import check
 from ..ext.utils import color
 from typing import Optional
-import wikipedia
 from corona_python import Country, World
 from sr_api import image, Client as _client
 
@@ -16,6 +14,8 @@ class Utility(Cog, name='\U00002699 Utility'):
 	'''Commands for config the bot and other Utils.'''
 	def __init__(self, bot):
 		self.bot = bot
+		self._country = Country
+		self._world = World()
 
 	
 	@command(name='color')
@@ -34,7 +34,7 @@ class Utility(Cog, name='\U00002699 Utility'):
 	async def covid(self, ctx, *, country: Optional[str]=None):
 		if country is not None:
 			e = Embed(title=f"Covid stats for {country}", color=color.invis(self))
-			country = self.country(country)
+			country = self._country(country)
 			if country.flag():
 				e.set_image(url=country.flag())
 			e.add_field(name='\U0000274c Active cases', value=country.active())
@@ -49,16 +49,16 @@ class Utility(Cog, name='\U00002699 Utility'):
 			await ctx.send(embed=e)
 		else:
 			e = Embed(title=f"Covid stats for the world. \U0001f30e", color=color.invis(self))
-			e.add_field(name='\U0000274c Active cases', value=self.world.active_cases())
-			e.add_field(name="\U0000274c Today's cases", value=self.world.today_cases())
-			e.add_field(name='\U0000274c Total cases', value=self.world.total_cases())
-			e.add_field(name='\U0000274c Last Updated', value=self.world.last_updated())
-			e.add_field(name="\U0000274c Today's deaths", value=self.world.today_deaths())
-			e.add_field(name='\U0000274c Total deaths', value=self.world.total_deaths())
-			e.add_field(name='\U0000274c Total criticals', value=self.world.critical_cases())
-			e.add_field(name='\U00002705 Total recovered', value=self.world.recovered())
-			e.add_field(name="\U00002705 Today's recovered", value=self.world.today_recovered())
-			e.set_footer(text=f"World Population {self.world.population()}")
+			e.add_field(name='\U0000274c Active cases', value=self._world.active_cases())
+			e.add_field(name="\U0000274c Today's cases", value=self._world.today_cases())
+			e.add_field(name='\U0000274c Total cases', value=self._world.total_cases())
+			e.add_field(name='\U0000274c Last Updated', value=self._world.last_updated())
+			e.add_field(name="\U0000274c Today's deaths", value=self._world.today_deaths())
+			e.add_field(name='\U0000274c Total deaths', value=self._world.total_deaths())
+			e.add_field(name='\U0000274c Total criticals', value=self._world.critical_cases())
+			e.add_field(name='\U00002705 Total recovered', value=self._world.recovered())
+			e.add_field(name="\U00002705 Today's recovered", value=self._world.today_recovered())
+			e.set_footer(text=f"World Population {self._world.population()}")
 			await ctx.send(embed=e)
 
 

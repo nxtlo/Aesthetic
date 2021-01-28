@@ -21,7 +21,6 @@ class Database(Cog):
     def __init__(self, bot: Amaya):
         self.bot = bot
         self._log_channel = 789614938247266305
-        self._logger = logging.getLogger(__name__)
         self._mystbin = mystbin.Client(session=requests.Session())
 
     @staticmethod
