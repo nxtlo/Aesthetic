@@ -10,9 +10,13 @@ else:
 
 def main():
     bot = Amaya()
-    uvloop.install()
-    bot.loop.run_until_complete(bot.pool_connect())
-    bot.run()
+    try:
+        bot.loop.run_until_complete(bot.pool_connect())
+        bot.run()
+    except Exception:
+        raise
+    finally:
+        bot.close()
 
 
 if __name__ == "__main__":

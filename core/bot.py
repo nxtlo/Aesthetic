@@ -6,6 +6,7 @@ from time import sleep
 from core.cogs.commands import FetchedUser
 from data import config
 from core.ext.utils import color
+from core.ext.ctx import Context
 from typing import Optional, Any, Union, Dict, Tuple
 
 import asyncpg
@@ -17,11 +18,12 @@ import copy
 import logging
 import traceback
 import sys
-
+import aiohttp
 
 COGS = (
     'jishaku',
     'core.cogs.tech',
+    'core.cogs.profiles',
     #'core.cogs.logging', # still broken
     'core.cogs.anime',
     'core.cogs.nsfw',
@@ -42,6 +44,7 @@ class Amaya(Bot):
     def __init__(self):
         self._owner = 350750086357057537
         self._log_channel = 789614938247266305
+        self.seesion = aiohttp.ClientSession()
 
         super().__init__(
             command_prefix=self.get_prefix,
@@ -49,20 +52,6 @@ class Amaya(Bot):
             intents=Intents.all(),
             owner_id=self._owner)
     
-    def doc(self, cdr=None):
-        try:
-            return cdr.__doc__
-        except:
-            return
-
-    def __eq__(self, other):
-        try:
-            return self.fate == other.value or self._owner == other.value
-        except:
-            raise "London"
-        
-    def __hash__(self):
-        return hash(self.fate)
 
     def _uptime(self):
         now = datetime.datetime.utcnow()
@@ -80,6 +69,9 @@ class Amaya(Bot):
     def fate(self) -> int:
         return self._owner or self.owner_id
 
+    
+    async def close(self):
+        await self.seesion.close()
 
     @property
     def amaya(self):
@@ -89,7 +81,7 @@ class Amaya(Bot):
     @property
     def query(self):
         return self._do_query
-    
+
     async def script_exe(self, path):
         '''execute `.sql` files.'''
         try:
@@ -120,12 +112,7 @@ class Amaya(Bot):
 
     async def on_ready(self):
         self.uptime = datetime.datetime.utcnow()
-        print("Bot ready.")
-        print('Logged in as:\n')
-        print('Bot name:\n', self.user.name)
-        print('Bot id:\n',self.user.id)
-        print('Discord Version:\n', __version__)
-
+        print(f"Bot ready. -> {self.user.id}, {self.user.name}")
 
     async def get_prefix(self, msg):
         if not msg.guild:
@@ -148,18 +135,27 @@ class Amaya(Bot):
             max_inactive_connection_lifetime=0
         )
 
+
+    async def get_context(self, message, *, cls=None):
+        return await super().get_context(message, cls=Context)
+
+    async def process_commands(self, message):
+        if message.author.bot:
+            return
+        ctx = await self.get_context(message)
+
+        try:
+            if ctx.command is None:
+                return
+            await self.invoke(ctx)
+        finally:
+            pass
+
     async def on_message(self, message):
         if message.author.bot:
             return
         await self.process_commands(message)
-        ctx = await self.get_context(message)
-        if ctx.invoked_with and ctx.invoked_with.lower() not in self.commands and ctx.command is None:
-            msg = copy.copy(message)
-            if ctx.prefix:
-                new_content = msg.content[len(ctx.prefix):]
-                msg.content = "{}tag get {}".format(ctx.prefix, new_content)
-                await self.process_commands(msg)
-                
+               
 
     async def on_command_error(self, ctx, err):
         if isinstance(err, commands.NoPrivateMessage):
@@ -188,13 +184,6 @@ class Amaya(Bot):
 
 
     async def on_guild_join(self, guild: discord.Guild):
-        # guilds = 0
-        # members = 0
-        # for guild in self.bot.guilds:
-        #    guilds += 1
-        #    members += guild.member_count
-        #    await self.pool.execute('''UPDATE amaya SET (guilds, members) = ($1, $2)''', guilds, members)
-
         roles = [role.mention for role in guild.roles]
         e = discord.Embed(
             title="Joined a new server!",
@@ -202,6 +191,7 @@ class Amaya(Bot):
             timestamp=datetime.datetime.utcnow()
         )
         e.add_field(name="Server name", value=guild.name)
+        e.add_field(name='Server ID', value=guild.id)
         e.add_field(name="Server Owner", value=guild.owner)
         e.add_field(name="Members", value=guild.member_count)
         e.add_field(name="Server region", value=guild.region)
@@ -221,6 +211,7 @@ class Amaya(Bot):
             timestamp=datetime.datetime.utcnow()
         )
         e.add_field(name="Server name", value=guild.name)
+        e.add_field(name='Server ID', value=guild.id)
         e.add_field(name="Server Owner", value=guild.owner)
         e.add_field(name="Members", value=guild.member_count)
         e.add_field(name="Server region", value=guild.region)

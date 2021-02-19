@@ -41,81 +41,39 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
     @has_guild_permissions(ban_members=True)
     @bot_has_guild_permissions(ban_members=True)
     @guild_only()
-    async def ban(self, ctx, member: Union[Member, FetchedUser], *, reason=None):
+    async def ban(self, ctx, member: Union[Member, FetchedUser], *, reason: Optional[str] = 'No reason.'):
         """
         Bans a member from the guild.
         """
-        try:
-            if reason is None:
-
-                null = strftime("%A, %d %Y/%m, %H:%M:%S %p")
-                
-                e = Embed(
-                    title=f"a member has been banned with no reason"
-                )
-                e.add_field(name=f"Author:", value=f"{ctx.author}\nID:{ctx.author.id}", inline=False)
-                e.add_field(name=f"Member:", value=f"{member.name}#{member.discriminator}\nID:{member.id}", inline=False)
-                e.add_field(name="Occurred at", value=null, inline=False)
-                e.set_thumbnail(url=member.avatar_url)
-                await ctx.guild.ban(member)
-                await ctx.send(embed=e)
-            elif reason:
-                null = strftime("%A, %d %Y/%m, %H:%M:%S %p")
-                e = Embed(
-                    title=f"a member has been banned"
-                )
-                e.add_field(name=f"Author:", value=f"{ctx.author}\nID:{ctx.author.id}", inline=False)
-                e.add_field(name=f"Member:", value=f"{member.name}#{member.discriminator}\nID:{member.id}", inline=False)
-                e.add_field(name="Occurred at", value=null, inline=False)
-                e.add_field(name="Reason:", value=reason)
-                e.set_thumbnail(url=member.avatar_url)
-                await ctx.guild.ban(member)
-                await ctx.send(embed=e)
-            else:
-                print(f"{ctx.author.name} tried to ban someone and he doesn't have perms")
-                return
-        except commands.MissingPermissions as e:
-            await ctx.send(e)
-
+        null = strftime("%A, %d %Y/%m, %H:%M:%S %p")
+        e = Embed(
+            title=f"a member has been banned"
+        )
+        e.add_field(name=f"Author:", value=f"{ctx.author}\nID:{ctx.author.id}", inline=False)
+        e.add_field(name=f"Member:", value=f"{member.name}#{member.discriminator}\nID:{member.id}", inline=False)
+        e.add_field(name="Occurred at", value=null, inline=False)
+        e.add_field(name="Reason:", value=reason)
+        e.set_thumbnail(url=member.avatar_url)
+        await ctx.guild.ban(member)
+        await ctx.send(embed=e)
 
 
     @command(name="unban")
     @has_guild_permissions(ban_members=True)
     @bot_has_guild_permissions(ban_members=True)
     @guild_only()
-    async def unban_command(self, ctx, member: Union[Member, FetchedUser], *, reason=None):
-
-        try:
-            if reason is None:
-
-                null = strftime("%A, %d %Y/%m, %H:%M:%S %p")
-                
-                e = Embed(
-                    title=f"A member was unbanned with no reason"
-                )
-                e.add_field(name=f"Author:", value=f"{ctx.author}\nID:{ctx.author.id}", inline=False)
-                e.add_field(name=f"Member:", value=f"{member.name}#{member.discriminator}\nID:{member.id}", inline=False)
-                e.add_field(name="Occurred at", value=null, inline=False)
-                e.set_thumbnail(url=member.avatar_url)
-                await ctx.guild.unban(member)
-                await ctx.send(embed=e)
-            elif reason:
-                null = strftime("%A, %d %Y/%m, %H:%M:%S %p")
-                e = Embed(
-                    title=f"A member has been Unbanned"
-                )
-                e.add_field(name=f"Author:", value=f"{ctx.author}\nID:{ctx.author.id}", inline=False)
-                e.add_field(name=f"Member:", value=f"{member.name}#{member.discriminator}\nID:{member.id}", inline=False)
-                e.add_field(name="Occurred at", value=null, inline=False)
-                e.add_field(name="Reason:", value=reason)
-                e.set_thumbnail(url=member.avatar_url)
-                await ctx.guild.unban(member)
-                await ctx.send(embed=e)
-            else:
-                print(f"{ctx.author.name} tried to unban someone and he doesn't have perms")
-                return
-        except commands.MissingPermissions as e:
-            await ctx.send(e)
+    async def unban_command(self, ctx, member: Union[Member, FetchedUser], *, reason: Optional[str] = 'No reason.'):
+        null = strftime("%A, %d %Y/%m, %H:%M:%S %p")
+        e = Embed(
+            title=f"A member has been Unbanned"
+        )
+        e.add_field(name=f"Author:", value=f"{ctx.author}\nID:{ctx.author.id}", inline=False)
+        e.add_field(name=f"Member:", value=f"{member.name}#{member.discriminator}\nID:{member.id}", inline=False)
+        e.add_field(name="Occurred at", value=null, inline=False)
+        e.add_field(name="Reason:", value=reason)
+        e.set_thumbnail(url=member.avatar_url)
+        await ctx.guild.unban(member)
+        await ctx.send(embed=e)
 
 
     @group(invoke_without_command=True)
@@ -225,51 +183,28 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
     @has_guild_permissions(kick_members=True)
     @bot_has_guild_permissions(kick_members=True)
     @guild_only()
-    async def kick_command(self, ctx, member: Union[Member, FetchedUser], *, reason=None):
+    async def kick_command(self, ctx, member: Union[Member, FetchedUser], *, reason: Optional[str] = 'No reason.'):
         """
         kicks a member from the guild.
         """
-        try:
-            if reason is None:
-
-                null = strftime("%A, %d %Y/%m, %H:%M:%S %p")
-                
-                e = Embed(
-                    title=f"a member has been kicked with no reason"
-                )
-                e.add_field(name=f"Author:", value=f"{ctx.author}\nID:{ctx.author.id}", inline=False)
-                e.add_field(name=f"Member:", value=f"{member.name}#{member.discriminator}\nID:{member.id}", inline=False)
-                e.add_field(name="Occurred at", value=null, inline=False)
-                e.set_thumbnail(url=member.avatar_url)
-                await ctx.guild.kick(member)
-                await ctx.send(embed=e)
-
-            elif reason:
-                null = strftime("%A, %d %Y/%m, %H:%M:%S %p")
-                e = Embed(
-                    title=f"a member has been kicked"
-                )
-                e.add_field(name=f"Author:", value=f"{ctx.author}\nID:{ctx.author.id}", inline=False)
-                e.add_field(name=f"Member:", value=f"{member.name}#{member.discriminator}\nID:{member.id}", inline=False)
-                e.add_field(name="Occurred at", value=null, inline=False)
-                e.add_field(name="Reason:", value=reason)
-                e.set_thumbnail(url=member.avatar_url)
-                await ctx.guild.kick(member)
-                await ctx.send(embed=e)
-            else:
-                print(f"{ctx.author.name} tried to kick someone and he doesn't have perms")
-                return
-        except:
-            pass
-
+        null = strftime("%A, %d %Y/%m, %H:%M:%S %p")
+        e = Embed(
+            title=f"a member has been kicked"
+        )
+        e.add_field(name=f"Author:", value=f"{ctx.author}\nID:{ctx.author.id}", inline=False)
+        e.add_field(name=f"Member:", value=f"{member.name}#{member.discriminator}\nID:{member.id}", inline=False)
+        e.add_field(name="Occurred at", value=null, inline=False)
+        e.add_field(name="Reason:", value=reason)
+        e.set_thumbnail(url=member.avatar_url)
+        await ctx.guild.kick(member)
+        await ctx.send(embed=e)
 
     @command(name="clean", aliases=["purge", "del", "clear"], useage="clean <ammount>")
     @guild_only()
     @has_guild_permissions(manage_messages=True)
-    async def _purge(self, ctx, amount=4):
+    async def _purge(self, ctx, amount: int = 4):
         """
         Clean chat messages
-
         if no amount was provided. this command will delete the last 5 messages
         """
         await ctx.channel.purge(limit=amount+1)

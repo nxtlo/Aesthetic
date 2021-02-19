@@ -3,7 +3,7 @@ from discord import Embed
 import scathach
 from ..ext.utils import color
 
-class Hentai(Cog):
+class NSFW(Cog):
     '''NSFW commands.'''
     def __init__(self, bot):
         self.bot = bot
@@ -82,4 +82,4 @@ class Hentai(Cog):
 
 
 def setup(bot):
-    bot.add_cog(Hentai(bot))
+    bot.add_cog(NSFW(bot))

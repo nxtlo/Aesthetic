@@ -35,3 +35,16 @@ CREATE TABLE IF NOT EXISTS amaya (
     owner_id BIGINT NOT NULL,
     guild_id BIGINT -- main bot guild.
 );
+
+CREATE TABLE profiles (
+    profile_id TEXT NOT NULL,
+    member_id BIGINT PRIMARY KEY NOT NULL,
+    _name TEXT,
+    relation TEXT,
+    country TEXT,
+    city TEXT,
+    age SMALLINT,
+    gender TEXT,
+    info TEXT,
+    avatar TEXT
+);
