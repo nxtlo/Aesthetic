@@ -1,24 +1,17 @@
-from pathlib import Path
-from discord import Intents, Message, Member, __version__
+from discord import Intents, Message, Member
 from discord.ext.commands import when_mentioned_or, Bot
 from discord.ext import commands
-from time import sleep
-from core.cogs.commands import FetchedUser
 from data import config
 from core.ext.utils import color
 from core.ext.ctx import Context
-from typing import Optional, Any, Union, Dict, Tuple
+from typing import Optional
 
+import httpx
 import asyncpg
 import datetime
-import asyncio
 import discord
-import os
-import copy
-import logging
 import traceback
 import sys
-import aiohttp
 
 COGS = (
     'jishaku',
@@ -44,7 +37,7 @@ class Amaya(Bot):
     def __init__(self):
         self._owner = 350750086357057537
         self._log_channel = 789614938247266305
-        self.seesion = aiohttp.ClientSession()
+        self.session = httpx.AsyncClient()
 
         super().__init__(
             command_prefix=self.get_prefix,
@@ -71,11 +64,8 @@ class Amaya(Bot):
 
     
     async def close(self):
-        await self.seesion.close()
-
-    @property
-    def amaya(self):
-        return self.amaya_channel or None
+        if not self.session.is_closed:
+            await self.session.aclose()
 
 
     @property
@@ -98,17 +88,6 @@ class Amaya(Bot):
             c = self.get_channel(self._log_channel)
             c.send(f"```\n{e}\n```")
 
-
-    async def amaya_channel(self, gid: int):
-        try:
-            query = '''
-                    SELECT channel_id
-                    FROM amaya
-                    WHERE guild_id = $1
-                    '''
-            await self.pool.fetchval(query, gid)
-        except Exception:
-            raise
 
     async def on_ready(self):
         self.uptime = datetime.datetime.utcnow()
@@ -182,46 +161,6 @@ class Amaya(Bot):
             )
             await ctx.send(embed=embed)
 
-
-    async def on_guild_join(self, guild: discord.Guild):
-        roles = [role.mention for role in guild.roles]
-        e = discord.Embed(
-            title="Joined a new server!",
-            color=color.invis(self),
-            timestamp=datetime.datetime.utcnow()
-        )
-        e.add_field(name="Server name", value=guild.name)
-        e.add_field(name='Server ID', value=guild.id)
-        e.add_field(name="Server Owner", value=guild.owner)
-        e.add_field(name="Members", value=guild.member_count)
-        e.add_field(name="Server region", value=guild.region)
-        e.add_field(name="Boosters", value=guild.premium_subscription_count)
-        e.add_field(name="Boost Level", value=guild.premium_tier)
-        e.add_field(name='Roles', value=', '.join(roles) if len(roles) < 20 else f'{len(roles)} roles')
-        e.set_thumbnail(url=guild.icon_url)
-        chan = self.get_channel(self._log_channel)
-        await chan.send(embed=e)
-        print(f"Bot joined {guild.name} at {datetime.utcnow()}")
-
-    async def on_guild_remove(self, guild):
-        roles = [role.mention for role in guild.roles]
-        e = discord.Embed(
-            title="Left a server!",
-            color=color.invis(self),
-            timestamp=datetime.datetime.utcnow()
-        )
-        e.add_field(name="Server name", value=guild.name)
-        e.add_field(name='Server ID', value=guild.id)
-        e.add_field(name="Server Owner", value=guild.owner)
-        e.add_field(name="Members", value=guild.member_count)
-        e.add_field(name="Server region", value=guild.region)
-        e.add_field(name="Boosters", value=guild.premium_subscription_count)
-        e.add_field(name="Boost Level", value=guild.premium_tier)
-        e.add_field(name='Roles', value=', '.join(roles) if len(roles) < 20 else f'{len(roles)} roles')
-        e.set_thumbnail(url=guild.icon_url)
-        chan = self.get_channel(self._log_channel)
-        await chan.send(embed=e)
-        print(f"Bot left {guild.name} at {datetime.utcnow()}")
 
     def setup(self):
         print("Loading cogs...")

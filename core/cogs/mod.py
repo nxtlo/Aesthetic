@@ -240,5 +240,44 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
         await ctx.send(content=None, embed=embed)
         # Thanks to Gio for the Command.
 
+    async def on_guild_join(self, guild: discord.Guild):
+        roles = [role.mention for role in guild.roles]
+        e = discord.Embed(
+            title="Joined a new server!",
+            color=color.invis(self),
+            timestamp=datetime.datetime.utcnow()
+        )
+        e.add_field(name="Server name", value=guild.name)
+        e.add_field(name='Server ID', value=guild.id)
+        e.add_field(name="Server Owner", value=guild.owner)
+        e.add_field(name="Members", value=guild.member_count)
+        e.add_field(name="Server region", value=guild.region)
+        e.add_field(name="Boosters", value=guild.premium_subscription_count)
+        e.add_field(name="Boost Level", value=guild.premium_tier)
+        e.add_field(name='Roles', value=', '.join(roles) if len(roles) < 20 else f'{len(roles)} roles')
+        e.set_thumbnail(url=guild.icon_url)
+        chan = self.bot.get_channel(self.bot._log_channel)
+        await chan.send(embed=e)
+
+    async def on_guild_remove(self, guild):
+        roles = [role.mention for role in guild.roles]
+        e = discord.Embed(
+            title="Left a server!",
+            color=color.invis(self),
+            timestamp=datetime.datetime.utcnow()
+        )
+        e.add_field(name="Server name", value=guild.name)
+        e.add_field(name='Server ID', value=guild.id)
+        e.add_field(name="Server Owner", value=guild.owner)
+        e.add_field(name="Members", value=guild.member_count)
+        e.add_field(name="Server region", value=guild.region)
+        e.add_field(name="Boosters", value=guild.premium_subscription_count)
+        e.add_field(name="Boost Level", value=guild.premium_tier)
+        e.add_field(name='Roles', value=', '.join(roles) if len(roles) < 20 else f'{len(roles)} roles')
+        e.set_thumbnail(url=guild.icon_url)
+        chan = self.bot.get_channel(self.bot._log_channel)
+        await chan.send(embed=e)
+
+
 def setup(bot):
     bot.add_cog(Moderation(bot))

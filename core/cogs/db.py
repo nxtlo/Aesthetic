@@ -1,7 +1,7 @@
 """
 Commands for running sql stuff
 """
-from discord.ext.commands import is_owner, Cog, group
+from discord.ext.commands import is_owner, Cog, group, command
 from discord import Embed
 from datetime import datetime
 from time import strftime
@@ -9,7 +9,6 @@ from core.ext.utils import color
 from data import config
 from .. import Amaya
 #--------------
-import requests
 import mystbin
 import subprocess
 import asyncio
@@ -21,14 +20,12 @@ class Database(Cog):
     def __init__(self, bot: Amaya):
         self.bot = bot
         self._log_channel = 789614938247266305
-        self._mystbin = mystbin.Client(session=requests.Session())
 
     @staticmethod
     def ToJson(obj):
         if isinstance(obj, set):
             return list(obj)
         raise TypeError
-
 
 
     @group(hidden=True, invoked_without_command=True)
@@ -43,25 +40,17 @@ class Database(Cog):
         Init the bot database and creates the tables.
         **THIS COMMAND SHOULD ONLY ONCE AND RUN IN THE MAIN BOT SERVER.**
         '''
-        try:
-            async with ctx.typing():
-                guilds = 0
-                members = 0
-                
-                for guild in self.bot.guilds:
-                    guilds += 1
-                    members += guild.member_count
-
-                with open('./data/schema.sql', 'r', encoding='utf8') as schema:
-                    read = schema.read()
-                    await self.bot.pool.execute(read)
-                    await self.bot.pool.execute(
-                                                '''
-                                                INSERT INTO amaya(bot_id, owner_id, guild_id) VALUES($1, $2, $3)
-                                                ''', self.bot.user.id, ctx.author.id, ctx.guild.id)
-                    await ctx.send("\U00002705")
-        except Exception as e:
-            await ctx.send(f"```{e}```")
+        async with ctx.typing():
+            query = "INSERT INTO amaya(bot_id, owner_id, guild_id) VALUES($1, $2, $3)"
+            with open('./data/schema.sql', 'r', encoding='utf8') as schema:
+                async with ctx.pool.acquire() as conn:
+                    try:
+                        await conn.execute(schema.read())
+                        await asyncio.sleep(2)
+                        await conn.execute(query, self.bot.user.id, self.bot.owner_id, ctx.author.guild.id)
+                        await ctx.send("\U00002705")
+                    finally:
+                        await ctx.pool.release(conn)
 
 
     @db.command(name='sql', aliases=['query', 'sqlx'], hidden=True)
@@ -89,9 +78,6 @@ class Database(Cog):
                 if table:
                     if len(cmd) < 2000:
                         await ctx.send(f"```\n{result.communicate()[0]}\n```")
-                    else:
-                        content = self._mystbin.post(f"{result.communicate()[0]}", syntax='sql').url
-                        return await ctx.send(f"Too many results... Uploaded to mystbin -> {content}")
         except Exception:
             raise
         finally:
@@ -108,9 +94,6 @@ class Database(Cog):
                 if len(cmd) < 2000:
                     e = Embed(description=f"```sql\n{schema.communicate()[0]}\n```")
                     await ctx.send(embed=e)
-                elif len(cmd) > 2000:
-                    content = self._mystbin.post(f"{schema.communicate()[0]}", syntax='sql').url
-                    return await ctx.send(f"Too many results... Uploaded to mystbin -> {content}")
         except Exception as e:
             raise e
     
@@ -124,9 +107,6 @@ class Database(Cog):
                 rows = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, close_fds=True, encoding='utf8')
                 if len(cmd) < 2000:
                     await ctx.send(f"```sql\n{rows.communicate()[0]}\n```")
-                elif len(cmd) > 2000:
-                    content = self._mystbin.post(f"{rows.communicate()[0]}", syntax='sql').url
-                    return await ctx.send(f"Too many results... Uploaded to mystbin -> {content}")
         except Exception as e:
             raise e
 

@@ -29,6 +29,7 @@ from typing import Optional
 from uuid import uuid4
 from datetime import datetime
 from ..ext.converters import convert
+from ..ext.ctx import Context
 
 
 # this is a simple tag system nothing interesting to see here.
@@ -36,7 +37,7 @@ from ..ext.converters import convert
 
 class Tags(Cog, name="\U0001f4cc Tags"):
     '''Commands related to Tags.'''
-    _slots_ = ('me', 'add', 'create', 'remove', 'edit', 'info')
+    _forbid: list = ['me', 'add', 'create', 'remove', 'edit', 'info']
 
     def __init__(self, bot):
         self.bot = bot
@@ -45,40 +46,34 @@ class Tags(Cog, name="\U0001f4cc Tags"):
 
     @group(invoke_without_command=True)
     async def tag(self, ctx, *, name):
-        fetched = await self.bot.pool.fetch('''
-                                            SELECT content, tag_name
-                                            FROM tags 
-                                            WHERE tag_name = $1 AND guild_id = $2''',
-                                            name, ctx.guild.id)
-        _name = [t['tag_name'] for t in fetched]
+        fetched_content = await ctx.pool.fetchval('''SELECT content FROM tags WHERE tag_name = $1 AND guild_id = $2''',name, ctx.guild.id)
+        # had to do it like this.
+        _name = await ctx.pool.fetchval("SELECT tag_name FROM tags WHERE guild_id = $1", ctx.guild.id)
         if not name in _name:
-            return
+            return await ctx.send("Tag was not found.")
         else:
-            content = [c['content'] for c in fetched]
-            await ctx.send(*content)
+            await ctx.send(fetched_content)
 
     @tag.command(aliases=['create'])
     async def add(self, ctx: Context, name, *, content: str = None):
         """Creates a new tag."""
         
-        if name in self._slots_:
+        if name in self._forbid:
             return
         
         if content is None:
             return await ctx.send("You're missing the content.")
 
-        istag = await self.bot.pool.fetch(
-                                        '''
-                                        SELECT tag_name
-                                        FROM tags
-                                        WHERE tag_name = $1 AND guild_id = $2
-                                        ''', name, ctx.guild.id
-                                    )
-        exists = [t['tag_name'] for t in istag]
-
+        pool = await ctx.pool.fetch(
+                                    '''
+                                    SELECT tag_name FROM tags
+                                    WHERE tag_name = $1 
+                                    AND guild_id = $2
+                                    ''', name, ctx.guild.id)
+        exists = [t['tag_name'] for t in pool]
         if not name in exists:
             query = '''INSERT INTO tags(guild_id, tag_name, created_at, tag_id, tag_owner, content) VALUES($1, $2, $3, $4, $5, $6)'''
-            await self.bot.pool.execute(query, 
+            await ctx.pool.execute(query, 
                                         ctx.guild.id, 
                                         name, 
                                         datetime.utcnow(), 
@@ -91,10 +86,10 @@ class Tags(Cog, name="\U0001f4cc Tags"):
 
 
 
-    @tag.command(name='remove')
+    @tag.command(name='remove', aliases=['del'])
     async def rem_tag(self, ctx, *, name):
         """Removes a tag by its name."""
-        check = await self.bot.pool.fetch(
+        check = await ctx.pool.fetch(
             '''SELECT tag_owner, tag_name  
                FROM tags 
                WHERE tag_owner = $1 
@@ -107,7 +102,7 @@ class Tags(Cog, name="\U0001f4cc Tags"):
             return await ctx.send("No tag found.")
         else:
             if check or ctx.author.id == self.bot.fate:
-                await self.bot.pool.execute(
+                await ctx.pool.execute(
                     '''
                     DELETE FROM tags
                     WHERE tag_name = $1
@@ -121,7 +116,7 @@ class Tags(Cog, name="\U0001f4cc Tags"):
     @tag.command(name='me')
     async def my_tags(self, ctx: Context):
         """Shows your own tags."""
-        query = await self.bot.pool.fetch("SELECT * FROM tags WHERE guild_id = $1", ctx.guild.id)
+        query = await ctx.pool.fetch("SELECT * FROM tags WHERE guild_id = $1", ctx.guild.id)
 
         if len(query) == 0 or query is None:
             await ctx.send("No tags found.")
@@ -135,7 +130,7 @@ class Tags(Cog, name="\U0001f4cc Tags"):
     @tag.command(name="edit")
     async def _edit(self, ctx, tag, *, new):
         """Edits your tag."""
-        checks = await self.bot.pool.fetch(
+        checks = await ctx.pool.fetch(
                      '''SELECT tag_owner, tag_name
                         FROM tags
                         WHERE tag_owner = $1
@@ -152,7 +147,7 @@ class Tags(Cog, name="\U0001f4cc Tags"):
                         WHERE tag_name = $2
                         AND guild_id = $3
                         '''
-                await self.bot.pool.execute(query, new, tag, ctx.guild.id)
+                await ctx.pool.execute(query, new, tag, ctx.guild.id)
                 await ctx.send("Tag edited.")
             else:
                 pass
@@ -165,8 +160,10 @@ class Tags(Cog, name="\U0001f4cc Tags"):
     async def _tag_info(self, ctx, *, tag):
         '''returns info about a specific tag.'''
         
-        found = await self.bot.pool.fetchrow('''SELECT tag_name, tag_owner, created_at, tag_id 
-                                             FROM tags WHERE tag_name = $1 AND guild_id = $2''',tag, ctx.guild.id)
+        found = await ctx.pool.fetchrow('''
+                                        SELECT tag_name, tag_owner, created_at, tag_id 
+                                        FROM tags 
+                                        WHERE tag_name = $1 AND guild_id = $2''',tag, ctx.guild.id)
         if found:
             name = found['tag_name']
             owner = f'<@{found["tag_owner"]}>'

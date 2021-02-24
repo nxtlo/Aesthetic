@@ -15,6 +15,7 @@ from discord.ext import commands
 from discord import Member, Embed, Color, Status, Guild
 from core.ext import utils as u
 from ..ext.help import PaginatedHelpCommand
+from mystbin import Client as mystbin_cli
 
 start_time = time.time()
 
@@ -40,6 +41,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         bot.help_command.cog = self
         self.bot = bot
         self.process = psutil.Process()
+        self.mystbin = mystbin_cli(session=requests.Session())
 
     @commands.command(name='fate', aliases=['owner'], hidden=True)
     async def owner_command(self, ctx):
@@ -95,6 +97,11 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
                 colour=color.invis(self),
                 )
             )
+
+    @commands.command()
+    async def mb(self, ctx, syntax: str = None, *, content: str):
+        coro = self.mysbin(content=content, syntax=syntax)
+        await ctx.send(coro.url)
 
 
     @commands.command(name="status")
