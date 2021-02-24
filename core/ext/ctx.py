@@ -25,10 +25,10 @@ class Context(commands.Context):
         return self._pool
 
     @property
-    def session(self):
-        return self.bot.session
-
-
-    @property
     def time(self):
         return datetime.datetime.utcnow().strftime('%A, %d %Y/%m, %H:%M:%S %p')
+
+    async def send_help(self, command = None):
+        cmd = self.bot.get_command('help')
+        command = command or self.command.qualified_name
+        await self.invoke(cmd, command=command)

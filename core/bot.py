@@ -6,7 +6,6 @@ from core.ext.utils import color
 from core.ext.ctx import Context
 from typing import Optional
 
-import httpx
 import asyncpg
 import datetime
 import discord
@@ -37,7 +36,6 @@ class Amaya(Bot):
     def __init__(self):
         self._owner = 350750086357057537
         self._log_channel = 789614938247266305
-        self.session = httpx.AsyncClient()
 
         super().__init__(
             command_prefix=self.get_prefix,
@@ -63,11 +61,6 @@ class Amaya(Bot):
         return self._owner or self.owner_id
 
     
-    async def close(self):
-        if not self.session.is_closed:
-            await self.session.aclose()
-
-
     @property
     def query(self):
         return self._do_query
