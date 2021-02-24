@@ -31,12 +31,12 @@ CREATE TABLE IF NOT EXISTS logging (
 
 
 CREATE TABLE IF NOT EXISTS amaya (
-    bot_id BIGINT PRIMARY KEY NOT NULL,
+    bot_id BIGINT NOT NULL,
     owner_id BIGINT NOT NULL,
     guild_id BIGINT -- main bot guild.
 );
 
-CREATE TABLE profiles (
+CREATE TABLE IF NOT EXISTS profiles (
     profile_id TEXT NOT NULL,
     member_id BIGINT PRIMARY KEY NOT NULL,
     _name TEXT,
