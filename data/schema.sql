@@ -48,3 +48,21 @@ CREATE TABLE IF NOT EXISTS profiles (
     info TEXT,
     avatar TEXT
 );
+
+
+CREATE TABLE IF NOT EXISTS mutes (
+    guild_id BIGINT NOT NULL,
+    role_id TEXT NOT NULL PRIMARY KEY,
+    member_id BIGINT,
+    author_id BIGINT,
+    mute_id TEXT,
+    reason TEXT,
+    duration INT
+);
+
+
+
+CREATE TABLE IF NOT EXISTS nuance (
+    id BIGINT PRIMARY KEY NOT NULL,
+    role_id BIGINT
+);

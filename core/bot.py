@@ -14,6 +14,10 @@ import sys
 
 COGS = (
     'jishaku',
+    'core.cogs.steam',
+    'core.cogs.destiny',
+    'core.cogs.dfb',
+    'core.cogs.nuance',
     'core.cogs.tech',
     'core.cogs.profiles',
     #'core.cogs.logging', # still broken

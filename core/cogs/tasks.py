@@ -1,14 +1,13 @@
-from datetime import datetime, timedelta
-from time import time
-from discord import Activity, ActivityType, Embed, Status, HTTPException, TextChannel
-from discord.ext.commands import Cog
-from discord.ext.commands import command, has_permissions, CheckFailure, is_owner, group
+from discord import Embed, Status
+from discord.ext import menus
+from discord.ext.commands import command, is_owner, group, Cog
 from typing import Optional
-from ..ext import check
-from ..ext.utils import color
-from typing import Optional
+from ..ext import check, pagination
+from ..ext.utils import color as c
+import colour
 from corona_python import Country, World
 from sr_api import image, Client as _client
+
 
 class Utility(Cog, name='\U00002699 Utility'):
 	'''Commands for config the bot and other Utils.'''
@@ -17,23 +16,42 @@ class Utility(Cog, name='\U00002699 Utility'):
 		self._country = Country
 		self._world = World()
 
-	
-	@command(name='color')
-	async def _color(self, ctx, *, clr):
+	@group(name='color', invoke_without_command=True)
+	async def color_cmd(self, ctx, *, color = None):
 		'''
-		returns a color by its hex
-		color a773f5
+		Returns a human readble color by its name.
+
+		Examples: 
+		```color blue```
+		```color red```
+		```color violet```
+		```color indigo```
 		'''
 		cl = _client()
-		e = Embed(color=color.invis(self))
-		e.set_image(url=cl.view_color(clr))
-		await ctx.send(embed=e)
-	
-	
+		e = Embed(title=colour.Color(color).hex ,color=c.invis(self))
+		e.set_image(url=cl.view_color(colour.Color(color).hex))
+		try:
+			await ctx.send(embed=e)
+		except ValueError:
+			pass
+
+
+
+	@color_cmd.command()
+	async def list(self, ctx):
+		"""Shows all available colors."""
+		colors = colour.COLOR_NAME_TO_RGB
+		p = pagination.SimplePages(entries=[c for c in [*colors]], per_page=10)
+		p.embed.color = c.random(self)
+		try:
+			await p.start(ctx)
+		except menus.MenuError as e:
+			await ctx.send(e)
+
 	@command()
 	async def covid(self, ctx, *, country: Optional[str]=None):
 		if country is not None:
-			e = Embed(title=f"Covid stats for {country}", color=color.invis(self))
+			e = Embed(title=f"Covid stats for {country}", color=c.invis(self))
 			country = self._country(country)
 			if country.flag():
 				e.set_image(url=country.flag())
@@ -48,7 +66,7 @@ class Utility(Cog, name='\U00002699 Utility'):
 			e.add_field(name="\U00002705 Today's recovered", value=country.today_recovered())
 			await ctx.send(embed=e)
 		else:
-			e = Embed(title=f"Covid stats for the world. \U0001f30e", color=color.invis(self))
+			e = Embed(title=f"Covid stats for the world. \U0001f30e", color=c.invis(self))
 			e.add_field(name='\U0000274c Active cases', value=self._world.active_cases())
 			e.add_field(name="\U0000274c Today's cases", value=self._world.today_cases())
 			e.add_field(name='\U0000274c Total cases', value=self._world.total_cases())
@@ -117,8 +135,6 @@ class Utility(Cog, name='\U00002699 Utility'):
 					await ctx.send(f"Status changed to `{stts}`")
 		except:
 			raise
-
-
 
 def setup(bot):
 	bot.add_cog(Utility(bot))

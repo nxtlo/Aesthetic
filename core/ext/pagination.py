@@ -28,6 +28,7 @@ import discord
 from discord.ext.commands import Paginator as CommandPaginator
 from discord.ext import menus
 from ..ext.utils import color
+from typing import Optional
 
 
 class Pages(menus.MenuPages):
@@ -145,6 +146,34 @@ class SimplePageSource(menus.ListPageSource):
 
         menu.embed.description = '\n'.join(pages)
         return menu.embed
+
+class FitPage(menus.ListPageSource):
+    def __init__(self, entries, *, per_page: Optional[int] = 2000):
+        super().__init__(entries, per_page=per_page)
+        self.is_init = True
+
+    async def format_page(self, menu, entries):
+        pages = []
+        for i in enumerate(entries, start=menu.current_page * self.per_page):
+            pages.append(f'```\n{i}\n```')
+
+            _max = self.get_max_pages()
+            if _max > 1:
+                footer = f'Page {menu.current_page + 1}/{_max} ({len(self.entries)} entries)'
+                menu.embed.set_footer(text=footer)
+
+            if self.is_init and self.is_paginating():
+                pages.append('')
+                pages.append("Confused?")
+                self.is_init = False
+            menu.embed.description = "\n".join(pages)
+            return menu.embed
+
+
+class SimpleFit(Pages):
+    def __init__(self, entries, *, per_page):
+        super().__init__(FitPage(entries, per_page=per_page))
+        self.embed = discord.Embed(color=color.invis(self))
 
 class SimplePages(Pages):
     """A simple pagination session reminiscent of the old Pages interface.

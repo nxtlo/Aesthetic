@@ -8,6 +8,7 @@ from ..ext.utils import color
 from animals import Animals
 from typing import Any, Optional
 from sr_api.image import Image
+from jishaku.paginators import PaginatorInterface, WrappedPaginator
 
 class Fun(Cog, name="\U0001f3d3 Fun"):
     def __init__(self, bot):
@@ -122,7 +123,12 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
                     e.set_thumbnail(url=query.thumbnail)
                     await ctx.send(embed=e)
                 else:
-                    await ctx.send(f"Lyrics for the song {query.title} is too long... here's the link {query.link}")
+                    wrapp = WrappedPaginator(prefix='```', suffix='```', max_size=1400)
+                    wrapp.add_line(query.lyrics)
+                    page = PaginatorInterface(ctx.bot, wrapp, owner=ctx.author)
+                    embed = discord.Embed(description=page)
+                    await page.send_to(ctx)
+                    # await ctx.send(f"Lyrics for the song {query.title} is too long... here's the link {query.link}")
             except Exception as e:
                 await ctx.send(e)
 
