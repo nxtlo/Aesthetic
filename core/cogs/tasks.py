@@ -1,13 +1,12 @@
-from discord import Embed, Status
+from discord import Embed, Status, Member
 from discord.ext import menus
 from discord.ext.commands import command, is_owner, group, Cog
 from typing import Optional
 from ..ext import check, pagination
 from ..ext.utils import color as c
-import colour
 from corona_python import Country, World
 from sr_api import image, Client as _client
-
+import colour
 
 class Utility(Cog, name='\U00002699 Utility'):
 	'''Commands for config the bot and other Utils.'''
@@ -15,6 +14,27 @@ class Utility(Cog, name='\U00002699 Utility'):
 		self.bot = bot
 		self._country = Country
 		self._world = World()
+
+
+
+	@command(name="filter")
+	async def _filter(self, ctx, option = None, image = None):
+		"""Filter an image, type filters for more info about the filters."""
+		try:
+			resp = _client().filter(url=image, option=option)
+			e = Embed(color=c.invis(self))
+			e.set_image(url=resp)
+			await ctx.send(embed=e)
+		except Exception as e:
+			await ctx.send(e)
+
+	@command(name="filters")
+	async def show_filters(self, ctx):
+		options = (
+			'greyscale', 'invert', 'invertgreyscale', 'brightness', 'threshold', 'sepia', 'red', 'green', 'blue', 'blurple',
+			'pixelate', 'blur', 'gay', 'glass', 'wasted', 'triggered', 'spin')
+		p = pagination.SimplePages(entries=options)
+		await p.start(ctx)
 
 	@group(name='color', invoke_without_command=True)
 	async def color_cmd(self, ctx, *, color = None):
