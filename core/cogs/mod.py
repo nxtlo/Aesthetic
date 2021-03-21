@@ -73,7 +73,7 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
         """
         Bans a member from the guild.
         """
-        null = strftime("%A, %d %Y/%m, %H:%M:%S %p")
+        null = strftime("%A, %d/%m/%Y, %H:%M:%S %p")
         e = Embed(
             title=f"a member has been banned"
         )
@@ -91,7 +91,7 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
     @bot_has_guild_permissions(ban_members=True)
     @guild_only()
     async def unban_command(self, ctx, member: Union[Member, FetchedUser], *, reason: Optional[str] = 'No reason.'):
-        null = strftime("%A, %d %Y/%m, %H:%M:%S %p")
+        null = strftime("%A, %d/%m/%Y, %H:%M:%S %p")
         e = Embed(
             title=f"A member has been Unbanned"
         )
@@ -113,7 +113,7 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
         """
         kicks a member from the guild.
         """
-        null = strftime("%A, %d %Y/%m, %H:%M:%S %p")
+        null = strftime("%A, %d/%m/%Y %H:%M:%S %p")
         e = Embed(
             title=f"a member has been kicked"
         )
@@ -227,15 +227,6 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
                 await ctx.send(embed=e)
             else:
                 await ctx.send("No warns found.")
-
-
-    @Cog.listener()
-    async def on_guild_update(self, before: discord.Guild, after: discord.Guild):
-        role = await self.bot.pool.fetchrow("SELECT role_id FROM mutes WHERE guild_id = $1", before.id)
-        if role['role_id'] not in after.roles:
-            await self.bot.pool.execute("DELETE FROM mutes WHERE guild_id = $1", after.id)
-            print(f"Deleted mute role from {before.id}")
-
 
 
     @group(invoke_without_command=True, hidden=True)
