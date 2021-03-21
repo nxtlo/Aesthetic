@@ -5,7 +5,7 @@ from typing import Optional
 from asyncpg import UniqueViolationError
 from ..ext.pagination import SimplePages
 
-client = Client(key='B60B0B099B78C82681C16F988FBFE500')
+client = Client(key='')
 
 class Steam(commands.Cog, name="<:steam:767575677394223114> Steam"):
     """Commands related to the steam api."""
