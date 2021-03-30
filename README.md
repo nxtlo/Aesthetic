@@ -15,9 +15,9 @@ You can [invite](https://discord.com/oauth2/authorize?client_id=7600522047775047
 Just type in psql this:
 
 ```sql
-CREATE ROLE fate WITH LOGIN PASSWORD 'yourpass';
-CREATE DATABASE fate OWNER fate;
-ALTER USER fate WITH SUPERUSER;
+CREATE ROLE ? WITH LOGIN PASSWORD 'yourpass';
+CREATE DATABASE ? OWNER ?;
+ALTER USER ? WITH SUPERUSER;
 ```
 
 
@@ -38,4 +38,6 @@ Then activate by doing this, _Actually required to run the bot_
 * windows: `py -3.8 launcher.py`
 * Linux/Mac: `python3.8 launcher.py`
 
-after running the bot just type `a.db init`
+### Optional
+
+if you want to Recreate the database tables just type `a.db init`
