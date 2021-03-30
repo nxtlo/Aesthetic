@@ -1,0 +1,25 @@
+The first computer programmer was a female mathematician
+Many machines did simple math, but Charles Babbage’s Analytical Machine was the first computer we consider “programmable”
+The first person to use the term “bug” was Thomas Edison - and it was a real bug!
+The first computer virus was not meant to be harmful.
+The first computer game didn’t make any money.
+Computer programming played an important role in ending World War II.
+It took less code to send a man to space than to run a smartphone!
+There are currently over 700 computer languages.
+The “C” programming language had a predecessor called “B”.
+Some projects require using multiple programming languages.
+Unlike Java and C++, Python does not use braces to delimit code. Indentation is mandatory with Python. If you choose to import it from the __future__ package, it gives you a witty error.
+Rust-lang combines the speed and control of a lower level language with the tools, safety, and debugging provided from a high-level language.
+Rust uses a package manager called Cargo. Much like NPM in JavaScript or Ruby Gems, Cargo gathers and compiles everything you need for your project.
+Rust has no runtime checking, as the compiler stops bad code from ever getting built. While some scripts might take longer to compile, they will run quickly.
+One of Rust's major draws is its speed. Its cleverly constructed memory management rules mean it requires no garbage collection. Many other languages have to continually check what is being executed at runtime to prevent problems.
+All kinds of developers love Rust, and it shows. It was the most loved language in 2016, 2017, and 2018 in the [Stack Overflow](https://insights.stackoverflow.com/survey/2018/#most-loved-dreaded-and-wanted) developer survey.
+C is the only programming language that exists for such a long period and still it is widely used.
+C is the basis of many other programming languages like C++, Java, JavaScript, Go, C#, PHP, Python, Perl, C-shell and many more.
+Unix was one of the first operating system kernels implemented in a language other than assembly and that was C.
+The name of C++ signifies the evolutionary nature of the changes from C. “++” is the C increment operator.
+The first electronic computer ENIAC weighed more than 27 tons and took up 1800 square feet.
+The first 1GB hard disk drive was announced in 1980 which weighed about 550 pounds, and had a price tag of $40,000.
+The original name of windows was Interface Manager.
+An SQL schema is used to logically groups tables and other database objects and It defines how the database is constructed.
+Cache, a supplementary memory system that temporarily stores frequently used instructions and data for quicker processing by the central processor of a computer.

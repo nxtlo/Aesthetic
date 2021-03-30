@@ -9,7 +9,7 @@ from discord.ext.commands import (
     group, 
     bot_has_guild_permissions
 )
-from discord.ext import commands, buttons
+from discord.ext import commands
 from discord import Embed, Member, Guild, NotFound, TextChannel
 from datetime import datetime
 from ..ext.utils import color
@@ -28,21 +28,6 @@ import asyncio
 import discord
 import random
 import copy
-
-
-class Pages(buttons.Paginator):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-# '\U000027a1'
-    @buttons.button(emoji=None)
-    async def left(self, ctx, member):
-        return
-
-#'\U00002b05'
-    @buttons.button(emoji=None)
-    async def right(self, ctx, member):
-        return
 
 class HumanTime(object):
     def __init__(self):
@@ -219,11 +204,8 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
             found = await self.bot.pool.fetch("SELECT * FROM warns WHERE member_id = $1 AND guild_id = $2", member.id, ctx.guild.id)
             if found:
                 fmt = '\n'.join(r['reason'] + ' ' + f"(ID: {r['warn_id']})" for r in found)
-                '''pages = Pages(title='Warns', color=color.invis(self), embed=True, timeout=90, use_defaults=True,
-                        entries=[fmt], length=10)'''
                 e = Embed(color=color.invis(self), description=fmt)
                 e.set_author(name=member.display_name, icon_url=member.avatar_url)
-                '''await pages.start(ctx)'''
                 await ctx.send(embed=e)
             else:
                 await ctx.send("No warns found.")
@@ -425,12 +407,13 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
         await ctx.send(content=None, embed=embed)
         # Thanks to Gio for the Command.
 
+    @Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
         roles = [role.mention for role in guild.roles]
         e = discord.Embed(
             title="Joined a new server!",
             color=color.invis(self),
-            timestamp=datetime.datetime.utcnow()
+            timestamp=datetime.utcnow()
         )
         e.add_field(name="Server name", value=guild.name)
         e.add_field(name='Server ID', value=guild.id)
@@ -441,15 +424,16 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
         e.add_field(name="Boost Level", value=guild.premium_tier)
         e.add_field(name='Roles', value=', '.join(roles) if len(roles) < 20 else f'{len(roles)} roles')
         e.set_thumbnail(url=guild.icon_url)
-        chan = self.bot.get_channel(self.bot._log_channel)
+        chan = self.bot.get_channel(789614938247266305)
         await chan.send(embed=e)
 
+    @Cog.listener()
     async def on_guild_remove(self, guild):
         roles = [role.mention for role in guild.roles]
         e = discord.Embed(
             title="Left a server!",
             color=color.invis(self),
-            timestamp=datetime.datetime.utcnow()
+            timestamp=datetime.utcnow()
         )
         e.add_field(name="Server name", value=guild.name)
         e.add_field(name='Server ID', value=guild.id)
@@ -460,7 +444,7 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
         e.add_field(name="Boost Level", value=guild.premium_tier)
         e.add_field(name='Roles', value=', '.join(roles) if len(roles) < 20 else f'{len(roles)} roles')
         e.set_thumbnail(url=guild.icon_url)
-        chan = self.bot.get_channel(self.bot._log_channel)
+        chan = self.bot.get_channel(789614938247266305)
         await chan.send(embed=e)
 
 

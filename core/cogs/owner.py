@@ -4,6 +4,7 @@ from discord import Embed, Member, TextChannel, Guild
 from core.ext import utils as ej, check
 from .commands import FetchedUser
 from ..ext.utils import color
+from data import config
     ### Red-bot api for botstats command and listguilds
 
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS, close_menu
@@ -13,6 +14,7 @@ from redbot.core.utils import chat_formatting as cf
 
 import typing
 import asyncio
+import subprocess
 import time, datetime
 import ast
 import inspect
@@ -23,15 +25,13 @@ import os, inspect
 
 
 
-
-
-
 class Owner(Cog):
     def __init__(self, bot):
         self.bot = bot
         self._owner_ids = 350750086357057537
 
     # command under is not mine -> aikaterna-cogs / redbot-core
+
 
 
     @command(name="listguilds", aliases=["listservers", "guildlist", "serverlist", "lsg"], hidden=True)
@@ -155,6 +155,89 @@ class Owner(Cog):
             await ctx.message.add_reaction('\u2049')  # x
         else:
             await ctx.message.add_reaction('\u2705')
+
+    
+    @group(hidden=True, invoked_without_command=True)
+    async def db(self, ctx):
+        """Commands for returning stuff from the database"""
+        pass
+
+    @db.command(name='init', hidden=True)
+    @is_owner()
+    async def _init_(self, ctx):
+        '''
+        Recreate the database tables,
+        You can use the command if you want to recreate the tables without restarting the bot.
+        '''
+        async with ctx.typing():
+            with open('./data/schema.sql', 'r', encoding='utf8') as schema:
+                async with ctx.pool.acquire() as conn:
+                    try:
+                        await conn.execute(schema.read())
+                        await ctx.send("\U00002705")
+                    except Exception as e:
+                        await ctx.send(f"```\n{e}\n```")
+                    finally:
+                        await ctx.pool.release(conn)
+
+
+    @db.command(name='sql', aliases=['query', 'sqlx'], hidden=True)
+    @is_owner()
+    async def run_query(self, ctx, *, query):
+        '''runs sql querys.'''
+        if not query:
+            return
+        else:
+            reslut = await ctx.pool.fetch(query)
+            await ctx.send(f"```\n{reslut}\n```")
+
+
+    @db.command(name="table", aliases=['info'], hidden=True)
+    @is_owner()
+    async def _pragma(self, ctx, *, table: str):
+        """
+        Format the table and render it as rST format
+        this command access your psql commandline
+        """
+        try:
+            async with ctx.typing():
+                cmd = f'psql -U {config.db_user} -d {config.database} -c "\d {table}"'
+                result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, close_fds=True, encoding='utf8')
+                if table:
+                    if len(cmd) < 2000:
+                        await ctx.send(f"```\n{result.communicate()[0]}\n```")
+        except Exception:
+            raise
+        finally:
+            pass
+    
+    @db.command(name="schema", hidden=True)
+    @is_owner()
+    async def _schema(self, ctx):
+        """Show the database schema from psql"""
+        try:
+            async with ctx.typing():
+                cmd = f'psql {config.db_user} {config.database} -c "\dt"'
+                schema = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, close_fds=True, encoding='utf8')
+                if len(cmd) < 2000:
+                    e = Embed(description=f"```sql\n{schema.communicate()[0]}\n```")
+                    await ctx.send(embed=e)
+        except Exception as e:
+            raise e
+    
+    @db.command(name="rows", hidden=True)
+    @is_owner()
+    async def _rows(self, ctx, *, column: str):
+        """View table rows from psql"""
+        try:
+            async with ctx.typing():
+                cmd = f'psql {config.db_user} {config.database} -c "SELECT * FROM {column};"'
+                rows = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, close_fds=True, encoding='utf8')
+                if len(cmd) < 2000:
+                    await ctx.send(f"```sql\n{rows.communicate()[0]}\n```")
+        except Exception as e:
+            raise e
+
 
     @command(hidden=True)
     @is_owner()

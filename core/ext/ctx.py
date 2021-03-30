@@ -5,7 +5,6 @@ from functools import wraps
 import asyncio
 import copy
 
-
 def native(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):

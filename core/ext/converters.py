@@ -1,6 +1,6 @@
 from datetime import datetime
 
-class convert():
+class Convert:
     """Useful number converter"""
 
     def to_bin(self, bnum) -> int:

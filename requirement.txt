@@ -1,8 +1,6 @@
 git+https://github.com/Rapptz/discord.py@master
 git+https://github.com/Rapptz/discord-ext-menus@84caae8038d0d
 git+https://github.com/AbstractUmbra/mystbin-py.git 
-setuptools 
-wheel
 Red-DiscordBot
 asyncpg>=0.21.0
 psutil
@@ -10,3 +8,6 @@ sr_api
 scathach-api
 mal-api
 corona-python
+colour
+httpx
+humanize

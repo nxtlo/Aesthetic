@@ -4,7 +4,7 @@ from discord import Embed, Member
 from typing import Optional
 
 
-class Profiles(Cog):
+class Profiles(Cog, name="\U0001f4c7 Profiles"):
     """Custom profile for the members."""
     def __init__(self, bot):
         self.bot = bot

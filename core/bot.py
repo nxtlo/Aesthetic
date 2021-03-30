@@ -6,7 +6,6 @@ from core.ext.utils import color
 from core.ext.ctx import Context
 from typing import Optional
 
-import asyncpg
 import datetime
 import discord
 import traceback
@@ -18,12 +17,10 @@ COGS = (
     'core.cogs.destiny',
     'core.cogs.dfb',
     'core.cogs.nuance',
-    'core.cogs.tech',
     'core.cogs.profiles',
     #'core.cogs.logging', # still broken
     'core.cogs.anime',
     'core.cogs.nsfw',
-    'core.cogs.db',
     'core.cogs.commands',
     'core.cogs.fun',
     'core.cogs.math',
@@ -39,7 +36,6 @@ class Amaya(Bot):
     """
     def __init__(self):
         self._owner = 350750086357057537
-        self._log_channel = 789614938247266305
 
         super().__init__(
             command_prefix=self.get_prefix,
@@ -48,7 +44,7 @@ class Amaya(Bot):
             owner_id=self._owner)
     
 
-    def _uptime(self):
+    def _uptime(self) -> Optional[datetime.datetime]:
         now = datetime.datetime.utcnow()
         delta = now - self.uptime
         hours, remainder = divmod(int(delta.total_seconds()), 3600)
@@ -64,31 +60,6 @@ class Amaya(Bot):
     def fate(self) -> int:
         return self._owner or self.owner_id
 
-    
-    @property
-    def query(self):
-        return self._do_query
-
-    async def script_exe(self, path):
-        '''execute `.sql` files.'''
-        try:
-            with open(path, 'r', encoding='utf-8') as sc:
-                return await self.pool.execute(sc.read())
-        except Exception:
-            raise
-
-
-    async def _do_query(self, query: str):
-        try:
-            return await self.pool.fetch(query)
-        except Exception as e:
-            c = self.get_channel(self._log_channel)
-            c.send(f"```\n{e}\n```")
-
-
-    async def on_ready(self):
-        self.uptime = datetime.datetime.utcnow()
-        print(f"Bot ready. -> {self.user.id}, {self.user.name}")
 
     async def get_prefix(self, msg):
         if not msg.guild:
@@ -101,15 +72,9 @@ class Amaya(Bot):
                 return commands.when_mentioned_or('a!', 'a.')(self, msg)
             return commands.when_mentioned_or(prefix)(self, msg)
 
-    async def pool_connect(self) -> Optional[asyncpg.pool.Pool]:
-        self.pool: asyncpg.create_pool() = await asyncpg.create_pool(
-            database=config.database,
-            user=config.db_user,
-            password=config.password,
-            host=config.host,
-            port=config.port,
-            max_inactive_connection_lifetime=0
-        )
+    async def on_ready(self):
+        self.uptime = datetime.datetime.now()
+        print(f"Bot ready. -> {self.user.id}, {self.user.name}")
 
 
     async def get_context(self, message, *, cls=None):

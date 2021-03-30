@@ -18,6 +18,19 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
 
 
 
+    @command(name='techf')
+    async def tech_fact(self, ctx):
+        '''gives a random fact about Tech'''
+        try:
+            with open('data/facts.txt', 'r', encoding='utf-8') as r:
+                facts = r.readlines()
+                r_fact = random.choice(facts)
+                await ctx.send(r_fact)
+        except Exception as e:
+            pass
+
+
+
     @command(name="joke")
     async def random_joke(self, ctx):
         '''Random joke.'''
@@ -39,7 +52,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
         e.set_image(url=pika)
         e.set_footer(text=ctx.author.name)
         await ctx.send(embed=e)
-                
+
 
     @command(name="quote")
     async def rancom_joke(self, ctx):

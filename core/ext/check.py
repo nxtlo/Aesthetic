@@ -1,5 +1,3 @@
-from discord.ext.commands import has_any_role, has_guild_permissions, has_role, check
-
 """
 The MIT License (MIT)
 
@@ -24,13 +22,10 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 
-
-
-
-def has_mod_role():
-    is_mod = has_any_role(757715657054748713, 757714978911420497)
-    return is_mod
-
+from discord.ext.commands import check
+from discord import utils
+from typing import Union
+import asyncio
 
 async def check_permissions(ctx, perms, *, check=all):
     is_owner = await ctx.bot.is_owner(ctx.author)
@@ -63,10 +58,30 @@ def has_guild_permissions(*, check=all, **perms):
 
 # These do not take channel overrides into account
 
+def cached():
+    async def pred(ctx):
+        guild = ctx.bot.fetch_guild(411804307302776833)
+        if ctx.author in guild.id:
+            with open("./cache.log", 'w') as f:
+                f.write(ctx.author.id)
+            return True
+        return check(pred)
+
+
 def is_mod():
     async def pred(ctx):
         return await check_guild_permissions(ctx, {'manage_guild': True})
     return check(pred)
+
+def native():
+    async def pred(ctx):
+        lookup = utils(ctx.guild.roles, name='Muted')
+        if not lookup:
+            new_role = await ctx.guild.create_role(name="Muted")
+            for chan in ctx.guild.channels:
+                async with ctx.typing():
+                    return await chan.set_permissions(new_role, speark=False, send_messages=False)
+                return check(pred)
 
 def is_admin():
     async def pred(ctx):
@@ -92,8 +107,3 @@ def is_in_guilds(*guild_ids):
             return False
         return guild.id in guild_ids
     return check(predicate)
-
-
-def is_vip():
-    is_vip = has_role(587566458217955349)
-    return is_vip

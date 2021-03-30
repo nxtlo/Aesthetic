@@ -1,12 +1,13 @@
 from discord.ext.commands import command, Cog, group
 from discord import Embed
 from decimal import Decimal
-from ..ext.converters import convert
+from ..ext.converters import Convert
 from ..ext.utils import color
 
 
 
 class Math(Cog, name="\U0001f9ee Math"):
+    '''Useful commands for Math and Calculating numbers'''
     def __init__(self, bot):
         self.bot = bot
 
@@ -39,7 +40,7 @@ class Math(Cog, name="\U0001f9ee Math"):
     async def bin(self, ctx, num):
         """Converts a binary number to a decimal"""
         try:
-            good = convert.to_bin(self, bnum=num)
+            good = Convert.to_bin(self, bnum=num)
 
             e = Embed(
                 title=good,
@@ -65,7 +66,7 @@ class Math(Cog, name="\U0001f9ee Math"):
     async def _text(self, ctx, text):
         """Converts text to binary"""
         e = Embed(
-            title=convert.to_text(self, text=text),
+            title=Convert.to_text(self, text=text),
             color=color.invis(self)
         )
         await ctx.send(embed=e)

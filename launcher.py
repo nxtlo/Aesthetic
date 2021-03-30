@@ -1,5 +1,6 @@
 from core import Amaya
 import asyncio
+from core.ext import PgPool
 
 try:
     import uvloop
@@ -8,15 +9,12 @@ except ImportError:
 else:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-def main():
+def main() -> None:
+    run = asyncio.get_event_loop().run_until_complete
+    pool = run(PgPool().__ainit__())
     bot = Amaya()
-    try:
-        bot.loop.run_until_complete(bot.pool_connect())
-        bot.run()
-    except Exception:
-        raise
-    finally:
-        bot.close()
+    bot.pool = pool
+    bot.run()
 
 
 if __name__ == "__main__":
