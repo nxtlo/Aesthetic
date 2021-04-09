@@ -7,6 +7,7 @@ from core.ext.ctx import Context
 from typing import Optional
 
 import datetime
+import time
 import discord
 import traceback
 import sys
@@ -29,6 +30,9 @@ COGS = (
     'core.cogs.tags',
     'core.cogs.tasks'
 )
+
+
+TIME = time.time()
 
 class Amaya(Bot):
     """
@@ -73,7 +77,7 @@ class Amaya(Bot):
             return commands.when_mentioned_or(prefix)(self, msg)
 
     async def on_ready(self):
-        self.uptime = datetime.datetime.now()
+        self.uptime = int(round(time.time() - TIME))
         print(f"Bot ready. -> {self.user.id}, {self.user.name}")
 
 

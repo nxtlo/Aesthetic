@@ -11,16 +11,16 @@ class HTTPClient:
     async def session_init(self):
         self.session = httpx.AsyncClient()
 
-    async def get(self, url):
+    async def get(self, url, **kwargs):
         if not self.session:
             await self.session_init()
 
         async with self.session as client:
-            data = await client.get(url)
+            data = await client.get(url, **kwargs)
             try:
                 return data.json()
             except Exception:
-                return data.text()
+                return data.text
 
     async def close(self):
         if not self.session.is_closed:

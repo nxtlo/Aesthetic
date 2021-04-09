@@ -1,20 +1,17 @@
 import discord
 from discord.ext.commands import command, Cog, group
 import random
-import aiohttp
-import json
 import sr_api as sr
 from ..ext.utils import color
-from animals import Animals
 from typing import Any, Optional
-from sr_api.image import Image
+from ..ext import HTTPClient
 from jishaku.paginators import PaginatorInterface, WrappedPaginator
 
 class Fun(Cog, name="\U0001f3d3 Fun"):
     def __init__(self, bot):
         self.bot = bot
-        self.animal = Animals
         self.session = sr.Client()
+        self._http = HTTPClient()
 
 
 
@@ -64,48 +61,15 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
         
         await ctx.send(nil)
 
-    @command(name='cat')
-    async def random_cat(self, ctx):
-        '''Random cat picture.'''
+    @command(name='animal')
+    async def random_cat(self, ctx, animal: str):
+        '''Random animal picture.'''
+        coro = await self.session.get_image(animal)
         embed = discord.Embed(
-            title="Kitten",
             color=color.invis(self)
         )
-        embed.set_image(url=self.animal('cat').image())
+        embed.set_image(url=coro.url)
         await ctx.send(embed=embed)
-
-
-    @command(name='panda')
-    async def random_panda(self, ctx):
-        '''Random panda picture'''
-        embed = discord.Embed(
-            title="Panda",
-            color=color.invis(self)
-        )
-        embed.set_image(url=self.animal('panda').image())
-        await ctx.send(embed=embed)
-
-
-    @command(name='dog')
-    async def random_dog(self, ctx):
-            '''Random doggo picture :D'''
-            embed = discord.Embed(
-                title="Doggo",
-                color = color.invis(self)
-            )
-            embed.set_image(url=self.animal('dog').image())
-            await ctx.send(embed=embed)
-
-
-    @command(name='fox')
-    async def random_fox(self, ctx):
-            '''Random fox picture'''
-            embed = discord.Embed(
-                title="foxie",
-                color = color.invis(self)
-            )
-            embed.set_image(url=self.animal('fox').image())
-            await ctx.send(embed=embed)
 
     @command(name='meme')
     async def random_meme(self, ctx):
@@ -146,14 +110,30 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
                 await ctx.send(e)
 
 
-    '''@command(name='define', aliases=['def'])
-    async def _def(self, ctx, *, name):
-        defe = await self.session.define(name)
+
+    @command(name='define', aliases=['def'])
+    async def define(self, ctx, *, word: str):
         try:
-            _e = discord.Embed(title = f"{defe.word}'s Definition", color = color.invis(self))
-            await ctx.send(embed=_e)
-        except Exception as e:
-            await ctx.send(e)'''
+            coro = await ctx.http.get(
+                "https://mashape-community-urban-dictionary.p.rapidapi.com/define", 
+                headers = {
+                        'x-rapidapi-key': "73ad3c9797msh1a3600b0aaa9b0ep1e4797jsnd9dd55a01eaf",
+                        'x-rapidapi-host': "mashape-community-urban-dictionary.p.rapidapi.com"
+                        },
+                params = {"term": word.lower()}
+                )
+            real = [i.get('definition') for i in coro.get('list')]
+            vots = [i.get('thumbs_up') for i in coro.get('list')]
+            votedown = [i.get('thumbs_down') for i in coro.get('list')]
+            date = [i.get('written_on') for i in coro.get('list')]
+            url = [i.get('permalink') for i in coro.get('list')]
+            author = [i.get('author') for i in coro.get('list')]
+            e = discord.Embed(title=f"ThumbsUp ```{vots[0]}``` | ThumbsDown ```{votedown[0]}```", description=real[0])
+            e.set_author(name=author[0], url=url[0])
+            e.set_footer(text=date[0])
+            await ctx.send(embed=e)
+        except IndexError:
+            return await ctx.send("Didn't find anything.")
 
 def setup(bot):
     bot.add_cog(Fun(bot))

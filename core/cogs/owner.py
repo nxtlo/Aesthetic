@@ -299,7 +299,7 @@ class Owner(Cog):
             )
             embed.set_author(name=f"{ctx.author}", icon_url=f"{ctx.author.avatar_url}")
             await ctx.send(embed=embed)
-            await self.bot.logout()
+            await self.bot.close()
             
         except ConnectionError as e:
             raise e

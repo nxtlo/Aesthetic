@@ -1,5 +1,6 @@
 import discord
 import datetime
+from . import HTTPClient
 from discord.ext import commands
 from functools import wraps
 import asyncio
@@ -18,6 +19,12 @@ class Context(commands.Context):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._pool = self.bot.pool
+
+
+    @property
+    def http(self):
+        return HTTPClient()
+
 
     @property
     def pool(self):

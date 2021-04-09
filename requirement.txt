@@ -11,3 +11,4 @@ corona-python
 colour
 httpx
 humanize
+jishaku
