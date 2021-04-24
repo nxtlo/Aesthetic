@@ -16,3 +16,4 @@ token.0
 build.nix
 config.py
 leftovers
+*.log

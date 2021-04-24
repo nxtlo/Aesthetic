@@ -3,7 +3,7 @@ from discord import Embed
 import scathach
 from ..ext.utils import color
 
-class NSFW(Cog):
+class NSFW(Cog, name="<a:BOOBA:817653771588337695> NSFW"):
     '''NSFW commands.'''
     def __init__(self, bot):
         self.bot = bot

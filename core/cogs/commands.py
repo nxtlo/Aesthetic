@@ -18,7 +18,6 @@ from ..ext.help import PaginatedHelpCommand
 import humanize
 from mystbin import Client as mystbin_cli
 
-start_time = time.time()
 
 class FetchedUser(commands.Converter):
     async def convert(self, ctx, argument):
@@ -160,9 +159,6 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
 
 
 
-        current_time = time.time()
-        difference = int(round(current_time - start_time))
-        uptime = str(datetime.timedelta(seconds=difference))
         memory_usage = self.process.memory_full_info().uss / 1024**2
         cpu_usage = self.process.cpu_percent() / psutil.cpu_count()
         os_name = platform.system()
@@ -171,7 +167,7 @@ class Meta(commands.Cog, name="\U0001f587 Meta"):
         embed.add_field(name='<:members:770769874040520734> Members', value=f'{total_members} total\n{total_unique} unique')
         embed.add_field(name='<:channel:585783907841212418> Channels', value=f'{text + voice} total\n{text} text\n{voice} voice')
         embed.add_field(name='<:ser_emoji:763034584425431110> Guilds', value=guilds)
-        embed.add_field(name="<:online:772775766030417962> Uptime", value=humanize.precisedelta(self.bot.uptime))
+        embed.add_field(name="<:online:772775766030417962> Uptime", value=humanize.naturaldelta(datetime.timedelta(seconds=self.bot.uptime)))
         embed.add_field(name='<a:processing:770769875051347978> Process', value=f'{memory_usage:.2f} MiB\n{cpu_usage:.2f}% CPU')
         embed.add_field(name='<:psql:794233423320711210> Database', value=f'(PostgreSQL) 13.1')
         embed.add_field(name="<:centos:794233424730259456> VM OS", value=f"{os_name}\n" + ' ' + 'CentOS 8')

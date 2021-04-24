@@ -28,7 +28,6 @@ from discord import Embed, Member, Color
 from typing import Optional
 from uuid import uuid4
 from datetime import datetime
-from ..ext.converters import convert
 from ..ext.ctx import Context
 
 

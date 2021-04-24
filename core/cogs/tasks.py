@@ -6,6 +6,7 @@ from ..ext import check, pagination
 from ..ext.utils import color as c
 from corona_python import Country, World
 from sr_api import image, Client as _client
+import time
 import colour
 
 class Utility(Cog, name='\U00002699 Utility'):
@@ -102,7 +103,9 @@ class Utility(Cog, name='\U00002699 Utility'):
 
 	@command(name='ping')
 	async def _ping(self, ctx):
-		await ctx.message.add_reaction('\U00002705')
+		before = time.time()
+		e = Embed(title='Pong! \U0001f3d3', description=f"API Latency: {int(round(self.bot.latency * 1000))}\nMessage Latency: {before - time.time()}")
+		await ctx.send(embed=e)
 
 
 	@group(name="set")
