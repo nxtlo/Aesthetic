@@ -17,3 +17,4 @@ build.nix
 config.py
 leftovers
 *.log
+cxcode/proto.c
