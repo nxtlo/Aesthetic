@@ -26,8 +26,13 @@ class Nuance(commands.Cog):
             if member.bot:
                 return
             roleid = await self.bot.pool.fetchrow("SELECT role_id FROM nuance")
+            if roleid is None:
+                pass
             toadd = discord.Object(id=roleid['role_id'])
-            await member.add_roles(toadd)
+            if toadd not in member.roles:
+                await member.add_roles(toadd)
+            else:
+                return
 
 def setup(bot):
     bot.add_cog(Nuance(bot))

@@ -1,5 +1,6 @@
 import discord
 from discord.ext.commands import command, Cog, group
+from data import config
 import random
 import sr_api as sr
 from ..ext.utils import color
@@ -117,7 +118,7 @@ class Fun(Cog, name="\U0001f3d3 Fun"):
             coro = await ctx.http.get(
                 "https://mashape-community-urban-dictionary.p.rapidapi.com/define", 
                 headers = {
-                        'x-rapidapi-key': "73ad3c9797msh1a3600b0aaa9b0ep1e4797jsnd9dd55a01eaf",
+                        'x-rapidapi-key': config.rapid_api,
                         'x-rapidapi-host': "mashape-community-urban-dictionary.p.rapidapi.com"
                         },
                 params = {"term": word.lower()}

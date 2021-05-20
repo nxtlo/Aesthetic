@@ -1,6 +1,6 @@
 from discord import Embed, Status, Member
 from discord.ext import menus
-from discord.ext.commands import command, is_owner, group, Cog
+from discord.ext.commands import command, is_owner, group, Cog, Command
 from typing import Optional
 from ..ext import check, pagination
 from ..ext.utils import color as c
@@ -19,7 +19,7 @@ class Utility(Cog, name='\U00002699 Utility'):
 
 
 	@command(name="filter")
-	async def _filter(self, ctx, option = None, image = None):
+	async def _filter(self, ctx, option = None, image = None) -> Optional[Command]:
 		"""Filter an image, type filters for more info about the filters."""
 		try:
 			resp = _client().filter(url=image, option=option)
@@ -30,7 +30,7 @@ class Utility(Cog, name='\U00002699 Utility'):
 			await ctx.send(e)
 
 	@command(name="filters")
-	async def show_filters(self, ctx):
+	async def show_filters(self, ctx) -> Optional[Command]:
 		options = (
 			'greyscale', 'invert', 'invertgreyscale', 'brightness', 'threshold', 'sepia', 'red', 'green', 'blue', 'blurple',
 			'pixelate', 'blur', 'gay', 'glass', 'wasted', 'triggered', 'spin')
@@ -38,7 +38,7 @@ class Utility(Cog, name='\U00002699 Utility'):
 		await p.start(ctx)
 
 	@group(name='color', invoke_without_command=True)
-	async def color_cmd(self, ctx, *, color = None):
+	async def color_cmd(self, ctx, *, color = None) -> Optional[Command]:
 		'''
 		Returns a human readble color by its name.
 
@@ -59,7 +59,7 @@ class Utility(Cog, name='\U00002699 Utility'):
 
 
 	@color_cmd.command()
-	async def list(self, ctx):
+	async def list(self, ctx) -> Optional[Command]:
 		"""Shows all available colors."""
 		colors = colour.COLOR_NAME_TO_RGB
 		p = pagination.SimplePages(entries=[c for c in [*colors]], per_page=10)
@@ -70,7 +70,7 @@ class Utility(Cog, name='\U00002699 Utility'):
 			await ctx.send(e)
 
 	@command()
-	async def covid(self, ctx, *, country: Optional[str]=None):
+	async def covid(self, ctx, *, country: Optional[str]=None) -> Optional[Embed]:
 		if country is not None:
 			e = Embed(title=f"Covid stats for {country}", color=c.invis(self))
 			country = self._country(country)
@@ -102,9 +102,14 @@ class Utility(Cog, name='\U00002699 Utility'):
 
 
 	@command(name='ping')
-	async def _ping(self, ctx):
-		before = time.time()
-		e = Embed(title='Pong! \U0001f3d3', description=f"API Latency: {int(round(self.bot.latency * 1000))}\nMessage Latency: {before - time.time()}")
+	async def _ping(self, ctx) -> Optional[Embed]:
+		before = time.perf_counter()
+		query = await ctx.pool.fetch("SELECT prefix FROM prefixes WHERE id = $1", ctx.guild.id)
+		full = before - time.perf_counter()
+		e = Embed(
+			title='Pong! \U0001f3d3', 
+			description=f"API Latency: {int(round(self.bot.latency * 1000))}ms\nDatabase Calls: {full:0.4f}ms"
+			)
 		await ctx.send(embed=e)
 
 
@@ -115,7 +120,7 @@ class Utility(Cog, name='\U00002699 Utility'):
 
 	@setter.command(name="prefix")
 	@check.is_mod()
-	async def change_prefix(self, ctx, prefix: Optional[str]):
+	async def change_prefix(self, ctx, prefix: Optional[str]) -> Optional[Command]:
 		"""
 		Change the bot's prefix. 
 		You need the manage_guild perms to use this command.
@@ -137,7 +142,7 @@ class Utility(Cog, name='\U00002699 Utility'):
 
 	@setter.command(name="sts", hidden=True)
 	@is_owner()
-	async def change_sts(self, ctx, stts: str):
+	async def change_sts(self, ctx, stts: str) -> Optional[Command]:
 		try:
 			discord_status = ["dnd", "offline", "idle", "online"]
 			

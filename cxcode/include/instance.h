@@ -1,0 +1,1 @@
+double ok(double, double);

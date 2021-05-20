@@ -1,4 +1,4 @@
-from discord import Intents, Message, Member
+from discord import Intents, Message, Member, User
 from discord.ext.commands import when_mentioned_or, Bot
 from discord.ext import commands
 from data import config
@@ -14,7 +14,7 @@ import sys
 
 COGS = (
     'jishaku',
-    'core.cogs.steam',
+    # 'core.cogs.steam',
     'core.cogs.destiny',
     'core.cogs.dfb',
     'core.cogs.nuance',
@@ -38,7 +38,7 @@ class Amaya(Bot):
     """
     Main `class` for the bot to acually run.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self._owner = 350750086357057537
 
         super().__init__(
@@ -61,11 +61,12 @@ class Amaya(Bot):
         return fmt.format(d=days, h=hours, m=minutes, s=seconds)
 
     @property
-    def fate(self) -> int:
-        return self._owner or self.owner_id
+    def fate(self) -> Optional[User]:
+        user = self.fetch_user(self._owner)
+        return user.id
 
 
-    async def get_prefix(self, msg):
+    async def get_prefix(self, msg: Optional[Message]) -> Optional[str]:
         if not msg.guild:
             return ('a.', 'a!')
         else:
@@ -76,15 +77,15 @@ class Amaya(Bot):
                 return commands.when_mentioned_or('a!', 'a.')(self, msg)
             return commands.when_mentioned_or(prefix)(self, msg)
 
-    async def on_ready(self):
+    async def on_ready(self) -> None:
         self.uptime = int(round(time.time() - TIME))
         print(f"Bot ready. -> {self.user.id}, {self.user.name}")
 
 
-    async def get_context(self, message, *, cls=None):
+    async def get_context(self, message, *, cls=None) -> None:
         return await super().get_context(message, cls=Context)
 
-    async def process_commands(self, message):
+    async def process_commands(self, message) -> None:
         if message.author.bot:
             return
         ctx = await self.get_context(message)
@@ -96,13 +97,13 @@ class Amaya(Bot):
         finally:
             pass
 
-    async def on_message(self, message):
+    async def on_message(self, message) -> None:
         if message.author.bot:
             return
         await self.process_commands(message)
                
 
-    async def on_command_error(self, ctx, err):
+    async def on_command_error(self, ctx, err) -> None:
         if isinstance(err, commands.NoPrivateMessage):
             await ctx.author.send('This command cannot be used in private messages.')
 
@@ -128,7 +129,7 @@ class Amaya(Bot):
             await ctx.send(embed=embed)
 
 
-    def setup(self):
+    def setup(self) -> None:
         print("Loading cogs...")
         for cog in COGS:
             try:
@@ -138,7 +139,7 @@ class Amaya(Bot):
                 print(f'\nFailed to load extension {cog}.', file=sys.stderr)
                 traceback.print_exc()
 
-    def run(self):
+    def run(self) -> None:
         self.setup()
         print("Running bot...")
         super().run(config.bot_token, reconnect=True)
