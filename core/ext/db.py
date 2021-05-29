@@ -11,7 +11,8 @@ class PgPool:
             password = config.password,
             database = config.database,
             host = config.host,
-            port = config.port
+            port = config.port,
+            max_inactive_connection_lifetime=3
         )
 
         with open('./data/schema.sql', 'r') as sch:

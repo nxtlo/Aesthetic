@@ -5,8 +5,8 @@
 
 void set_details(char *name, int date, Some id) {
     Visitor *self;
-    self -> date;
-    self -> id;
+    self -> date = date;
+    self -> id = id;
     strcpy_s(self -> name, 4, name);
 }
 

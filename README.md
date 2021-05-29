@@ -1,23 +1,35 @@
 # Amaya
 
-*my personal discord bot*
-You can [invite](https://discord.com/oauth2/authorize?client_id=760052204777504778&permissions=0&scope=bot) my bot from here.
+Amaya is a my only public discord bot, 
+it was created for general usage like moderation, apis and other fun stuff.
+[invite](https://discord.com/oauth2/authorize?client_id=760052204777504778&permissions=0&scope=bot) Link
 
-## hosting the bot yourself
+## Hosting the bot yourself
 
-* Postrges 9.5 or higher
-* You need python 3.8 to run without issues
-* Go to `data/example_config.py` and rename to `config.py` then paste your configs there
+* Postrges >=9.5
+* You need python >=3.8 to run without issues
+* Go to `data/example_config.py` and rename to `config.py` then this configs
 
+```py
+bot_token='THE BOT TOKEN'
+bungie_key = 'BUNGIE API KEY'
+weather_api='OPEN WEATHER API KEY'
+database = '' # your database name
+db_user = '' # your database username
+password = '' # your database password
+host = '' # your database host -- Default is localhost
+port = 5432 # your database port -- Default is 5432
+rapid_api = 'RAPID API KEY FOR URBAN DICT' # Check this here https://rapidapi.com/community/api/urban-dictionary
+```
 
 ## Database Setup
 
 Just type in psql this:
 
 ```sql
-CREATE ROLE ? WITH LOGIN PASSWORD 'yourpass';
-CREATE DATABASE ? OWNER ?;
-ALTER USER ? WITH SUPERUSER;
+CREATE ROLE YourName WITH LOGIN PASSWORD 'yourpass';
+CREATE DATABASE DBName OWNER YourName;
+ALTER USER YourName WITH SUPERUSER;
 ```
 
 
@@ -38,6 +50,12 @@ Then activate by doing this, _Actually required to run the bot_
 * windows: `py -3.8 launcher.py`
 * Linux/Mac: `python3.8 launcher.py`
 
-### Optional
+### Cython
 
-if you want to Recreate the database tables just type `a.db init`
+Amaya currently have some experiential C / Cython code
+if you don't wanna deal with this just go to `launcher.py` and remove the `build_c()` from `main()`
+otherwise you will have to build the extension by running this `python launcher.py buiild_ext -i`
+
+## Optional
+
+if you want to rebuild the database tables just run this command `a.db init`

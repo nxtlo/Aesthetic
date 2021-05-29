@@ -4,5 +4,5 @@ cdef extern from "include/instance.h":
         char *name
         Some id
         int date
-    cdef void set_details(char *name, int date, Some id)
+    # cdef void set_details(char *name, int date, Some id)
     cdef void get_details()

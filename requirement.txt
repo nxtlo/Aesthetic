@@ -2,6 +2,7 @@ git+https://github.com/Rapptz/discord.py@master
 git+https://github.com/Rapptz/discord-ext-menus@84caae8038d0d
 git+https://github.com/AbstractUmbra/mystbin-py.git 
 asyncpg>=0.21.0
+aiobungie
 psutil
 sr_api
 scathach-api

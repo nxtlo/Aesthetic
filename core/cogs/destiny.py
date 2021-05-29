@@ -1,20 +1,13 @@
-from ..ext.aiobungie.aiobungie import Client
+import aiobungie
 from data import config
 from discord.ext.commands import command, group, Cog
 from discord import Embed
 from httpx import AsyncClient
 
 PREVAIL_CLAN = 4389205
-BUNGIE_URL = 'https://www.bungie.net/'
-
-class Auth(Client):
-    def __init__(self, *, key=None, session=None, loop=None):
-        super().__init__(key=config.bungie_key)
-
-
 class Destiny(Cog, name="<:Destiny2:666084830987026443> Destiny"):
     """Destiny 2 stuff."""
-    _client = Auth()
+    _client = aiobungie.Client(config.bungie_key)
     def __int__(self, bot):
         self.bot = bot
 
@@ -30,8 +23,8 @@ class Destiny(Cog, name="<:Destiny2:666084830987026443> Destiny"):
         e = Embed(title=f"{result.name} - {result.id}", description=result.description)
         e.set_author(name=result.about)
         #e.set_thumbnail(url=result.avatar)
-        e.set_image(url=BUNGIE_URL + result.banner)
-        e.set_thumbnail(url=BUNGIE_URL + result.avatar)
+        e.set_image(url=result.banner)
+        e.set_thumbnail(url=result.avatar)
         e.add_field(name='Owner', value=result.owner)
         e.add_field(name='Members', value=result.member_count)
         e.add_field(name='Is Public', value=result.is_public)

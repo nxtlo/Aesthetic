@@ -8,10 +8,6 @@ import asyncio
 import os.path
 import logging
 
-log = logging.getLogger(__name__)
-run = asyncio.get_event_loop().run_until_complete
-pool = run(PgPool().__ainit__())
-
 try:
     import uvloop
 except ImportError:
@@ -19,11 +15,7 @@ except ImportError:
 else:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-def main() -> None:
-    build_c()
-    bot = Amaya()
-    bot.pool = pool
-    bot.run()
+log = logging.getLogger(__name__)
 
 def rebuild() -> None:
     log.exception("Cython extension found! rebuilding now.")
@@ -60,6 +52,15 @@ def build_c() -> None:
         )
         log.info("Completed building Cython extension!")
     rebuild()
+
+def main() -> None:
+    build_c()
+    run = asyncio.get_event_loop().run_until_complete
+    pool = run(PgPool().__ainit__())
+    bot = Amaya()
+    bot.pool = pool
+    bot.run()
+
 
 if __name__ == "__main__":
     main()
