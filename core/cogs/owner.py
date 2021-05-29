@@ -5,12 +5,7 @@ from core.ext import utils as ej, check
 from .commands import FetchedUser
 from ..ext.utils import color
 from data import config
-    ### Red-bot api for botstats command and listguilds
 
-from redbot.core.utils.menus import menu, DEFAULT_CONTROLS, close_menu
-from redbot.core.utils.common_filters import filter_invites
-from redbot.core.i18n import Translator, cog_i18n
-from redbot.core.utils import chat_formatting as cf
 
 import typing
 import asyncio
@@ -29,43 +24,6 @@ class Owner(Cog):
     def __init__(self, bot):
         self.bot = bot
         self._owner_ids = 350750086357057537
-
-    # command under is not mine -> aikaterna-cogs / redbot-core
-
-
-
-    @command(name="listguilds", aliases=["listservers", "guildlist", "serverlist", "lsg"], hidden=True)
-    @is_owner()
-    async def listguilds(self, ctx):
-        """servers the bot is in."""
-        asciidoc = lambda m: "```asciidoc\n{}\n```".format(m)
-        guilds = sorted(self.bot.guilds, key=lambda g: -g.member_count)
-        header = ("```\n" "The bot is in the following {} server{}:\n" "```").format(
-            len(guilds), "s" if len(guilds) > 1 else ""
-        )
-
-        max_zpadding = max([len(str(g.member_count)) for g in guilds])
-        form = "{gid} :: {mems:0{zpadding}} :: {name}"
-        all_forms = [
-            form.format(
-                gid=g.id,
-                mems=g.member_count,
-                name=filter_invites(cf.escape(g.name)),
-                zpadding=max_zpadding
-            )
-            for g in guilds
-        ]
-        final = "\n".join(all_forms)
-
-        await ctx.send(header)
-        page_list = []
-        for page in cf.pagify(final, delims=["\n"], page_length=1000):
-            page_list.append(asciidoc(page))
-
-        if len(page_list) == 1:
-            return await ctx.send(asciidoc(page))
-        await menu(ctx, page_list, DEFAULT_CONTROLS)
-
 
 
     @command(name='eval', aliases=['try'], hidden=True)

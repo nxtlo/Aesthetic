@@ -1,4 +1,8 @@
-include 'core/cxcode/proto.pxd'
+cimport cython
+include 'cxcode/proto.pxd'
 
-cpdef double from_sqrt(double x, double y):
-    return ok(x, y) + ok(x, y)
+cpdef set():
+    set_details("Fate", 2020, 33)
+
+cpdef get():
+    return get_details()

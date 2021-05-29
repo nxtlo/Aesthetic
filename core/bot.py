@@ -15,7 +15,8 @@ import sys
 COGS = (
     'jishaku',
     # 'core.cogs.steam',
-    'core.cogs.destiny',
+    # 'core.cogs.destiny',
+    'core.cogs.ccode',
     'core.cogs.dfb',
     'core.cogs.nuance',
     'core.cogs.profiles',

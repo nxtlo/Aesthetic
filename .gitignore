@@ -18,3 +18,7 @@ config.py
 leftovers
 *.log
 cxcode/proto.c
+build/
+*.pyd
+*.so
+*.o

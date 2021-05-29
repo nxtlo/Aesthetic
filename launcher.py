@@ -1,8 +1,10 @@
 from core import Amaya
-import asyncio
 from core.ext import PgPool
 from setuptools import Extension, setup
 from Cython.Build import cythonize
+from time import sleep
+import sys
+import asyncio
 import os.path
 import logging
 
@@ -17,6 +19,30 @@ except ImportError:
 else:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
+def main() -> None:
+    build_c()
+    bot = Amaya()
+    bot.pool = pool
+    bot.run()
+
+def rebuild() -> None:
+    log.exception("Cython extension found! rebuilding now.")
+    if os.path.isdir('cxcode'):
+        os.remove('cxcode/proto.c')
+        sleep(1)
+        setup(
+            name='amaya', 
+            ext_modules=cythonize(
+                Extension(
+                    'cxcode.proto', 
+                    sources=
+                        [
+                    'cxcode/proto.pyx', 'cxcode/include/instance.c'
+                    ]
+                )
+            )
+        )
+        log.info("Rebulit Cython extension.")
 
 def build_c() -> None:
     if not os.path.isfile('cxcode/proto.c'):
@@ -24,23 +50,16 @@ def build_c() -> None:
             name='amaya', 
             ext_modules=cythonize(
                 Extension(
-                    'cxcode', 
+                    'cxcode.proto', 
                     sources=
                         [
-                    'core/cxcode/proto.pyx', 'core/cxcode/include/instance.c'
+                    'cxcode/proto.pyx', 'cxcode/include/instance.c'
                     ]
                 )
             )
         )
         log.info("Completed building Cython extension!")
-    log.error("Cython extension already exists!")
-
-def main() -> None:
-    build_c()
-    bot = Amaya()
-    bot.pool = pool
-    bot.run()
-
+    rebuild()
 
 if __name__ == "__main__":
     main()
