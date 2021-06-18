@@ -22,6 +22,8 @@ from uuid import uuid4 # for generating a random warn ID
 from asyncpg import UniqueViolationError
 from colour import Color
 from datetime import timedelta as dt
+from collections import Counter
+import re
 import humanize
 import asyncio
 import asyncio
@@ -307,17 +309,91 @@ class Moderation(Cog, name="\U0001f6e0 Moderation"):
             await ctx.send(f"Mute role set to `{role.name}`")
         except Exception as e:
             await ctx.send(e)
-
-    @command(name="clean", aliases=["purge", "del", "clear"], useage="clean <ammount>")
-    @guild_only()
+    
+    # From RoboDanny
+    @group(aliases=['purge'])
+    @commands.guild_only()
     @has_guild_permissions(manage_messages=True)
-    async def _purge(self, ctx, amount: int = 1):
+    async def remove(self, ctx):
+        """Removes messages that meet a criteria.
+        In order to use this command, you must have Manage Messages permissions.
+        Note that the bot needs Manage Messages as well. These commands cannot
+        be used in a private message.
+        When the command is done doing its work, you will get a message
+        detailing which users got removed and how many messages got removed.
         """
-        Clean chat messages
-        if no amount was provided. this command will delete the last messages.
-        """
-        await ctx.channel.purge(limit=amount + 1)
 
+        if ctx.invoked_subcommand is None:
+            await ctx.send_help(ctx.command)
+
+    async def do_removal(self, ctx, limit, predicate, *, before=None, after=None):
+        if limit > 2000:
+            return await ctx.send(f'Too many messages to search given ({limit}/2000)')
+
+        if before is None:
+            before = ctx.message
+        else:
+            before = discord.Object(id=before)
+
+        if after is not None:
+            after = discord.Object(id=after)
+
+        try:
+            deleted = await ctx.channel.purge(limit=limit, before=before, after=after, check=predicate)
+        except discord.Forbidden as e:
+            return await ctx.send('I do not have permissions to delete messages.')
+        except discord.HTTPException as e:
+            return await ctx.send(f'Error: {e} (try a smaller search?)')
+
+        spammers = Counter(m.author.display_name for m in deleted)
+        deleted = len(deleted)
+        messages = [f'{deleted} message{" was" if deleted == 1 else "s were"} removed.']
+        if deleted:
+            messages.append('')
+            spammers = sorted(spammers.items(), key=lambda t: t[1], reverse=True)
+            messages.extend(f'**{name}**: {count}' for name, count in spammers)
+
+        to_send = '\n'.join(messages)
+
+        if len(to_send) > 2000:
+            await ctx.send(f'Successfully removed {deleted} messages.', delete_after=10)
+        else:
+            await ctx.send(to_send, delete_after=10)
+
+    @remove.command()
+    async def embeds(self, ctx, search=100):
+        """Removes messages that have embeds in them."""
+        await self.do_removal(ctx, search, lambda e: len(e.embeds))
+
+    @remove.command()
+    async def files(self, ctx, search=100):
+        """Removes messages that have attachments in them."""
+        await self.do_removal(ctx, search, lambda e: len(e.attachments))
+
+    @remove.command()
+    async def images(self, ctx, search=100):
+        """Removes messages that have embeds or attachments."""
+        await self.do_removal(ctx, search, lambda e: len(e.embeds) or len(e.attachments))
+
+    @remove.command(name='all')
+    async def _remove_all(self, ctx, search=100):
+        """Removes all messages."""
+        await self.do_removal(ctx, search, lambda e: True)
+
+    @remove.command()
+    async def user(self, ctx, member: discord.Member, search=100):
+        """Removes all messages by the member."""
+        await self.do_removal(ctx, search, lambda e: e.author == member)
+
+    @remove.command()
+    async def contains(self, ctx, *, substr: str):
+        """Removes all messages containing a substring.
+        The substring must be at least 3 characters long.
+        """
+        if len(substr) < 3:
+            await ctx.send('The substring length must be at least 3 characters.')
+        else:
+            await self.do_removal(ctx, 100, lambda e: substr in e.content)
 
     @group()
     async def role(self, ctx):

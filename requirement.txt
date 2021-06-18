@@ -12,4 +12,3 @@ colour
 httpx
 humanize
 jishaku
-cython

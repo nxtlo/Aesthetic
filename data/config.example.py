@@ -1,0 +1,10 @@
+bot_token=''
+steam_key = ''
+bungie_key = ''
+weather_api=''
+database = '' # your database name
+db_user = '' # your database username
+password = '' # your database password
+host = 'localhost' # your database host -- Default is localhost
+port = '5432' # your database port -- Default is 5432
+rapid_api = ''
